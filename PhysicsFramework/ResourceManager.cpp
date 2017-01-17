@@ -11,7 +11,7 @@
 #include "ResourceManager.h"
 #include "Renderer.h"
 
-std::string ResourceManager::ReadContents(const char * src) const
+std::string ResourceManager::ReadTextFile(const char * src) const
 {
 	std::stringstream content;
 	std::ifstream file(src);

@@ -39,7 +39,7 @@ Engine::Engine()
 	pGameObjectFactory = std::make_unique<GameObjectFactory>(this, *pRenderer, *pPhysicsManager);
 	EngineInitialized.AddObserver(pGameObjectFactory.get());
 
-	// Adds the engine initialized subject to the main event list (must be done after adding observers as emplace uses a copy in a map)
+	// Adds the engine initialized subject to the main event list (must be done after adding all observers as emplace uses a copy in a map)
 	MainEventList.emplace(std::make_pair(EngineEvent::ENGINE_INIT, EngineInitialized));
 	
 	/*-------------- ENGINE LOAD EVENT REGISTRATION --------------*/
