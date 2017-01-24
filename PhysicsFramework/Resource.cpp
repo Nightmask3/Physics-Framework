@@ -3,70 +3,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+// Lump handler includes
+#include "RawLumpHandler.h"
 
-///////////////////////////////////////////////////////////////////////////////
-//	PROTOTYPES
-
-// Lump handling functions for raw data lumps.
-static bool LoadRawLump(std::fstream *, pResourceLump);
-static bool SaveRawLump(std::fstream *, pResourceLump);
-static void UnloadRawLump(pResourceLump);
-
-///////////////////////////////////////////////////////////////////////////////
-//	FUNCTIONS
-
-//- LoadRawLump ------------------------------------------------------------
-// Description: Loads in the data for a raw data lump.
-// Parameters:  aStream - pointer to the file stream object.
-//              aLump   - pointer to the lump node.
-// Returns:     TRUE if successful, FALSE otherwise.
-//-----------------------------------------------------------------------------
-static bool LoadRawLump(std::fstream *aStream, pResourceLump aLump)
-{
-	// First, allocate enough memory to the load the data into.
-	if ((aLump->pData = (void *)(new char[aLump->Size])) == NULL)
-		return false;
-
-	// Next, load in the data.
-	aStream->read((char*)(aLump->pData), aLump->Size);
-	if (aStream->fail())
-	{
-		delete[] (char *)(aLump->pData);
-		aLump->pData = nullptr;
-		return false;
-	}
-
-	// It worked, so return true.
-	return true;
-}
-
-//- SaveRawLump ------------------------------------------------------------
-// Description: Saves the data of a raw data lump to a file.
-// Parameters:  aStream - pointer to the file stream object.
-//              aLump   - pointer to the lump node.
-// Returns:     TRUE if successful, FALSE otherwise.
-//-----------------------------------------------------------------------------
-static bool SaveRawLump(std::fstream *aStream, pResourceLump aLump)
-{
-	// Write the data to the file.
-	aStream->write((char *)(aLump->pData), aLump->Size);
-	if (aStream->fail())
-		return false;
-
-	// It worked, so return true!
-	return true;
-}
-
-//- UnloadRawLump ----------------------------------------------------------
-// Description: Unloads the data of a raw data lump.
-// Parameters:  aLump   - pointer to the lump node.
-//-----------------------------------------------------------------------------
-static void UnloadRawLump(pResourceLump aLump)
-{
-	// Delete the memory.
-	delete[] (char *)(aLump->pData);
-	aLump->pData = nullptr;
-}
 
 bool Resource::bHandlerActive = false;
 Resource::pResourceLumpHandler Resource	::pLumpHandlerList = nullptr;
@@ -107,7 +46,7 @@ long Resource::GetFileSize(void)
 Resource::pResourceLumpHandler Resource::GetLumpHandler(unsigned long Type)
 {
 	// Search through the lump handler list looking for a matching lump handler.
-	pResourceLumpHandler pLumpHandler = pLumpHandlerList, pRawLumpHandler;
+	pResourceLumpHandler pLumpHandler = pLumpHandlerList, pRawLumpHandler = nullptr;
 	while (pLumpHandler)
 	{
 		// if this is the raw data lump handler, cache a pointer to it for
@@ -415,13 +354,13 @@ bool Resource::Open(const char * aFileName, const char * aFileMode)
 
 	// Set up the file name.
 	if (aFileName != cFileName)
-		strcpy(cFileName, aFileName);
+		strcpy_s(cFileName, aFileName);
 
 	// Copy the file mode into our local buffer.
 	memset(cFileMode, 0, sizeof(cFileMode));
 	strcpy(cFileMode, aFileMode);
 
-	if (stricmp(cFileMode, "w") == 0)
+	if (_stricmp(cFileMode, "w") == 0)
 	{
 		// Open up the file for read/write replace mode.
 		fStream.open(cFileName, std::ios_base::in | std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
@@ -441,10 +380,10 @@ bool Resource::Open(const char * aFileName, const char * aFileMode)
 	else
 	{
 		// Open the file for read only.
-		if (stricmp(cFileMode, "r") == 0)
+		if (_stricmp(cFileMode, "r") == 0)
 			fStream.open(cFileName, std::ios_base::in | std::ios_base::binary);
 		// Open the file for modification.
-		else if (stricmp(cFileMode, "r+") == 0)
+		else if (_stricmp(cFileMode, "r+") == 0)
 			fStream.open(cFileName, std::ios_base::in | std::ios_base::out | std::ios_base::binary);
 		// Invalid file mode
 		else
@@ -464,7 +403,7 @@ bool Resource::Open(const char * aFileName, const char * aFileMode)
 		}
 
 		// Check the signature and the checksum.
-		if ((strnicmp(resFileHeader.Signature, RESFILE_SIGNATURE, sizeof(resFileHeader.Signature)) != 0) ||
+		if ((_strnicmp(resFileHeader.Signature, RESFILE_SIGNATURE, sizeof(resFileHeader.Signature)) != 0) ||
 			(((unsigned long)(GetFileSize()) ^ 0xFFFFFFFF) != resFileHeader.Checksum))
 		{
 			// Invalid resource file.
@@ -607,36 +546,312 @@ void Resource::Close(void)
 // Returns:     TRUE if successful, FALSE otherwise.
 //----------------------------------------------------------------------------
 bool Resource::RegisterLumpHandler(
-	LumpType Type, 
+	LumpType aType, 
 	bool (*aLoad)(std::fstream *, pResourceLump), 
 	bool (*aSave)(std::fstream *, pResourceLump), 
 	void (*aUnload)(pResourceLump)	)
 {
 	// Traverse to the end of the lump handler list where we will add a new
 	// lump handler node.
-	pResourceLumpHandler *lplpHandler = &pLumpHandlerList;
-	while (*lplpHandler)
+	pResourceLumpHandler *lumpHandlerIterator = &pLumpHandlerList;
+	while (*lumpHandlerIterator)
 	{
 		// Make sure that a handler for this lump type hasn't already been
 		// registered...
-		if ((*lplpHandler)->Type == Type)
+		if ((*lumpHandlerIterator)->Type == aType)
 			return FALSE;
 
 		// traverse to the next node on the list.
-		lplpHandler = &((*lplpHandler)->pNextHandler);
+		lumpHandlerIterator = &((*lumpHandlerIterator)->pNextHandler);
 	}
 
 	// Allocate memory for the new lump handler and attach it to the list.
-	if ((*lplpHandler = new ResourceLumpHandler) == NULL)
+	if ((*lumpHandlerIterator = new ResourceLumpHandler) == NULL)
 		return FALSE;
 
 	// Set up the lump handler node.
-	(*lplpHandler)->Type = Type;
-	(*lplpHandler)->Load = aLoad;
-	(*lplpHandler)->Save = aSave;
-	(*lplpHandler)->Unload = aUnload;
-	(*lplpHandler)->pNextHandler = NULL;
+	(*lumpHandlerIterator)->Type = aType;
+	(*lumpHandlerIterator)->Load = aLoad;
+	(*lumpHandlerIterator)->Save = aSave;
+	(*lumpHandlerIterator)->Unload = aUnload;
+	(*lumpHandlerIterator)->pNextHandler = NULL;
 
 	// Return true now that we have successfully registered a new lump handler.
 	return TRUE;
 }
+//- Resource::RemoveLumpHandler -----------------------------------------------
+// Description: Removes a lump handler previously added by a message to the
+//              Resource::RegisterLumpHandler() method.
+// Parameters:  aType - the lump type of the handler to remove.
+// Returns:     TRUE if successful, FALSE otherwise.
+//----------------------------------------------------------------------------
+bool Resource::RemoveLumpHandler(unsigned long aType)
+{
+	// Search the lump handler list for a lump type match. If one is found,
+	// then remove the corresponding lump handler.
+	pResourceLumpHandler *lumpHandlerIterator = &pLumpHandlerList;
+	while (*lumpHandlerIterator)
+	{
+		// Check to see if we have a match; if there is a match, remove the
+		// lump handler.
+		if ((*lumpHandlerIterator)->Type == aType)
+		{
+			pResourceLumpHandler unwantedHandler = *lumpHandlerIterator;
+			*lumpHandlerIterator = (*lumpHandlerIterator)->pNextHandler;
+			delete unwantedHandler;       // De-allocate the memory for the handler.
+			return true;
+		}
+
+		// Traverse to the next node in the list.
+		lumpHandlerIterator = &((*lumpHandlerIterator)->pNextHandler);
+	}
+
+	// No match for the lump type was found, so return false.
+	return false;
+}
+//- Resource::LumpExists ------------------------------------------------------
+// Description: Checks to see if a lump, with a particular name, exists.
+// Parameters:  aName - string of the lump to check for existence.
+// Returns:     TRUE if it exists, FALSE if it doesn't.
+//-----------------------------------------------------------------------------
+bool Resource::LumpExists(const char * aName)
+{
+	// Search through the lump list, looking for a matching lump.
+	pResourceLump lumpListIterator = pLumpList;
+	while (lumpListIterator)
+	{
+		// If we have a match, return true.
+		if (_stricmp(lumpListIterator->pName, aName) == 0)
+			return true;
+
+		// Traverse to the next lump in the list.
+		lumpListIterator = lumpListIterator->pNextLump;
+	}
+
+	// No matching lump was found, return false.
+	return false;
+}
+
+
+//- Resource::CreateLump ------------------------------------------------------
+// Description: Creates a new lump and adds it to the active resource file.
+//              Note that it will notbe saved with the file unless the
+//              Resource::Save() method is messaged.
+// Parameters:  aName - Name of the lump.
+//              aType - Particular type of the lump (used for loading/saving)
+//              aData - Pointer to the data or data structure that will be
+//                       stored in the lump.
+//              aSize - Size of the data in bytes (used only for RAW data lumps).
+//              aFree  - Set this to TRUE if you want the data (pointed to by
+//                       lpData) to be deallocated when the file is closed.
+// Returns:     TRUE is successful, FALSE otherwise.
+//-----------------------------------------------------------------------------
+bool Resource::CreateLump(const char * aName, LumpType aType, void * aData, unsigned long aSize, bool aFree)
+{
+	// First, make sure the file is open for write or modification mode.
+	if ((!fStream.is_open()) || ((cFileMode[0] != 'w') && (cFileMode[1] != '+')))
+		return FALSE;
+
+	// Make sure the lump name is under 256 characters.
+	if (strlen(aName) >= 256)
+		return false;
+
+	// Traverse to the end of the lump list. Make sure not to create any lumps
+	// with the same names.
+	pResourceLump *lumpListIterator = &pLumpList;
+	while (*lumpListIterator)
+	{
+		if (_stricmp((*lumpListIterator)->pName, aName) == 0)
+			return false;
+
+		lumpListIterator = &((*lumpListIterator)->pNextLump);
+	}
+
+	// Allocate memory for the lump node.
+	if ((*lumpListIterator = new ResourceLump) == nullptr)
+		return false;
+
+	// Set up the lump node.
+	(*lumpListIterator)->Size = aSize;
+	(*lumpListIterator)->Offset = 0;
+	(*lumpListIterator)->Type = aType;
+	(*lumpListIterator)->bNoFree = !aFree;
+	(*lumpListIterator)->pData = aData;
+	(*lumpListIterator)->pNextLump = nullptr;
+
+	// Allocate memory for the name string.
+	if (((*lumpListIterator)->pName = new CHAR[strlen(aName) + 1]) == nullptr)
+	{
+		delete *lumpListIterator;
+		*lumpListIterator = nullptr;
+		return false;
+	}
+	// Copy the name into the lump node's local name string.
+	strcpy((*lumpListIterator)->pName, aName);
+
+	// Increment the number of lumps in the file.
+	resFileHeader.NumLumps++;
+
+	// Everything went nice and slick, so return true.
+	return true;
+}
+
+//- DeleteLump ---------------------------------------------------------------
+// Description: Removes or deletes a particular lump, designated by 'aName',
+//              from the active resource file.
+// Parameters:  aName - name of the lump to remove from the file.
+// Returns:     TRUE if successful, FALSE otherwise.
+//----------------------------------------------------------------------------
+bool Resource::DeleteLump(const char * aName)
+{
+	// Traverse the lump linked list, looking for a lump matching the name
+	// located in the 'aName' string.
+	pResourceLump *lumpListIterator = &pLumpList;
+	while (*lumpListIterator)
+	{
+		// If the name's are the same, we found a match, so remove the lump.
+		if (_stricmp((*lumpListIterator)->pName, aName) == 0)
+		{
+			// Unload the lump's data if we have to.
+			if ((*lumpListIterator)->pData)
+			{
+				pResourceLumpHandler lpLumpHandler = GetLumpHandler((*lumpListIterator)->Type);
+				lpLumpHandler->Unload(*lumpListIterator);
+				if ((*lumpListIterator)->pDataAddress)
+					*(*lumpListIterator)->pDataAddress = nullptr;
+			}
+
+			// Delete the lump's name.
+			if ((*lumpListIterator)->pName)
+				delete[] (char *)((*lumpListIterator)->pName);
+
+			// Get previous lump
+			pResourceLump previousLump = (*lumpListIterator) - 1;
+
+			// Delete the unwanted lump from the list.
+			pResourceLump unwantedLump = *lumpListIterator;
+			*lumpListIterator = unwantedLump->pNextLump;
+
+			// Link previous lump to the lump after the unwanted one
+			previousLump->pNextLump = unwantedLump->pNextLump;
+
+			delete unwantedLump;
+
+			// Decrement the number of lumps in the file.
+			resFileHeader.NumLumps--;
+
+			// Return true, now that we've deleted the lump.
+			return true;
+		}
+
+		// Traverse to the next lump on the list. (get address of next lump)
+		lumpListIterator = &((*lumpListIterator)->pNextLump);
+	}
+
+	// There was no lump matching the name, so return false.
+	return false;
+}
+
+//- Resource::LoadLump --------------------------------------------------------
+// Description: Loads in a lump from a resource file. Depending upon it's
+//              type, it will used the specially designed routine for loading
+//              it in. However, if such a routine doesn't exist, it will
+//              default the lump as raw data.
+// Parameters:  aName - name of the lump to load in.
+//              aDataAddress - pointer to the location where the address of the data
+//                         or data structure will be stored.
+// Returns:     TRUE if successful, FALSE otherwise.
+//-----------------------------------------------------------------------------
+bool Resource::LoadLump(const char * aName, void ** aDataAddress)
+{
+	// Make sure the file is open.
+	if (!fStream.is_open())
+		return false;
+
+	// Search through the lump list for a matching lump name.
+	pResourceLump lumpListIterator = pLumpList;
+	while (lumpListIterator)
+	{
+		// Check if a match was found.
+		if (_stricmp(lumpListIterator->pName, aName) == 0)
+		{
+			// If the data hasn't been loaded in, load it in!
+			if (!lumpListIterator->pData)
+			{
+				// Seek to the lump's position in the file.
+				fStream.seekp(lumpListIterator->Offset, std::ios_base::beg);
+				if (fStream.fail())
+					return false;
+
+				// Get the lump handler for this lump type and load in the lump.
+				pResourceLumpHandler lpHandler = GetLumpHandler(lumpListIterator->Type);
+				if (lpHandler->Load(&fStream, lumpListIterator) == false)
+					return false;
+			}
+
+			// Set up the address variable and return true!
+			lumpListIterator->pDataAddress = aDataAddress;
+			*aDataAddress = lumpListIterator->pData;
+			return true;
+		}
+
+		// Traverse to the next node in the list.
+		lumpListIterator = lumpListIterator->pNextLump;
+	}
+
+	// No lump matching the name was found, so return FALSE :(
+	return false;
+}
+
+//- Resource::UnloadLump ------------------------------------------------------
+// Description: Unloads a lump from memory that was previously loaded in from
+//              a resource file using the Resource::LoadLump() method.
+// Parameters:  aName - name of the lump to unload from memory.
+// Returns:     TRUE if successful, FALSE otherwise.
+//-----------------------------------------------------------------------------
+bool Resource::UnloadLump(const char * aName)
+{
+	// Search through the lump list for a lump with a matching name.
+	pResourceLump lumpListIterator = pLumpList;
+	while (lumpListIterator)
+	{
+		// Check to see if this is our match...
+		if (_stricmp(lumpListIterator->pName, aName) == 0)
+		{
+			// Get previous lump and link to the next lump if it exists
+			pResourceLump previousLump = lumpListIterator - 1;
+			previousLump->pNextLump = lumpListIterator->pNextLump;
+
+			// Unload the lump's data.
+			pResourceLumpHandler lpHandler = GetLumpHandler(lumpListIterator->Type);
+			lpHandler->Unload(lumpListIterator);
+
+
+			if (lumpListIterator->pDataAddress)
+				lumpListIterator->pDataAddress = nullptr;
+
+			// Return true now that we have unloaded the lump's data.
+			return true;
+		}
+
+		// Traverse to the next lump in the list.
+		lumpListIterator = lumpListIterator->pNextLump;
+	}
+
+	// No lumps were found matching the name, so return false.
+	return false;
+}
+
+//- Resource::Destructor ------------------------------------------------------
+// Description: Deallocates any memory and closes the resource file if it
+//              is still open.
+//-----------------------------------------------------------------------------
+Resource::~Resource()
+{
+	// Close the file if it's open.
+	Close();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+// end of file //

@@ -97,6 +97,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\SOIL\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -143,6 +144,7 @@
     <ClInclude Include="Physics.h" />
     <ClInclude Include="PhysicsManager.h" />
     <ClInclude Include="Primitive.h" />
+    <ClInclude Include="RawLumpHandler.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Renderer.h" />
@@ -150,6 +152,7 @@
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Subject.h" />
+    <ClInclude Include="TextLumpHandler.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Vertex.h" />

@@ -36,7 +36,7 @@ Engine::Engine()
 	pPhysicsManager = std::make_unique<PhysicsManager>(*pFrameRateController, *pInputManager);
 
 	// Do the same for game object factory...
-	pGameObjectFactory = std::make_unique<GameObjectFactory>(this, *pRenderer, *pPhysicsManager);
+	pGameObjectFactory = std::make_unique<GameObjectFactory>(this, *pRenderer, *pPhysicsManager, *pResourceManager);
 	EngineInitialized.AddObserver(pGameObjectFactory.get());
 
 	// Adds the engine initialized subject to the main event list (must be done after adding all observers as emplace uses a copy in a map)

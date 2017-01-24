@@ -11,19 +11,59 @@
 #include "ResourceManager.h"
 #include "Renderer.h"
 
-std::string ResourceManager::ReadTextFile(const char * src) const
+char * ResourceManager::LoadTextFile(const char * aFileName, AccessType aAccessType) const
 {
-	std::stringstream content;
-	std::ifstream file(src);
+	/*std::stringstream content;
+	std::ifstream file(aFileName);
 
 	if (!file.is_open())
 	{
-		std::cout << "Error opening file " << src << std::endl;
+		std::cout << "Error opening file " << aFileName << std::endl;
 		return NULL;
 	}
 
 	content << file.rdbuf();
-	return content.str();
+	return content.str();*/
+	
+	FILE * fp = nullptr;
+	switch (aAccessType)
+	{
+	case READ:
+		fp = fopen(aFileName, "r");
+		break;
+	case WRITE:
+		fp = fopen(aFileName, "w");
+		break;
+	case APPEND:
+		fp = fopen(aFileName, "a");
+		break;
+	default:
+		std::cout << "Incorrect File Access Mode!\n";
+		break;
+	}
+
+	if (fp)
+	{
+		std::fseek(fp, 0, SEEK_END);
+		long fileSize = std::ftell(fp); // Finds the size of the file
+
+		char * fileContents = new char[fileSize];
+		// Null out character array
+		memset(fileContents, '\0', sizeof(char) * fileSize);
+		
+		std::rewind(fp);				// Resets the file pointer
+		std::fread(fileContents, 1, fileSize, fp); // Reads from file into char array
+		std::printf("%s\n", fileContents);
+		std::fclose(fp);				// Closes file
+
+		// File loaded, return pointer
+		return fileContents;
+	}
+	else
+	{
+		std::cout << "Loading file failed!\n";
+		return nullptr;
+	}
 }
 
 Texture * ResourceManager::LoadTexture(int width, int height, char * filename)

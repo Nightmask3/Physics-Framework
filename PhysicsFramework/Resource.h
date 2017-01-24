@@ -138,8 +138,8 @@ public:
 	//              to add lumps to the file. Modification mode opens up an existing
 	//              file (or creates one if one doesn't exist) and allows the
 	//              programmer to add more lumps to the file or to load in the lumps.
-	// Parameters:  pFileName - name of the resource file (may include path) to open.
-	//              pFileMode - string containing the access mode, can be of the
+	// Parameters:  aFileName - name of the resource file (may include path) to open.
+	//              aFileMode - string containing the access mode, can be of the
 	//                           following contents:
 	//                          "r"  - Read Mode
 	//							"w"  - Write Mode
@@ -155,7 +155,7 @@ public:
 	//              string pointer in the "lpAltFileName" parameter. Otherwise,
 	//              you can just pass NULL for this parameter to keep the original
 	//              file name.
-	// Parameters:  lpAltFileName - alternate file name.
+	// Parameters:  aAltFileName - alternate file name.
 	// Returns:     TRUE if successful, FALSE otherwise.
 	//----------------------------------------------------------------------------
 	bool Save(const char * aAltFileName);
@@ -171,71 +171,71 @@ public:
 	//              unloading a lump of a particular type. You must also pass the
 	//              value which will used to identify whether lumps should be
 	//              handled by the lump handler or not - each value must be unique.
-	// Parameters:  Type   - the type of lumps this handler will handle.
-	//              pLoad   - pointer to the loading function.
-	//              pSave   - pointer to the saving function.
-	//              pUnload - pointer to the unloading function.
+	// Parameters:  aType   - the type of lumps this handler will handle.
+	//              aLoad   - pointer to the loading function.
+	//              aSave   - pointer to the saving function.
+	//              aUnload - pointer to the unloading function.
 	// Returns:     TRUE if successful, FALSE otherwise.
 	//----------------------------------------------------------------------------
-	static bool RegisterLumpHandler(LumpType Type, bool (*pLoad)(std::fstream *, pResourceLump), bool (*pSave)(std::fstream *, pResourceLump), void (*pUnload)(pResourceLump));
+	static bool RegisterLumpHandler(LumpType aType, bool (*aLoad)(std::fstream *, pResourceLump), bool (*aSave)(std::fstream *, pResourceLump), void (*aUnload)(pResourceLump));
 
 	//- RemoveLumpHandler --------------------------------------------------------
 	// Description: Removes a lump handler previously added by a message to the
 	//              Resource::RegisterLumpHandler() method.
-	// Parameters:  dwType - the lump type of the handler to remove.
+	// Parameters:  aType - the lump type of the handler to remove.
 	// Returns:     TRUE if successful, FALSE otherwise.
 	//----------------------------------------------------------------------------
-	static bool RemoveLumpHandler(unsigned long Type);
+	static bool RemoveLumpHandler(unsigned long aType);
 
 	//- LumpExists ---------------------------------------------------------------
 	// Description: Checks to see if a lump, with a particular name, exists.
-	// Parameters:  lpName - string of the lump to check for existence.
+	// Parameters:  aName - string of the lump to check for existence.
 	// Returns:     TRUE if it exists, FALSE if it doesn't.
 	//----------------------------------------------------------------------------
-	bool LumpExists(const char * lpName);
+	bool LumpExists(const char * aName);
 
 	//- CreateLump ---------------------------------------------------------------
 	// Description: Creates a new lump and adds it to the active resource file.
 	//              Note that it will not be saved with the file unless the
-	//              CResFile::Save() method is messaged.
-	// Parameters:  lpName - Name of the lump.
-	//              dwType - Particular type of the lump (used for loading/saving)
-	//              lpData - Pointer to the data or data structure that will be
+	//              Resource::Save() method is messaged.
+	// Parameters:  aName - Name of the lump.
+	//              aType - Particular type of the lump (used for loading/saving)
+	//              aData - Pointer to the data or data structure that will be
 	//                       stored in the lump.
-	//              dwSize - Size of the data in bytes (used only for RAW data lumps).
-	//              bFree  - Set this to TRUE if you want the data (pointed to by
-	//                       lpData) to be deallocated when the file is closed.
+	//              aSize - Size of the data in bytes (used only for RAW data lumps).
+	//              aFree  - Set this to TRUE if you want the data (pointed to by
+	//                       aData) to be deallocated when the file is closed.
 	// Returns:     TRUE is successful, FALSE otherwise.
 	//----------------------------------------------------------------------------
-	bool CreateLump(const char * lpName, DWORD dwType, LPVOID lpData, DWORD dwSize, BOOL bFree = FALSE);
+	bool CreateLump(const char * aName, LumpType aType, void * aData, unsigned long aSize, bool aFree = false);
 
 	//- DeleteLump ---------------------------------------------------------------
-	// Description: Removes or deletes a particular lump, designated by 'lpName',
+	// Description: Removes or deletes a particular lump, designated by 'aName',
 	//              from the active resource file.
-	// Parameters:  lpName - name of the lump to remove from the file.
+	// Parameters:  aName - name of the lump to remove from the file.
 	// Returns:     TRUE if successful, FALSE otherwise.
 	//----------------------------------------------------------------------------
-	bool DeleteLump(const char * lpName);
+	bool DeleteLump(const char * aName);
 
 	//- LoadLump -----------------------------------------------------------------
 	// Description: Loads in a lump from a resource file. Depending upon it's
 	//              type, it will used the specially designed routine for loading
 	//              it in. However, if such a routine doesn't exist, it will
 	//              default the lump as raw data.
-	// Parameters:  lpName   - name of the lump to load in.
-	//              lplpData - pointer to the location where the address of the data
+	// Parameters:  aName   - name of the lump to load in.
+	//              aDataAddress - pointer to the location where the address of the data
 	//                         or data structure will be stored.
 	// Returns:     TRUE if successful, FALSE otherwise.
 	//----------------------------------------------------------------------------
-	bool LoadLump(const char * lpName, void **pDataAddress);
+	bool LoadLump(const char * aName, void **aDataAddress);
 
 	//- UnloadLump ---------------------------------------------------------------
 	// Description: Unloads a lump from memory that was previously loaded in from
-	//              a resource file using the CResFile::LoadLump() method.
-	// Parameters:  lpName - name of the lump to unload from memory.
+	//              a resource file using the Resource::LoadLump() method.
+	// Parameters:  aName - name of the lump to unload from memory.
 	// Returns:     TRUE if successful, FALSE otherwise.
 	//----------------------------------------------------------------------------
-	bool UnloadLump(const char * lpName);
+	bool UnloadLump(const char * aName);
 
 	//- Destructor ---------------------------------------------------------------
 	// Description: Deallocates any memory and closes the resource file if it

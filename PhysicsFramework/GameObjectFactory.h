@@ -28,11 +28,18 @@ private:
 	Engine * pEngineReference;
 	Renderer & RendererReference;
 	PhysicsManager & PhysicsManagerReference;
+	ResourceManager const & ResourceManagerReference;
 	/*----------MEMBER FUNCTIONS----------*/
 public:
-	GameObjectFactory(Engine * aEngine, Renderer & render, PhysicsManager & phy) : pEngineReference(aEngine), RendererReference(render), PhysicsManagerReference(phy) { GameObjectList.reserve(4096); }
+	GameObjectFactory(Engine * aEngine, Renderer & render, PhysicsManager & phy, ResourceManager const & resource) : 
+		pEngineReference(aEngine), 
+		RendererReference(render), 
+		PhysicsManagerReference(phy),
+		ResourceManagerReference(resource)
+	{ GameObjectList.reserve(4096); }
 	virtual ~GameObjectFactory() {};
 
+	GameObject * SpawnGameObjectFromArchetype(const char * aFileName);
 	GameObject * SpawnGameObject(Transform & aTransform = Transform());
 	template <typename T> T * SpawnComponent(GameObject * aOwner)
 	{

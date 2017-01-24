@@ -52,7 +52,7 @@ bool ShaderProgram::CreateVertexShader()
 {
 	/*--------------------------- VERTEX SHADER --------------------------------*/
 	// Reads the content of vertex shader code into a string
-	std::string vertexSource = GetRenderer().GetResourceManager().ReadTextFile("VertexShader.glsl");
+	std::string vertexSource = std::string(GetRenderer().GetResourceManager().LoadTextFile("VertexShader.glsl", READ));
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);	
 	vertexFile[0] = { vertexSource.c_str() };
 	glShaderSource(vertexShader, 1, vertexFile, NULL);	
@@ -79,7 +79,7 @@ bool ShaderProgram::CreateFragmentShader()
 {
 	/*--------------------------- FRAGMENT SHADER --------------------------------*/
     // Reads the content of fragment shader code into a string
-	std::string fragmentSource = GetRenderer().GetResourceManager().ReadTextFile("FragmentShader.glsl");	
+	std::string fragmentSource = std::string(GetRenderer().GetResourceManager().LoadTextFile("FragmentShader.glsl" , READ));	
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);	
 	fragmentFile[0] = { fragmentSource.c_str() };		
 	glShaderSource(fragmentShader, 1, fragmentFile, NULL);

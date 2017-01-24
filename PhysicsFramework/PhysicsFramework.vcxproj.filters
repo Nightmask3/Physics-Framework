@@ -43,6 +43,9 @@
     <Filter Include="Source Files\Components">
       <UniqueIdentifier>{636e58d1-781f-4427-8aaf-5ef1ac099a09}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Utilities">
+      <UniqueIdentifier>{dbf3f270-2212-4f81-8426-0d1c85a61df1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -116,6 +119,12 @@
     </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="RawLumpHandler.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="TextLumpHandler.h">
+      <Filter>Header Files\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
