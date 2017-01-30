@@ -1,9 +1,9 @@
 #include "GameObject.h"
 #include "Engine.h"
-void GameObject::OnNotify(Object * object, Event * event)
+void GameObject::OnNotify(Object * aObject, Event * aEvent)
 {
 	// Check if this is an Engine event
-	EngineEvent * engineEvent = static_cast<EngineEvent *>(event);
+	EngineEvent * engineEvent = static_cast<EngineEvent *>(aEvent);
 	if (engineEvent)
 	{
 		switch (engineEvent->EventID)

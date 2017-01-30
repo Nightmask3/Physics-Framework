@@ -51,7 +51,7 @@ public:
 	inline void ApplyForce(glm::vec3 newForce) { Force += newForce; }
 
 	void Update() {}
-	void Serialize(std::string & Contents, unsigned int & Count) {};
+	virtual void Serialize(TextFileData aTextFileData) override {};
 	
 	void UpdateTransform();
 	void Recalculate();

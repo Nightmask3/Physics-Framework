@@ -14,8 +14,8 @@ public:
 
 	PrimitiveType GetPrimitiveType() { return ePrimitiveType; }
 
-	virtual void BindVertexData(GLuint VAO, GLuint VBO);
+	virtual void BindVertexData(std::vector<Vertex> & aVertexData);
 
-	void Serialize(std::string &, unsigned int &) {};
+	void Serialize(char * aTextData) {};
 	void Update() {};
 };

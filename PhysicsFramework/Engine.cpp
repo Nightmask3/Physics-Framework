@@ -7,6 +7,7 @@
 #include "FrameRateController.h"
 #include "PhysicsManager.h"
 #include "Sprite.h"
+#include "Camera.h"
 
 Engine::Engine()
 {
@@ -74,7 +75,14 @@ int Engine::Init()
 	InitEvent.EventID = EngineEvent::ENGINE_INIT;
 	// Notify all listeners to engine init
 	MainEventList[EngineEvent::ENGINE_INIT].Notify(this, &InitEvent);
+	
+	// Create camera and add it to the tick notification list
+	Camera * mainCamera = new Camera(*pInputManager, *pFrameRateController);
+	MainEventList[EngineEvent::ENGINE_TICK].AddObserver(mainCamera);
+	// Set the renderer camera reference
+	pRenderer->SetActiveCamera(mainCamera);
 
+	
 	return 0;
 }
 
@@ -85,21 +93,8 @@ int Engine::Load()
 	// Notify all listeners to engine load
 	MainEventList[EngineEvent::ENGINE_LOAD].Notify(this, &LoadEvent);
 
-	
-	GameObject * newObject = pGameObjectFactory->SpawnGameObject();
-	Transform * transform =  static_cast<Transform *>(newObject->GetComponent(Component::TRANSFORM));
-	transform->SetScale(glm::vec3(3, 3, 3));
-	Sprite * newQuad = pGameObjectFactory->SpawnComponent<Sprite>(newObject);
-	Physics * newPhysics = pGameObjectFactory->SpawnComponent<Physics>(newObject);
-	
-	for (int i = 0; i < 200; ++i)
-	{
-		GameObject * newObject = pGameObjectFactory->SpawnGameObject();
-		static_cast<Transform *>(newObject->GetComponent(Component::TRANSFORM))->SetPosition(linearRand(glm::vec3(-20, -20, 0), glm::vec3(20, 20, 0)));
-		Sprite * newQuad = pGameObjectFactory->SpawnComponent<Sprite>(newObject);
-		//newQuad->ApplyTexture(0);
-		Physics * newPhysics = pGameObjectFactory->SpawnComponent<Physics>(newObject);
-	}
+	GameObject * cube = pGameObjectFactory->SpawnGameObjectFromArchetype("Cube.txt");
+
 	return 0;
 }
 

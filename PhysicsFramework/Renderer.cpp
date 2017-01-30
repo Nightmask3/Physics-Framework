@@ -3,11 +3,9 @@
 
 #include "Renderer.h"
 
-const static float FoV = 90.0f;
-
 void Renderer::RegisterPrimitive(Primitive * aNewPrimitive)
 {
-	*VAO[RenderList.size()] = *VBO[RenderList.size()] = (GLuint)(RenderList.size() + 1);
+	*VAOList[RenderList.size()] = *VBOList[RenderList.size()] = (GLuint)(RenderList.size() + 1);
 	RenderList.push_back(aNewPrimitive);
 	aNewPrimitive->TextureRequest.AddObserver(this);
 }
@@ -31,14 +29,14 @@ void Renderer::InititalizeRenderer()
 	for (int i = 0; i < MAXIMUM_SPRITES; i++)
 	{
 		// Allocates the vertex data objects
-		VAO[i] = new GLuint;
-		glGenVertexArrays(1, VAO[i]);
-		VBO[i] = new GLuint;
-		glGenBuffers(1, VBO[i]);
-		EAB[i] = new GLuint;
-		glGenBuffers(1, EAB[i]);
-		TBO[i] = new GLuint;
-		glGenTextures(1, TBO[i]);
+		VAOList[i] = new GLuint;
+		glGenVertexArrays(1, VAOList[i]);
+		VBOList[i] = new GLuint;
+		glGenBuffers(1, VBOList[i]);
+		EABList[i] = new GLuint;
+		glGenBuffers(1, EABList[i]);
+		TBOList[i] = new GLuint;
+		glGenTextures(1, TBOList[i]);
 	}
 
 	/*---------- OPEN GL SETTINGS ----------*/
@@ -62,22 +60,26 @@ bool Renderer::Render()
 	// Get the Projection Matrix
 	GLint glProjection = glGetUniformLocation(ActiveShaderProgram.GetShaderProgram(), "projection");
 
-	glm::vec3 cameraPosition = glm::vec3(0, 0, 80);
-	glm::vec3 cameraTarget = glm::vec3(0, 0, -5);
-	glm::vec3 upVector = glm::vec3(0, 1, 0);
+	// Update camera values before constructing view matrix
+	glm::vec3 cameraPosition = pActiveCamera->GetCameraPosition();
+	glm::vec3 cameraTarget = pActiveCamera->GetCameraLookDirection();
+	glm::vec3 upVector = pActiveCamera->GetCameraUpDirection();
 	/*-------------------------------- VIEW MATRIX -------------------------------*/
 	glm::mat4 view;
 	view = glm::lookAt(
-		cameraPosition, // the position of your camera, in world space
-		cameraTarget,   // where you want to look at, in world space
-		upVector        // probably glm::vec3(0,1,0), but (0,-1,0) would make you looking upside-down, which can be great too
+		cameraPosition, 
+		cameraTarget,   
+		upVector    
 	);
+
+	// Update field of view before constructing projection matrix
+	FieldOfView += InputManager::GetScrollDelta().y * pActiveCamera->GetSensitivity();
 
 	/*-------------------------------- PROJECTION MATRIX -------------------------------*/
 	// Creates the projection matrix
 	glm::mat4 projection;
  	projection = glm::perspective(
-		45.0F,         // The horizontal Field of View, in degrees : the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
+		FieldOfView, // The horizontal Field of View, in degrees : the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
 		4.0f / 3.0f, // Aspect Ratio. Depends on the size of your window. Notice that 4/3 == 800/600 == 1280/960, sounds familiar ?
 		0.1f,        // Near clipping plane. Keep as big as possible, or you'll get precision issues.
 		100.0f       // Far clipping plane. Keep as little as possible.
@@ -92,7 +94,7 @@ bool Renderer::Render()
 	// Clear color and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// Wireframe drawing
-	if (InputManagerReference.isKeyPressed(GLFW_KEY_W)) 
+	if (InputManagerReference.isKeyPressed(GLFW_KEY_TAB)) 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -117,11 +119,12 @@ bool Renderer::Render()
 		// Bind TBO
 		glBindTexture(GL_TEXTURE_2D, primitive->GetTBO());
 		// Bind VAO
-		glBindVertexArray(*VAO[i]);
+		glBindVertexArray(*VAOList[i]);
 		check_gl_error_render();
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawArrays(GL_TRIANGLES, 0, primitive->GetPrimitiveSize()/sizeof(Vertex));
 		check_gl_error_render();
 		glBindVertexArray(0);
+		assert(glGetError() == GL_NO_ERROR);
 	}
 
 	return true;
@@ -141,11 +144,12 @@ void Renderer::OnNotify(Object * object, Event * event)
 			{
 				InititalizeRenderer();
 			}
+			break;
 			case EngineEvent::EventList::ENGINE_TICK:
 			{
 				Render();
 			}
-			return;
+			break;
 		}
 	}
 
@@ -180,9 +184,9 @@ bool Renderer::BindTexture(Primitive * aPrimitive, int aTextureID)
 	glActiveTexture(GL_TEXTURE0 + TextureCount);
 
 	// Sets what type of texture it is and the texture buffer it is bound to
-	glBindTexture(GL_TEXTURE_2D, *TBO[TextureCount]);
+	glBindTexture(GL_TEXTURE_2D, *TBOList[TextureCount]);
 
-	aPrimitive->SetTBO(*TBO[TextureCount]);
+	aPrimitive->SetTBO(*TBOList[TextureCount]);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, assignedTexture->GetPixels());
 	glGenerateMipmap(GL_TEXTURE_2D);

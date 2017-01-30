@@ -46,6 +46,9 @@
     <Filter Include="Header Files\Utilities">
       <UniqueIdentifier>{dbf3f270-2212-4f81-8426-0d1c85a61df1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Archetypes">
+      <UniqueIdentifier>{3d9990e3-969d-4896-b10c-1b0b5a03fbcf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -126,6 +129,12 @@
     <ClInclude Include="TextLumpHandler.h">
       <Filter>Header Files\Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -188,6 +197,12 @@
     <ClCompile Include="Resource.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files\Entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="FragmentShader.glsl">
@@ -198,5 +213,15 @@
     <Image Include="..\Resources\Flare.png">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="PhysicsFramework.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Cube.txt">
+      <Filter>Header Files\Archetypes</Filter>
+    </Text>
   </ItemGroup>
 </Project>

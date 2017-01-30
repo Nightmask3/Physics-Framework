@@ -1,6 +1,6 @@
 #pragma once
 #include "Primitive.h"
-
+#include "Vertex.h"
 class Mesh : public Primitive
 {
 	/*----------MEMBER VARIABLES----------*/
@@ -9,13 +9,13 @@ private:
 
 	/*----------MEMBER VARIABLES----------*/
 public:
-	Mesh(GLuint VAO, GLuint VBO);
+	Mesh(GLuint aVAO, GLuint aVBO);
 	virtual ~Mesh() {};
 
 	PrimitiveType GetPrimitiveType() { return ePrimitiveType; }
 
-	virtual void BindVertexData(GLuint VAO, GLuint VBO);
+	virtual void BindVertexData(std::vector<Vertex> & aVertexData);
 
-	void Serialize(std::string &, unsigned int &) {};
+	void Serialize(TextFileData aTextData);
 	void Update() {};
 };

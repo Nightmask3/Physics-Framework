@@ -13,6 +13,7 @@
 // Entity classes
 #include "GameObject.h"
 #include "Observer.h"
+#include "Camera.h"
 //Component Files
 #include "Component.h"
 #include "Transform.h"
@@ -29,18 +30,24 @@ private:
 	/*--------------------------- SHADER PROGRAM --------------------------------*/
 	ShaderProgram ActiveShaderProgram;
 	/*--------------------------- VERTEX ARRAY OBJECTS --------------------------------*/
-	GLuint * VAO[MAXIMUM_SPRITES];
+	GLuint * VAOList[MAXIMUM_SPRITES];
 	/*--------------------------- VERTEX BUFFER OBJECTS --------------------------------*/
-	GLuint * VBO[MAXIMUM_SPRITES];
+	GLuint * VBOList[MAXIMUM_SPRITES];
 	/*--------------------------- ELEMENT BUFFER OBJECTS --------------------------------*/
-	GLuint * EAB[MAXIMUM_SPRITES];
+	GLuint * EABList[MAXIMUM_SPRITES];
 	/*--------------------------- TEXTURE BUFFER OBJECTS --------------------------------*/
-	GLuint * TBO[MAXIMUM_SPRITES];
+	GLuint * TBOList[MAXIMUM_SPRITES];
 	/*------------------------------- MANAGER REFERENCES -------------------------------*/
 	WindowManager const & WindowManagerReference;
 	InputManager const & InputManagerReference;
 	ResourceManager const & ResourceManagerReference;
 
+	// Later on use an array of unique ptrs to cameras owned by renderer, 
+	// active camera at any time is pointed to by this pointer
+	Camera * pActiveCamera;
+
+	// The horizontal Field of View, in degrees : the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
+	float FieldOfView = 45.0f;
 public:
 	// List of render components
 	std::vector<Primitive *> RenderList;
@@ -62,19 +69,22 @@ public:
 		for (int i = 0; i < MAXIMUM_SPRITES; i++)
 		{
 			// BUFFER DELETION
-			glDeleteBuffers(1, VBO[i]);
-			glDeleteBuffers(1, EAB[i]);
+			glDeleteBuffers(1, VBOList[i]);
+			glDeleteBuffers(1, EABList[i]);
 			// TEXTURE DELETION
-			glDeleteTextures(1, TBO[i]);
+			glDeleteTextures(1, TBOList[i]);
 			// VERTEX ARRAY DELETION
-			glDeleteVertexArrays(1, VAO[i]);
+			glDeleteVertexArrays(1, VAOList[i]);
 		}
 	}
 
+	// Getters
 	inline ResourceManager const & GetResourceManager() const { return ResourceManagerReference; }
 	inline GLuint const & GetActiveShaderProgram() { return ActiveShaderProgram.GetShaderProgram(); }
 	inline int GetRenderListSize() { return (int)RenderList.size(); }
 	inline int GetTextureCount() { return TextureCount; }
+	// Setters
+	inline void SetActiveCamera(Camera * aCameraPtr) { pActiveCamera = aCameraPtr; }
 
 	void InititalizeRenderer();
 	void RegisterPrimitive(Primitive * aNewPrimitive);

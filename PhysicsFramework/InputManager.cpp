@@ -1,7 +1,27 @@
 #include "InputManager.h"
 #include "WindowManager.h"
+#include "glfw\glfw3.h"
+// Static member initialization
+glm::vec2 InputManager::CurrentScrollDirection = glm::vec2(0);
+glm::vec2 InputManager::PreviousScrollDirection;
+glm::vec2 InputManager::ScrollDelta;
+
+// Function called whenever a scrolling device (mouse wheel, touchpad) is used
+void InputManager::ScrollCallback(GLFWwindow * aWindow, double aXOffset, double aYOffset)
+{
+	// Store previous scroll direction
+	PreviousScrollDirection = CurrentScrollDirection;
+	// Get current scroll direction
+	CurrentScrollDirection = glm::vec2(aXOffset, aYOffset);
+	// Compare them and find scroll delta
+	ScrollDelta = CurrentScrollDirection - PreviousScrollDirection;
+}
+
 InputManager::InputManager(WindowManager const & windowManager) : pWindowManager(windowManager)
-{}
+{
+	// Upon construction set callback function for scroll input
+	glfwSetScrollCallback(pWindowManager.GetWindow(), InputManager::ScrollCallback);
+}
 
 void InputManager::InitializeKeyboardState()
 {
@@ -10,6 +30,32 @@ void InputManager::InitializeKeyboardState()
 		keyboardStatePrev[i] = false;
 		keyboardStateCurr[i] = false;
 	}
+}
+
+// This will hide the cursor and lock it to the active window. 
+// Useful for implementing camera controls
+void InputManager::DisableCursor()
+{
+	glfwSetInputMode(pWindowManager.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+// Default cursor mode, allows it to move freely
+void InputManager::EnableCursor()
+{
+	glfwSetInputMode(pWindowManager.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
+void InputManager::HideCursor()
+{
+	glfwSetInputMode(pWindowManager.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+}
+
+
+glm::vec2 InputManager::GetMousePosition()
+{
+	double screenXPosition, screenYPosition;
+	glfwGetCursorPos(pWindowManager.GetWindow(), &screenXPosition, &screenYPosition);
+	return glm::vec2(screenXPosition, screenYPosition);
 }
 
 
@@ -39,9 +85,9 @@ void InputManager::OnNotify(Object * object, Event * event)
 	}
 }
 
-// Used to check the input state of each 'named' keyboard key
 void InputManager::Tick()
-{						
+{	
+	// Check the input state of each 'named' keyboard key
 	for (int key = 0; key < GLFW_KEY_LAST; ++key)
 	{
 		int state = glfwGetKey(pWindowManager.GetWindow(), key);
@@ -69,6 +115,14 @@ void InputManager::Tick()
 			keyboardStatePrev[key] = false;
 		}
 	}
+
+	// Store previous mouse position
+	PreviousMousePosition = CurrentMousePosition;
+	// Get mouse position this frame
+	CurrentMousePosition = GetMousePosition();
+	// Compare the two to get the delta for this frame
+	MouseDelta = CurrentMousePosition - PreviousMousePosition;
+
 }
 
 bool InputManager::isKeyPressed(int key) const

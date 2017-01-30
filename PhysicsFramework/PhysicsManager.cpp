@@ -61,27 +61,27 @@ void PhysicsManager::Simulation()
 	Physics * pSimulation1 = nullptr, * pSimulation2 = nullptr;
 	float deltatime = FrameManagerReference.GetDeltaTime();
 
-	// Gravitational Force Simulation
-	/*for (int i = 0; i < PhysicsObjectsList.size(); ++i)
-	{*/
-		pSimulation1 = PhysicsObjectsList[0];
-		for (int j = 1; j < PhysicsObjectsList.size(); ++j)
-		{
-			/*if (i != j)
-			{*/
-				pSimulation2 = PhysicsObjectsList[j];
+	//// Gravitational Force Simulation
+	///*for (int i = 0; i < PhysicsObjectsList.size(); ++i)
+	//{*/
+	//	pSimulation1 = PhysicsObjectsList[0];
+	//	for (int j = 1; j < PhysicsObjectsList.size(); ++j)
+	//	{
+	//		/*if (i != j)
+	//		{*/
+	//			pSimulation2 = PhysicsObjectsList[j];
 
-				float numerator = G * pSimulation1->GetMass() * pSimulation2->GetMass();
-				glm::vec3 distanceVector = pSimulation2->GetPositionCurr() - pSimulation1->GetPositionCurr();
-				float denominator = pow(glm::length(distanceVector), 2) + 0.1f;
-				float value = numerator / denominator;
-				glm::vec3 gravForce = value * distanceVector;
+	//			float numerator = G * pSimulation1->GetMass() * pSimulation2->GetMass();
+	//			glm::vec3 distanceVector = pSimulation2->GetPositionCurr() - pSimulation1->GetPositionCurr();
+	//			float denominator = pow(glm::length(distanceVector), 2) + 0.1f;
+	//			float value = numerator / denominator;
+	//			glm::vec3 gravForce = value * distanceVector;
 
-				pSimulation2->ApplyForce(-gravForce);
-				//pSimulation1->ApplyForce(gravForce);
-			/*}*/
-		}
-	/*}*/
+	//			pSimulation2->ApplyForce(-gravForce);
+	//			//pSimulation1->ApplyForce(gravForce);
+	//		/*}*/
+	//	}
+	///*}*/
 
 
 	// Integration

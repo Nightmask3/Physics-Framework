@@ -11,20 +11,9 @@
 #include "ResourceManager.h"
 #include "Renderer.h"
 
-char * ResourceManager::LoadTextFile(const char * aFileName, AccessType aAccessType) const
+
+TextFileData & ResourceManager::LoadTextFile(const char* aFileName, AccessType aAccessType) const
 {
-	/*std::stringstream content;
-	std::ifstream file(aFileName);
-
-	if (!file.is_open())
-	{
-		std::cout << "Error opening file " << aFileName << std::endl;
-		return NULL;
-	}
-
-	content << file.rdbuf();
-	return content.str();*/
-	
 	FILE * fp = nullptr;
 	switch (aAccessType)
 	{
@@ -53,16 +42,18 @@ char * ResourceManager::LoadTextFile(const char * aFileName, AccessType aAccessT
 		
 		std::rewind(fp);				// Resets the file pointer
 		std::fread(fileContents, 1, fileSize, fp); // Reads from file into char array
-		std::printf("%s\n", fileContents);
 		std::fclose(fp);				// Closes file
 
 		// File loaded, return pointer
-		return fileContents;
+		TextFileData * fileData = new TextFileData;
+		fileData->pData = fileContents;
+		fileData->Size = fileSize;
+		return *fileData;
 	}
 	else
 	{
 		std::cout << "Loading file failed!\n";
-		return nullptr;
+		return TextFileData();
 	}
 }
 

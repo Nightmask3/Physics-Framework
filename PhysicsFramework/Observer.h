@@ -8,6 +8,9 @@ class Observer : public Object
 {
 public:
 	virtual ~Observer() {};
-	virtual void OnNotify(Object * object, Event * event) = 0;
+	// aObject is typically the object that sent the event
+	// aEvent is a data packet that can be extended by an event sender to include
+	// whatever kind of information is relevant to the event and the receiver
+	virtual void OnNotify(Object * aObject, Event * aEvent) = 0;
 };
 

@@ -21,35 +21,35 @@ void check_gl_error_render()
 }
 Sprite::Sprite(GLuint VAO, GLuint VBO) : Primitive(PrimitiveType::SPRITE, VAO, VBO)
 {
-	BindVertexData(VAO, VBO);
+	BindVertexData(std::vector<Vertex>());
 }
 
-void Sprite::BindVertexData(GLuint VAO, GLuint VBO)
+void Sprite::BindVertexData(std::vector<Vertex> & aVertexData)
 {
 	GLfloat vertices[] = {
 		//  Position      Color         Texcoords
-		-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,	// Top-left
-		0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,	// Top-right
-		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,	// Bottom-right
+		-0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,	// Top-left
+		0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,	// Top-right
+		0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,	// Bottom-right
 
-		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,	// Bottom-right
-		-0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // Bottom-left
-		-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f	// Top-left
+		0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,	// Bottom-right
+		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // Bottom-left
+		-0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f	// Top-left
 	};
 	SetPrimitiveSize(sizeof(vertices));
 	/*--------------------------- VERTEX ARRAY OBJECT --------------------------------*/
-	glBindVertexArray(VAO);
+	glBindVertexArray(GetVAO());
 	/*--------------------------- VERTEX BUFFER OBJECT --------------------------------*/
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, GetVBO());
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	/*--------------------------- VERTEX ATTRIBUTE POINTERS --------------------------------*/
 	// Position
 	glVertexAttribPointer(
 		0,
-		2,
+		3,
 		GL_FLOAT,
 		GL_FALSE,
-		7 * sizeof(GLfloat),
+		sizeof(Vertex),
 		(GLvoid*)0
 	);
 	glEnableVertexAttribArray(0);
@@ -60,8 +60,8 @@ void Sprite::BindVertexData(GLuint VAO, GLuint VBO)
 		3,
 		GL_FLOAT,
 		GL_FALSE,
-		7 * sizeof(GLfloat),
-		(GLvoid*)(2 * sizeof(GLfloat))
+		sizeof(Vertex),
+		(GLvoid*)(3 * sizeof(GLfloat))
 	);
 	glEnableVertexAttribArray(1);
 	// Texture Coordinates
@@ -70,8 +70,8 @@ void Sprite::BindVertexData(GLuint VAO, GLuint VBO)
 		2,
 		GL_FLOAT,
 		GL_FALSE,
-		7 * sizeof(GLfloat),
-		(GLvoid*)(5 * sizeof(GLfloat))
+		sizeof(Vertex),
+		(GLvoid*)(6 * sizeof(GLfloat))
 	);
 	glEnableVertexAttribArray(2);
 	// Unbind VAO

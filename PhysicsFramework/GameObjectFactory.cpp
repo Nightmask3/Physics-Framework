@@ -1,56 +1,116 @@
 #include <cstdio>
 
 #include "GameObjectFactory.h"
+#include "ResourceManager.h"
+#include "Mesh.h"
 GameObject * GameObjectFactory::SpawnGameObjectFromArchetype(const char * aFileName)
 {
-	char * archetypeContents = ResourceManagerReference.LoadTextFile(aFileName, READ);
-	unsigned int counter = 0;
-	unsigned char tempC = '\0'; // Used to hold temporary character values for component names
-	std::string componentName;
-	while (archetypeContents[counter] != '\0')		// While not end of file
-	{
+	// Create game object with default transform
+	GameObject * newGameObject = new GameObject();
+	// Create root component from supplied/default transform
+	Transform * rootComponent = new Transform();
+	rootComponent->SetOwner(newGameObject);
+	// Add component pointer to newly created game object
+	newGameObject->AddComponent(rootComponent);
 
-		componentName = std::string(gets(archetypeContents));
-		while ((contents.at(counter) != '\r')) // Reads character by character until new line
+	rootComponent->SetScale(glm::vec3(3));
+	// Read archetype data from file
+	TextFileData archetypeData;
+	archetypeData = ResourceManagerReference.LoadTextFile(aFileName, READ);
+
+	char * archetypeContents = archetypeData.pData;
+	char componentName[64];
+
+	int counterText = 0;
+	int counterComponentName = 0;
+	
+	while (archetypeContents[counterText] != '\0')		// While not end of file
+	{
+		// Zero out the component name array and counters
+		counterComponentName = 0;
+		memset(componentName, '\0', 64 * sizeof(char));
+		while (archetypeContents[counterText] != '\n') // Reads character by character until new line
 		{
-			tempC = contents.at(counter++);
-			componentName += tempC;			 // Gets type of component to create
+			componentName[counterComponentName++] = archetypeContents[counterText++];
 		}
-		if (strcmp(componentName.c_str(), "Sprite Component") == 0)	// Evaluates to 0 if it is true
+		if (strcmp(componentName, "Mesh") == 0)	
 		{
-			// SET THE COMPONENT VALUES HERE FROM THE FILE
-			SpriteComponent * s = nullptr;
-			CreateComponent<SpriteComponent>();
-			s = static_cast<SpriteComponent *>(ObjectLibrary.back().GetComponent(Component::ComponentType::SPRITE));
-			s->Serialize(contents, counter);
+			// Find size of mesh text data
+			int meshTextDataSize = counterText + 1;  // Skip new line character
+			while (archetypeContents[meshTextDataSize] != '~') { meshTextDataSize++; } // Check for end of component data character
+			meshTextDataSize -= counterText; // To get size of text data related to mesh alone
+
+			// Allocate memory for text data and null it out
+			char * meshTextData = new char[meshTextDataSize];
+			memset(meshTextData, '\0', sizeof(char) * meshTextDataSize);
+
+			// Set the text data from archetype contents
+			for (int i = 0; i < meshTextDataSize; ++i)
+			{
+				meshTextData[i] = archetypeContents[counterText + 1 + i];
+			}
+			
+			// Create component and serialize
+			Mesh * meshComponent = SpawnComponent<Mesh>(newGameObject);
+			TextFileData meshData;
+			meshData.pData = meshTextData;
+			meshData.Size = meshTextDataSize;
+			meshComponent->Serialize(meshData);
+			newGameObject->AddComponent(meshComponent);
+			counterText += meshTextDataSize - 1;
 		}
-		else if (strcmp(componentName.c_str(), "Transform Component") == 0)
+		else if (strcmp(componentName, "Transform") == 0)
 		{
-			// SET THE TRANSFORM COMPONENT VALUES HERE FROM THE FILE
-			TransformComponent * t = nullptr;
-			CreateComponent<TransformComponent>();
-			t = static_cast<TransformComponent *>(ObjectLibrary.back().GetComponent(Component::ComponentType::TRANSFORM));
-			t->Serialize(contents, counter);
+			// Find size of transform text data
+			int transformTextDataSize = counterText + 1;  // Skip new line character
+			while (archetypeContents[transformTextDataSize] != '~') { transformTextDataSize++; } // Check for end of component data character
+			transformTextDataSize -= counterText; // To get size of text data related to transform alone
+
+			// Allocate memory for text data and null it out
+			char * transformTextData = new char[transformTextDataSize];
+			memset(transformTextData, '\0', sizeof(char) * transformTextDataSize);
+
+			// Set the text data from archetype contents
+			for (int i = 0; i < transformTextDataSize; ++i)
+			{
+				transformTextData[i] = archetypeContents[counterText + 1 + i];
+			}
+
+			// Create component and serialize
+			Transform * transformComponent = SpawnComponent<Transform>(newGameObject);
+			TextFileData transformData;
+			transformData.pData = transformTextData;
+			transformData.Size = transformTextDataSize;
+			transformComponent->Serialize(transformData);
+			newGameObject->AddComponent(transformComponent);
 		}
-		else if (strcmp(componentName.c_str(), "Physics Component") == 0)
-		{
-			// SET THE COMPONENT VALUES HERE FROM THE FILE
-			PhysicsComponent * p = nullptr;
-			CreateComponent<PhysicsComponent>();
-			p = static_cast<PhysicsComponent *>(ObjectLibrary.back().GetComponent(Component::ComponentType::PHYSICS));
-			p->Serialize(contents, counter);
-		}
-		else if (strcmp(componentName.c_str(), "Keyboard Controller Component") == 0)
-		{
-			// SET THE COMPONENT VALUES HERE FROM THE FILE
-			KeyboardControllerComponent * k = nullptr;
-			CreateComponent<KeyboardControllerComponent>();
-			k = static_cast<KeyboardControllerComponent *>(ObjectLibrary.back().GetComponent(Component::ComponentType::KBCONTROLLER));
-		}
-		counter += 3; // To skip newline and carriage return characters
-		if (counter > contents.size())
-			return;
+		//else if (strcmp(componentName.c_str(), "Physics Component") == 0)
+		//{
+		//	// SET THE COMPONENT VALUES HERE FROM THE FILE
+		//	PhysicsComponent * p = nullptr;
+		//	CreateComponent<PhysicsComponent>();
+		//	p = static_cast<PhysicsComponent *>(ObjectLibrary.back().GetComponent(Component::ComponentType::PHYSICS));
+		//	p->Serialize(contents, counterA);
+		//}
+		//else if (strcmp(componentName.c_str(), "Keyboard Controller Component") == 0)
+		//{
+		//	// SET THE COMPONENT VALUES HERE FROM THE FILE
+		//	KeyboardControllerComponent * k = nullptr;
+		//	CreateComponent<KeyboardControllerComponent>();
+		//	k = static_cast<KeyboardControllerComponent *>(ObjectLibrary.back().GetComponent(Component::ComponentType::KBCONTROLLER));
+		//}
+		counterText += 3; // To skip newline and carriage return characters
+		if (counterText > archetypeData.Size)
+			break;
 	}
+	
+	// Add constructed game object to list
+	GameObjectList.emplace_back(newGameObject);
+	
+	// Add game object to observer list of engine tick event
+	pEngineReference->GetMainEventList()[EngineEvent::ENGINE_TICK].AddObserver(newGameObject);
+	return newGameObject;
+
 }
 
 GameObject * GameObjectFactory::SpawnGameObject(Transform & aTransform)
@@ -62,7 +122,7 @@ GameObject * GameObjectFactory::SpawnGameObject(Transform & aTransform)
 	// Add component pointer to newly created game object
 	newGameObject->AddComponent(rootComponent);
 	// Add game object pointer to list
-	GameObjectList.emplace_back(newGameObject);	
+	GameObjectList.emplace_back(newGameObject);
 
 	// Add game object to observer list of engine tick event
 	pEngineReference->GetMainEventList()[EngineEvent::ENGINE_TICK].AddObserver(newGameObject);
