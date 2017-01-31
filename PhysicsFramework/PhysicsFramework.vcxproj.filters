@@ -49,6 +49,12 @@
     <Filter Include="Header Files\Archetypes">
       <UniqueIdentifier>{3d9990e3-969d-4896-b10c-1b0b5a03fbcf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shaders\DebugDrawShader">
+      <UniqueIdentifier>{332159de-98df-44fb-9afc-83bef5471167}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders\DefaultShader">
+      <UniqueIdentifier>{b9168f3c-76a2-4409-a66c-e3840e7945e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -176,9 +182,6 @@
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Source Files\Managers</Filter>
     </ClCompile>
-    <ClCompile Include="VertexShader.glsl">
-      <Filter>Source Files\Shaders</Filter>
-    </ClCompile>
     <ClCompile Include="PhysicsManager.cpp">
       <Filter>Source Files\Managers</Filter>
     </ClCompile>
@@ -203,11 +206,27 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
+    <ClCompile Include="DebugVertexShader.glsl">
+      <Filter>Source Files\Shaders\DebugDrawShader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="FragmentShader.glsl">
-      <Filter>Source Files\Shaders</Filter>
+    <None Include="DebugFragmentShader.glsl">
+      <Filter>Source Files\Shaders\DebugDrawShader</Filter>
     </None>
+    <None Include="DebugGeometryShader.glsl">
+      <Filter>Source Files\Shaders\DebugDrawShader</Filter>
+    </None>
+    <None Include="DefaultFragmentShader.glsl">
+      <Filter>Source Files\Shaders\DefaultShader</Filter>
+    </None>
+    <None Include="DefaultGeometryShader.glsl">
+      <Filter>Source Files\Shaders\DefaultShader</Filter>
+    </None>
+    <None Include="DefaultVertexShader.glsl">
+      <Filter>Source Files\Shaders\DefaultShader</Filter>
+    </None>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Resources\Flare.png">

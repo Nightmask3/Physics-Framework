@@ -5,16 +5,33 @@
 #include "Observer.h"
 class InputManager : public Observer
 {
+	/*----------MEMBER VARIABLES----------*/
+private:
+	bool keyboardStatePrev[GLFW_KEY_LAST];	// Holds the state of all the keyboard keys in the previous frame
+	bool keyboardStateCurr[GLFW_KEY_LAST];	// Holds the state of all the keyboard keys in the current frame
+
+	glm::vec2 CurrentMousePosition;
+	glm::vec2 PreviousMousePosition;
+	glm::vec2 MouseDelta;
+
+	static glm::vec2 CurrentScrollDirection;
+	static glm::vec2 PreviousScrollDirection;
+	static glm::vec2 ScrollDelta;
+	/*------------------------------- ENGINE REFERENCE -------------------------------*/
+	Engine const & EngineHandle;
+
 	/*----------MEMBER FUNCTIONS----------*/
 public:
-	InputManager(WindowManager const & windowManager);
+	InputManager(Engine const & aEngine);
 	virtual ~InputManager();
+
+	Engine const & GetEngine() { return EngineHandle; }
+	Engine const & GetEngine() const { return EngineHandle; }
 
 	// Observer functions
 	virtual void OnNotify(Object * object, Event * event) override;
 	
 	void Tick();
-	
 	/*------------------- KEYBOARD FUNCTIONS ------------------- */
 	// Key State Checking
 	bool isKeyPressed(int key) const;
@@ -45,24 +62,7 @@ private:
 	glm::vec2 GetMousePosition();
 
 	static void ScrollCallback(GLFWwindow * aWindow, double aXOffset, double aYOffset);
-	/*----------MEMBER VARIABLES----------*/
-private:
-	bool keyboardStatePrev[GLFW_KEY_LAST];	// Holds the state of all the keyboard keys in the previous frame
-	bool keyboardStateCurr[GLFW_KEY_LAST];	// Holds the state of all the keyboard keys in the current frame
 
-	glm::vec2 CurrentMousePosition;
-	glm::vec2 PreviousMousePosition;
-	glm::vec2 MouseDelta;
-
-	static glm::vec2 CurrentScrollDirection;
-	static glm::vec2 PreviousScrollDirection;
-	static glm::vec2 ScrollDelta;
-
-	WindowManager const & pWindowManager;
-public:
-
-	// ARRAY OF CONTROLLER COMPONENTS
-	//std::vector<Component *> ControllerList;
 
 };
 

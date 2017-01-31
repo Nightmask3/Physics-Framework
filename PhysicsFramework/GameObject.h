@@ -17,8 +17,16 @@ public:
 	GameObject() {}
 	virtual ~GameObject() {}
 	
-	Component * GetComponent(Component::ComponentType);
-	Component * GetComponent(Component::ComponentType) const;
+
+	template <typename T> T * GetComponent()
+	{
+		return dynamic_cast<T *>(GetComponent(T::GetComponentID()));
+	}
+	template <typename T> T * GetComponent() const
+	{
+		return dynamic_cast<T *>(GetComponent(T::GetComponentID()));
+	}
+
 	std::vector<std::unique_ptr<Component>> const & GetComponentList() { return ComponentList; }
 	
 	void Update();
@@ -26,4 +34,7 @@ public:
 	void HandleEvent(Event *);
 private:
 	virtual void OnNotify(Object * object, Event * event) override;
+
+	Component * GetComponent(Component::ComponentType);
+	Component * GetComponent(Component::ComponentType) const;
 };

@@ -1,8 +1,4 @@
 #include "WindowManager.h"
-WindowManager::WindowManager()
-{
-}
-
 
 WindowManager::~WindowManager()
 {
@@ -24,6 +20,7 @@ int WindowManager::InitializeWindow()
 	}
 	/* Make the window's context current */
 	glfwMakeContextCurrent(pWindow);
+	return 0;
 }
 
 void WindowManager::OnNotify(Object * object, Event * event)

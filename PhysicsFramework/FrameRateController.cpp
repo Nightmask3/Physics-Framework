@@ -1,35 +1,31 @@
 #include "FrameRateController.h"
 
-FrameRateController::FrameRateController()
-{
-}
-
-void FrameRateController::InitializeFrameRateController()
+void FramerateController::InitializeFrameRateController()
 {
 	TotalTime = NewTime = CurrentTime = DeltaTime = 0.0;
-	FixedDelta = 0.016; 
+	FixedDelta = 0.016f; 
 }
 
-void FrameRateController::SetFrameRateLimit(unsigned int Limit)
+void FramerateController::SetFrameRateLimit(unsigned int Limit)
 {
 	DeltaTime = 1.0f / Limit;
 	// Starts the clock
 	glfwSetTime(0);
-	CurrentTime = glfwGetTime();
+	CurrentTime = (float)glfwGetTime();
 }
-void FrameRateController::UpdateFrameTime()
+void FramerateController::UpdateFrameTime()
 {
-	NewTime = glfwGetTime();
+	NewTime = (float)glfwGetTime();
 	DeltaTime = NewTime - CurrentTime;
 	CurrentTime = NewTime;
 	TotalTime += DeltaTime;
 }
 
-FrameRateController::~FrameRateController()
+FramerateController::~FramerateController()
 {
 }
 
-void FrameRateController::OnNotify(Object * object, Event * event)
+void FramerateController::OnNotify(Object * object, Event * event)
 {
 	// Check if this is an Engine event
 	EngineEvent * engineEvent = static_cast<EngineEvent *>(event);

@@ -12,6 +12,8 @@ public:
 	Mesh(GLuint aVAO, GLuint aVBO);
 	virtual ~Mesh() {};
 
+	static ComponentType GetComponentID();
+
 	PrimitiveType GetPrimitiveType() { return ePrimitiveType; }
 
 	virtual void BindVertexData(std::vector<Vertex> & aVertexData);

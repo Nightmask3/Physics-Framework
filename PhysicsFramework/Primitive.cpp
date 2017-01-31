@@ -1,5 +1,10 @@
 #include "Primitive.h"
 
+inline Component::ComponentType Primitive::GetComponentID()
+{
+	return (ComponentType::PRIMITIVE);
+}
+
 void Primitive::BindVertexData(std::vector<Vertex>& aVertexData)
 {
 	int primitiveSize = sizeof(Vertex) * aVertexData.size();

@@ -11,33 +11,33 @@
 
 Engine::Engine()
 {
-	pResourceManager = std::make_unique<ResourceManager>();
+	pResourceManager = std::make_unique<ResourceManager>(*this);
 	
 	/*-------------- ENGINE INIT EVENT REGISTRATION --------------*/
 	Subject EngineInitialized;
 	
 	// Create the frame rate controller
-	pFrameRateController = std::make_unique<FrameRateController>();
+	pFrameRateController = std::make_unique<FramerateController>(*this);
 	// Register it with engine init event list
 	EngineInitialized.AddObserver(pFrameRateController.get());
 
 	// Do the same for window manager
-	pWindowManager = std::make_unique<WindowManager>();
+	pWindowManager = std::make_unique<WindowManager>(*this);
 	// Register window manager
 	EngineInitialized.AddObserver(pWindowManager.get());
 
 	// Do the same for input manager...
-	pInputManager = std::make_unique<InputManager>(*pWindowManager);
+	pInputManager = std::make_unique<InputManager>(*this);
 	EngineInitialized.AddObserver(pInputManager.get());
 	// Do the same for the renderer...
-	pRenderer = std::make_unique<Renderer>(*pWindowManager, *pInputManager, *pResourceManager);
+	pRenderer = std::make_unique<Renderer>(*this);
 	EngineInitialized.AddObserver(pRenderer.get());
 
 	// Physics manager doesn't need init events
-	pPhysicsManager = std::make_unique<PhysicsManager>(*pFrameRateController, *pInputManager);
+	pPhysicsManager = std::make_unique<PhysicsManager>(*this);
 
 	// Do the same for game object factory...
-	pGameObjectFactory = std::make_unique<GameObjectFactory>(this, *pRenderer, *pPhysicsManager, *pResourceManager);
+	pGameObjectFactory = std::make_unique<GameObjectFactory>(this);
 	EngineInitialized.AddObserver(pGameObjectFactory.get());
 
 	// Adds the engine initialized subject to the main event list (must be done after adding all observers as emplace uses a copy in a map)
@@ -63,9 +63,6 @@ Engine::Engine()
 	EngineTick.AddObserver(pPhysicsManager.get());
 
 	MainEventList.emplace(std::make_pair(EngineEvent::ENGINE_TICK, EngineTick));
-
-	/*-------------- MANAGER CROSS-REGISTRATION --------------*/
-	pResourceManager->RegisterRenderer(pRenderer.get());
 
 }
 
@@ -93,8 +90,9 @@ int Engine::Load()
 	// Notify all listeners to engine load
 	MainEventList[EngineEvent::ENGINE_LOAD].Notify(this, &LoadEvent);
 
-	GameObject * cube = pGameObjectFactory->SpawnGameObjectFromArchetype("Cube.txt");
-
+	GameObject * cube1 = pGameObjectFactory->SpawnGameObjectFromArchetype("Cube.txt");
+	GameObject * cube2 = pGameObjectFactory->SpawnGameObjectFromArchetype("Cube.txt");
+	cube2->GetComponent<Transform>()->SetPosition(glm::vec3(0.f, 5.f, 0.f));
 	return 0;
 }
 

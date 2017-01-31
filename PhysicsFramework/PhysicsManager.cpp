@@ -10,9 +10,9 @@ int PhysicsManager::Iterations = 10;
 
 void PhysicsManager::Update()
 {
-	if (InputManagerReference.isKeyPressed(GLFW_KEY_KP_ADD) && Iterations <= 200)
+	if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_KP_ADD) && Iterations <= 200)
 		std::cout<<"New Iteration Count:" << ++Iterations << std::endl;
-	else if(InputManagerReference.isKeyPressed(GLFW_KEY_KP_SUBTRACT) && Iterations >= 1)
+	else if(EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_KP_SUBTRACT) && Iterations >= 1)
 		std::cout << "New Iteration Count:" << --Iterations << std::endl;
 
 	// Three Stages
@@ -50,16 +50,16 @@ void PhysicsManager::OnNotify(Object * object, Event * event)
 
 void PhysicsManager::RegisterComponent(Physics * aNewPhysics)
 {
-	Transform * transform = static_cast<Transform *>(aNewPhysics->GetOwner()->GetComponent(Component::TRANSFORM));
-	aNewPhysics->SetPosition(transform->GetPosition());
+//	Transform * transform = static_cast<Transform *>(aNewPhysics->GetOwner()->GetComponent(Component::TRANSFORM));
+	/*aNewPhysics->SetPosition(transform->GetPosition());
 	aNewPhysics->SetPositionNext(transform->GetPosition());
-	PhysicsObjectsList.push_back(aNewPhysics);
+	PhysicsObjectsList.push_back(aNewPhysics);*/
 }
 
 void PhysicsManager::Simulation()
 {
 	Physics * pSimulation1 = nullptr, * pSimulation2 = nullptr;
-	float deltatime = FrameManagerReference.GetDeltaTime();
+	float deltatime = EngineHandle.GetFramerateController().GetDeltaTime();
 
 	//// Gravitational Force Simulation
 	///*for (int i = 0; i < PhysicsObjectsList.size(); ++i)
@@ -91,13 +91,13 @@ void PhysicsManager::Simulation()
 		{
 			pSimulation1 = static_cast<Physics *>(*iterator);
 
-			if (InputManagerReference.isKeyPressed(GLFW_KEY_1))
+			if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_1))
 			{
 				pSimulation1->IntegratePositionVerlet(deltatime);
 			}
-			else if (InputManagerReference.isKeyPressed(GLFW_KEY_2))
+			else if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_2))
 			{
-				pSimulation1->IntegrateRK4(FrameManagerReference.GetTotalTime(), deltatime);
+				pSimulation1->IntegrateRK4(EngineHandle.GetFramerateController().GetTotalTime(), deltatime);
 			}
 			else
 			{

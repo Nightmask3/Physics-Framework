@@ -1,5 +1,8 @@
 #include "Transform.h"
-
+Component::ComponentType Transform::GetComponentID()
+{
+	return (ComponentType::TRANSFORM);
+}
 void Transform::Serialize(TextFileData aTextData)
 {
 	// Get reference to data

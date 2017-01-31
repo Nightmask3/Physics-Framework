@@ -34,6 +34,8 @@ public:
 	}
 	virtual ~Transform() {};
 
+	static Component::ComponentType GetComponentID();
+
 	inline glm::vec3 GetPosition() { return Position; }
 	inline glm::vec3 GetRotation() { return Rotation; }
 	inline glm::vec3 GetScale() { return Scale; }

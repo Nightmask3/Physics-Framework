@@ -12,6 +12,8 @@ public:
 	Sprite(GLuint VAO, GLuint VBO);
 	virtual ~Sprite() {};
 
+	static ComponentType GetComponentID();
+
 	PrimitiveType GetPrimitiveType() { return ePrimitiveType; }
 
 	virtual void BindVertexData(std::vector<Vertex> & aVertexData);

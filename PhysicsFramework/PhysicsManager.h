@@ -13,7 +13,7 @@ public:
 	virtual ~CollideEvent() {}
 };
 
-class FrameRateController;
+class FramerateController;
 class InputManager;
 
 class PhysicsManager : public Observer
@@ -21,14 +21,17 @@ class PhysicsManager : public Observer
 	/*----------MEMBER VARIABLES----------*/
 private:
 	static int Iterations;
-	FrameRateController & FrameManagerReference;
-	InputManager & InputManagerReference;
+	/*------------------------------- ENGINE REFERENCE -------------------------------*/
+	Engine const & EngineHandle;
+
 public:
 	std::vector<Physics *> PhysicsObjectsList;
 	
 	/*----------MEMBER FUNCTIONS----------*/
-	PhysicsManager(FrameRateController & frc, InputManager & in) : FrameManagerReference(frc), InputManagerReference(in) {}
+	PhysicsManager(Engine const & aEngine) :EngineHandle(aEngine) {};
 	~PhysicsManager() {};
+
+	Engine const & GetEngine() { return EngineHandle; }
 
 	void RegisterComponent(Physics * aNewPhysics);
 

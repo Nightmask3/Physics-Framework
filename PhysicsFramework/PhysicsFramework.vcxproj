@@ -181,15 +181,20 @@
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="Subject.cpp" />
     <ClCompile Include="Transform.cpp" />
-    <ClCompile Include="VertexShader.glsl">
+    <ClCompile Include="DebugVertexShader.glsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="FragmentShader.glsl">
+    <None Include="ClassDiagram.cd" />
+    <None Include="DebugFragmentShader.glsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
+    <None Include="DebugGeometryShader.glsl" />
+    <None Include="DefaultFragmentShader.glsl" />
+    <None Include="DefaultGeometryShader.glsl" />
+    <None Include="DefaultVertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Resources\Flare.png" />

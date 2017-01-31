@@ -24,6 +24,11 @@ Sprite::Sprite(GLuint VAO, GLuint VBO) : Primitive(PrimitiveType::SPRITE, VAO, V
 	BindVertexData(std::vector<Vertex>());
 }
 
+inline Component::ComponentType Sprite::GetComponentID()
+{
+	return (ComponentType::PRIMITIVE);
+}
+
 void Sprite::BindVertexData(std::vector<Vertex> & aVertexData)
 {
 	GLfloat vertices[] = {

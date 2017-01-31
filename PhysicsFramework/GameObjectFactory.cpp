@@ -16,13 +16,13 @@ GameObject * GameObjectFactory::SpawnGameObjectFromArchetype(const char * aFileN
 	rootComponent->SetScale(glm::vec3(3));
 	// Read archetype data from file
 	TextFileData archetypeData;
-	archetypeData = ResourceManagerReference.LoadTextFile(aFileName, READ);
+	archetypeData = pEngineReference->GetResourceManager().LoadTextFile(aFileName, READ);
 
 	char * archetypeContents = archetypeData.pData;
 	char componentName[64];
 
-	int counterText = 0;
-	int counterComponentName = 0;
+	unsigned int counterText = 0;
+	unsigned int counterComponentName = 0;
 	
 	while (archetypeContents[counterText] != '\0')		// While not end of file
 	{
@@ -84,21 +84,7 @@ GameObject * GameObjectFactory::SpawnGameObjectFromArchetype(const char * aFileN
 			transformComponent->Serialize(transformData);
 			newGameObject->AddComponent(transformComponent);
 		}
-		//else if (strcmp(componentName.c_str(), "Physics Component") == 0)
-		//{
-		//	// SET THE COMPONENT VALUES HERE FROM THE FILE
-		//	PhysicsComponent * p = nullptr;
-		//	CreateComponent<PhysicsComponent>();
-		//	p = static_cast<PhysicsComponent *>(ObjectLibrary.back().GetComponent(Component::ComponentType::PHYSICS));
-		//	p->Serialize(contents, counterA);
-		//}
-		//else if (strcmp(componentName.c_str(), "Keyboard Controller Component") == 0)
-		//{
-		//	// SET THE COMPONENT VALUES HERE FROM THE FILE
-		//	KeyboardControllerComponent * k = nullptr;
-		//	CreateComponent<KeyboardControllerComponent>();
-		//	k = static_cast<KeyboardControllerComponent *>(ObjectLibrary.back().GetComponent(Component::ComponentType::KBCONTROLLER));
-		//}
+	
 		counterText += 3; // To skip newline and carriage return characters
 		if (counterText > archetypeData.Size)
 			break;

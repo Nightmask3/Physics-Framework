@@ -32,6 +32,7 @@ protected:	// Made protected because we don't want objects of this class to be i
 	Component(ComponentType type) : eComponentType(type) {}
 public:
 	virtual ~Component() {}
+	static inline ComponentType GetComponentID() { return ComponentType::TypeCount; };
 
 	inline ComponentType GetComponentType() { return eComponentType; }
 	inline GameObject * GetOwner() { return pOwner; }
@@ -39,5 +40,4 @@ public:
 	inline void SetOwner(GameObject * aOwner) { pOwner = aOwner; }
 
 	virtual void Update() = 0;
-
 };

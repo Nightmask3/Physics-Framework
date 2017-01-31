@@ -17,10 +17,10 @@ void InputManager::ScrollCallback(GLFWwindow * aWindow, double aXOffset, double 
 	ScrollDelta = CurrentScrollDirection - PreviousScrollDirection;
 }
 
-InputManager::InputManager(WindowManager const & windowManager) : pWindowManager(windowManager)
+InputManager::InputManager(Engine const & aEngine) : EngineHandle(aEngine)
 {
 	// Upon construction set callback function for scroll input
-	glfwSetScrollCallback(pWindowManager.GetWindow(), InputManager::ScrollCallback);
+	glfwSetScrollCallback(EngineHandle.GetWindowManager().GetWindow(), InputManager::ScrollCallback);
 }
 
 void InputManager::InitializeKeyboardState()
@@ -36,25 +36,25 @@ void InputManager::InitializeKeyboardState()
 // Useful for implementing camera controls
 void InputManager::DisableCursor()
 {
-	glfwSetInputMode(pWindowManager.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(EngineHandle.GetWindowManager().GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 // Default cursor mode, allows it to move freely
 void InputManager::EnableCursor()
 {
-	glfwSetInputMode(pWindowManager.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	glfwSetInputMode(EngineHandle.GetWindowManager().GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
 void InputManager::HideCursor()
 {
-	glfwSetInputMode(pWindowManager.GetWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	glfwSetInputMode(EngineHandle.GetWindowManager().GetWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 }
 
 
 glm::vec2 InputManager::GetMousePosition()
 {
 	double screenXPosition, screenYPosition;
-	glfwGetCursorPos(pWindowManager.GetWindow(), &screenXPosition, &screenYPosition);
+	glfwGetCursorPos(EngineHandle.GetWindowManager().GetWindow(), &screenXPosition, &screenYPosition);
 	return glm::vec2(screenXPosition, screenYPosition);
 }
 
@@ -90,7 +90,7 @@ void InputManager::Tick()
 	// Check the input state of each 'named' keyboard key
 	for (int key = 0; key < GLFW_KEY_LAST; ++key)
 	{
-		int state = glfwGetKey(pWindowManager.GetWindow(), key);
+		int state = glfwGetKey(EngineHandle.GetWindowManager().GetWindow(), key);
 
 		// If pressed and currently false, set to currently true
 		if (state == GLFW_PRESS && keyboardStateCurr[key] == false)

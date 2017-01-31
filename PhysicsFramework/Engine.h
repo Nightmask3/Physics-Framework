@@ -16,7 +16,7 @@
 // Forward Declarations
 class WindowManager;
 class InputManager;
-class FrameRateController;
+class FramerateController;
 class GameObjectFactory;
 class ResourceManager;
 class Renderer;
@@ -45,7 +45,7 @@ class Engine : public Object
 private:
 	std::unique_ptr<WindowManager> pWindowManager;
 	std::unique_ptr<InputManager> pInputManager;
-	std::unique_ptr<FrameRateController> pFrameRateController;
+	std::unique_ptr<FramerateController> pFrameRateController;
 	std::unique_ptr<GameObjectFactory> pGameObjectFactory;
 	std::unique_ptr<ResourceManager> pResourceManager;
 	std::unique_ptr<Renderer> pRenderer;
@@ -64,5 +64,20 @@ public:
 	virtual ~Engine();
 	std::map<EngineEvent::EventList, Subject> & GetMainEventList() { return MainEventList; }
 
+	inline WindowManager & GetWindowManager()  const { return *pWindowManager; }
+	inline InputManager & GetInputManager() const { return *pInputManager; }
+	inline FramerateController & GetFramerateController() const { return *pFrameRateController; }
+	inline GameObjectFactory & GetGameObjectFactory() const { return *pGameObjectFactory; }
+	inline ResourceManager & GetResourceManager() const { return *pResourceManager; }
+	inline Renderer & GetRenderer() const { return *pRenderer; }
+	inline PhysicsManager & GetPhysicsManager() const { return *pPhysicsManager; }
+
+	inline WindowManager & GetWindowManager() { return *pWindowManager; }
+	inline InputManager & GetInputManager() { return *pInputManager; }
+	inline FramerateController & GetFramerateController() { return *pFrameRateController; }
+	inline GameObjectFactory & GetGameObjectFactory() { return *pGameObjectFactory; }
+	inline ResourceManager & GetResourceManager() { return *pResourceManager; }
+	inline Renderer & GetRenderer() { return *pRenderer; }
+	inline PhysicsManager & GetPhysicsManager() { return *pPhysicsManager; }
 };
 

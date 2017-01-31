@@ -27,8 +27,9 @@ class Renderer : public Observer
 private:
 	/*--------------------------- CONSTANTS --------------------------------*/
 	const static int MAXIMUM_SPRITES = 4096;
-	/*--------------------------- SHADER PROGRAM --------------------------------*/
-	ShaderProgram ActiveShaderProgram;
+	/*--------------------------- SHADER PROGRAMS --------------------------------*/
+	ShaderProgram DefaultShader;
+	ShaderProgram DebugShader;
 	/*--------------------------- VERTEX ARRAY OBJECTS --------------------------------*/
 	GLuint * VAOList[MAXIMUM_SPRITES];
 	/*--------------------------- VERTEX BUFFER OBJECTS --------------------------------*/
@@ -37,10 +38,8 @@ private:
 	GLuint * EABList[MAXIMUM_SPRITES];
 	/*--------------------------- TEXTURE BUFFER OBJECTS --------------------------------*/
 	GLuint * TBOList[MAXIMUM_SPRITES];
-	/*------------------------------- MANAGER REFERENCES -------------------------------*/
-	WindowManager const & WindowManagerReference;
-	InputManager const & InputManagerReference;
-	ResourceManager const & ResourceManagerReference;
+	/*------------------------------- ENGINE REFERENCE -------------------------------*/
+	Engine const & EngineHandle;
 
 	// Later on use an array of unique ptrs to cameras owned by renderer, 
 	// active camera at any time is pointed to by this pointer
@@ -48,6 +47,7 @@ private:
 
 	// The horizontal Field of View, in degrees : the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
 	float FieldOfView = 45.0f;
+
 public:
 	// List of render components
 	std::vector<Primitive *> RenderList;
@@ -56,11 +56,9 @@ public:
 
 	/*----------MEMBER FUNCTIONS----------*/
 public:
-	Renderer(WindowManager const & win, InputManager const & in, ResourceManager const & res) : 
-		WindowManagerReference(win), 
-		InputManagerReference(in), 
-		ResourceManagerReference(res), 
-		ActiveShaderProgram(*this),
+	Renderer(Engine const & aEngine) :EngineHandle(aEngine),
+		DefaultShader(*this), 
+		DebugShader(*this),
 		TextureCount(0)
 	{}
 
@@ -79,10 +77,13 @@ public:
 	}
 
 	// Getters
-	inline ResourceManager const & GetResourceManager() const { return ResourceManagerReference; }
-	inline GLuint const & GetActiveShaderProgram() { return ActiveShaderProgram.GetShaderProgram(); }
+	inline GLuint const & GetActiveShaderProgram() { return DefaultShader.GetShaderProgram(); }
 	inline int GetRenderListSize() { return (int)RenderList.size(); }
 	inline int GetTextureCount() { return TextureCount; }
+	
+	Engine const & GetEngine() { return EngineHandle; }
+	Engine const & GetEngine() const { return EngineHandle; }
+
 	// Setters
 	inline void SetActiveCamera(Camera * aCameraPtr) { pActiveCamera = aCameraPtr; }
 

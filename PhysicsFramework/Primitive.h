@@ -50,6 +50,8 @@ public:
 
 	virtual ~Primitive() {};
 	
+	static ComponentType GetComponentID();
+
 	inline PrimitiveType GetPrimitiveType() { return ePrimitiveType; }
 	inline int GetPrimitiveSize() { return PrimitiveSize; }
 	inline GLuint GetVAO() { return VAO; }

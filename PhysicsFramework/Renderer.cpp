@@ -46,19 +46,21 @@ void Renderer::InititalizeRenderer()
 	glDisable(GL_CULL_FACE);		// Backface Culling
 
 	/*---------- SHADER CREATION ----------*/
-	ActiveShaderProgram.CreateShaderProgram();
-	ActiveShaderProgram.Use();
+	// Create and use debug shader program
+	DefaultShader.CreateDefaultShaderProgram();
+	DefaultShader.Use();
 
+	DebugShader.CreateDebugShaderProgram();
 }
 
 bool Renderer::Render()
 {
 	// Get the Model Matrix
-	GLint glModel = glGetUniformLocation(ActiveShaderProgram.GetShaderProgram(), "model");
+	GLint glModel = glGetUniformLocation(DefaultShader.GetShaderProgram(), "model");
 	// Get the View Matrix
-	GLint glView = glGetUniformLocation(ActiveShaderProgram.GetShaderProgram(), "view");
+	GLint glView = glGetUniformLocation(DefaultShader.GetShaderProgram(), "view");
 	// Get the Projection Matrix
-	GLint glProjection = glGetUniformLocation(ActiveShaderProgram.GetShaderProgram(), "projection");
+	GLint glProjection = glGetUniformLocation(DefaultShader.GetShaderProgram(), "projection");
 
 	// Update camera values before constructing view matrix
 	glm::vec3 cameraPosition = pActiveCamera->GetCameraPosition();
@@ -94,10 +96,10 @@ bool Renderer::Render()
 	// Clear color and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// Wireframe drawing
-	if (InputManagerReference.isKeyPressed(GLFW_KEY_TAB)) 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_TAB)) 
+		DebugShader.Use();
 	else
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		DefaultShader.Use();
 
 	for (int i = 0; i < RenderList.size(); ++i)
 	{
@@ -105,7 +107,7 @@ bool Renderer::Render()
 		Primitive * primitive = RenderList[i];
 
 		GameObject const * renderObject = primitive->GetConstOwner(); 
-		transform = static_cast<Transform *>(renderObject->GetComponent(Component::TRANSFORM));
+		transform = renderObject->GetComponent<Transform>();
 
 		/*-------------------------------- MODEL MATRIX -------------------------------*/
 		glm::mat4 model;
@@ -175,7 +177,7 @@ void Renderer::OnNotify(Object * object, Event * event)
 // Binds a texture to the image data
 bool Renderer::BindTexture(Primitive * aPrimitive, int aTextureID)
 {
-	Texture * assignedTexture = ResourceManagerReference.GetTexture(aTextureID);
+	Texture * assignedTexture = EngineHandle.GetResourceManager().GetTexture(aTextureID);
 	
 	GLsizei width = assignedTexture->GetWidth();
 	GLsizei height = assignedTexture->GetHeight();
@@ -191,7 +193,7 @@ bool Renderer::BindTexture(Primitive * aPrimitive, int aTextureID)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, assignedTexture->GetPixels());
 	glGenerateMipmap(GL_TEXTURE_2D);
 
-	glUniform1i(glGetUniformLocation(ActiveShaderProgram.GetShaderProgram(), "Texture"), aPrimitive->GetTBO());
+	glUniform1i(glGetUniformLocation(DefaultShader.GetShaderProgram(), "Texture"), aPrimitive->GetTBO());
 	// Sets the texture uniform in the shader
 	check_gl_error_render();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

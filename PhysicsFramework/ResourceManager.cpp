@@ -62,7 +62,7 @@ Texture * ResourceManager::LoadTexture(int width, int height, char * filename)
 	// Load texture
 	unsigned char * pixelArray = SOIL_load_image(filename, &width, &height, 0, SOIL_LOAD_RGBA);
 	// Create texture
-	Texture * newTexture = new Texture(width, height, pixelArray, pRenderer->GetTextureCount());
+	Texture * newTexture = new Texture(width, height, pixelArray, EngineHandle.GetRenderer().GetTextureCount());
 	// Add to texture list
 	TextureList.emplace_back(newTexture);
 

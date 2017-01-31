@@ -39,6 +39,7 @@ public:
 	}
 	~Physics() {}
 	
+	static ComponentType GetComponentID();
 	
 	// GETTERS
 	inline float GetMass() { return Mass; }

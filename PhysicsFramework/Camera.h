@@ -27,10 +27,10 @@ private:
 	CameraType Type = CameraType::FREE;
 
 	InputManager & InputManagerReference;
-	FrameRateController & FrameControllerReference;
+	FramerateController & FrameControllerReference;
 	
 public:
-	Camera(InputManager & input, FrameRateController & frame) : InputManagerReference(input), FrameControllerReference(frame)
+	Camera(InputManager & input, FramerateController & frame) : InputManagerReference(input), FrameControllerReference(frame)
 	{
 		// I'm pretty sure the origin is always the origin
 		CameraPosition = glm::vec3(0, 0, 10);

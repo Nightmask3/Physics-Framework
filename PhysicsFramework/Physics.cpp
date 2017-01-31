@@ -2,6 +2,11 @@
 #include "Transform.h"
 #include "GameObject.h"
 
+inline Component::ComponentType Physics::GetComponentID()
+{
+	return (ComponentType::PHYSICS);
+}
+
 Physics::Derivative Physics::Evaluate(float t, float dt, const Derivative & d)
 {
 	glm::vec3 positionTemp, velocityTemp;
@@ -29,7 +34,7 @@ void Physics::IntegrateExplicitEuler(float dt)
 	PositionCurr = PositionPrev + Velocity * dt;
 	Force *= 0.99;
 
-	Transform * transform = static_cast<Transform *>(this->GetOwner()->GetComponent(Component::TRANSFORM));
+	Transform * transform = this->GetOwner()->GetComponent<Transform>();
 	transform->SetPosition(PositionCurr);
 }
 
@@ -72,7 +77,7 @@ void Physics::IntegrateRK4(float totalTime, float dt)
 	Velocity.y += dvydt * dt;
 	Velocity.z += dvzdt * dt;
 
-	Transform * transform = static_cast<Transform *>(this->GetOwner()->GetComponent(Component::TRANSFORM));
+	Transform * transform = this->GetOwner()->GetComponent<Transform>();
 	transform->SetPosition(PositionCurr);
 }
 
@@ -81,6 +86,6 @@ void Physics::IntegratePositionVerlet(float dt)
 	PositionNext += (PositionCurr - PositionPrev) + (Force / Mass) * dt * dt;
 	PositionPrev = PositionCurr;
 
-	Transform * transform = static_cast<Transform *>(this->GetOwner()->GetComponent(Component::TRANSFORM));
+	Transform * transform = this->GetOwner()->GetComponent<Transform>();
 	transform->SetPosition(PositionNext);
 }
