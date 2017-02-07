@@ -1,4 +1,0 @@
-﻿  Renderer.cpp
-c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\renderer.cpp(206): warning C4018: '>=': signed/unsigned mismatch
-  PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.exe
-  PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.pdb (Partial PDB)
