@@ -11,7 +11,6 @@
 #include "ResourceManager.h"
 #include "Renderer.h"
 
-
 TextFileData & ResourceManager::LoadTextFile(const char* aFileName, AccessType aAccessType) const
 {
 	FILE * fp = nullptr;

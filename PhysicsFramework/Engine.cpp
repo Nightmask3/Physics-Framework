@@ -92,7 +92,8 @@ int Engine::Load()
 
 	GameObject * cube1 = pGameObjectFactory->SpawnGameObjectFromArchetype("Cube.txt");
 	GameObject * cube2 = pGameObjectFactory->SpawnGameObjectFromArchetype("Cube.txt");
-	cube2->GetComponent<Transform>()->SetPosition(glm::vec3(0.f, 5.f, 0.f));
+	cube2->GetComponent<Transform>()->SetPosition(glm::vec3(5.5f, 0.5f, 0.5f));
+	
 	return 0;
 }
 

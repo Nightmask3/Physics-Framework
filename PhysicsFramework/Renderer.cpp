@@ -55,17 +55,11 @@ void Renderer::InititalizeRenderer()
 
 bool Renderer::Render()
 {
-	// Get the Model Matrix
-	GLint glModel = glGetUniformLocation(DefaultShader.GetShaderProgram(), "model");
-	// Get the View Matrix
-	GLint glView = glGetUniformLocation(DefaultShader.GetShaderProgram(), "view");
-	// Get the Projection Matrix
-	GLint glProjection = glGetUniformLocation(DefaultShader.GetShaderProgram(), "projection");
-
 	// Update camera values before constructing view matrix
 	glm::vec3 cameraPosition = pActiveCamera->GetCameraPosition();
 	glm::vec3 cameraTarget = pActiveCamera->GetCameraLookDirection();
 	glm::vec3 upVector = pActiveCamera->GetCameraUpDirection();
+
 	/*-------------------------------- VIEW MATRIX -------------------------------*/
 	glm::mat4 view;
 	view = glm::lookAt(
@@ -87,29 +81,31 @@ bool Renderer::Render()
 		100.0f       // Far clipping plane. Keep as little as possible.
 	);
 
-	glUniformMatrix4fv(glView, 1, GL_FALSE, &(view[0][0]));
-
-	glUniformMatrix4fv(glProjection, 1, GL_FALSE, &(projection[0][0]));
-
 	// Sets background color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	// Clear color and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	// Wireframe drawing
-	if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_TAB)) 
-		DebugShader.Use();
-	else
-		DefaultShader.Use();
+	/*-------------------------------- REGULAR MESH RENDER-------------------------------*/
+	DefaultShader.Use();
+
+	// Get the Model Matrix
+	GLint glModel = glGetUniformLocation(DefaultShader.GetShaderProgram(), "model");
+	// Get the View Matrix
+	GLint glView = glGetUniformLocation(DefaultShader.GetShaderProgram(), "view");
+	// Get the Projection Matrix
+	GLint glProjection = glGetUniformLocation(DefaultShader.GetShaderProgram(), "projection");
+
+	// Set view and projection matrix
+	glUniformMatrix4fv(glView, 1, GL_FALSE, &(view[0][0]));
+	glUniformMatrix4fv(glProjection, 1, GL_FALSE, &(projection[0][0]));
 
 	for (int i = 0; i < RenderList.size(); ++i)
 	{
 		Transform * transform = nullptr;
 		Primitive * primitive = RenderList[i];
-
+						
 		GameObject const * renderObject = primitive->GetConstOwner(); 
 		transform = renderObject->GetComponent<Transform>();
-
-		/*-------------------------------- MODEL MATRIX -------------------------------*/
 		glm::mat4 model;
 		glm::mat4 translate, scale;
 		translate = glm::translate(transform->GetPosition());
@@ -125,10 +121,52 @@ bool Renderer::Render()
 		check_gl_error_render();
 		glDrawArrays(GL_TRIANGLES, 0, primitive->GetPrimitiveSize()/sizeof(Vertex));
 		check_gl_error_render();
-		glBindVertexArray(0);
 		assert(glGetError() == GL_NO_ERROR);
+		// Unbind VAO when done
+		glBindVertexArray(0);
 	}
 
+	/*-------------------------------- DEBUG MESH RENDER-------------------------------*/
+	if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_TAB))
+	{
+		DebugShader.Use();
+
+		// Get the Model Matrix
+		GLint glModel = glGetUniformLocation(DebugShader.GetShaderProgram(), "model");
+		// Get the View Matrix
+		GLint glView = glGetUniformLocation(DebugShader.GetShaderProgram(), "view");
+		// Get the Projection Matrix
+		GLint glProjection = glGetUniformLocation(DebugShader.GetShaderProgram(), "projection");
+
+		// Set view and projection matrix
+		glUniformMatrix4fv(glView, 1, GL_FALSE, &(view[0][0]));
+		glUniformMatrix4fv(glProjection, 1, GL_FALSE, &(projection[0][0]));
+
+		for (int i = 0; i < RenderList.size(); ++i)
+		{
+			Transform * transform = nullptr;
+			Primitive * primitive = RenderList[i];
+
+			GameObject const * renderObject = primitive->GetConstOwner();
+			transform = renderObject->GetComponent<Transform>();
+			glm::mat4 model;
+			glm::mat4 translate, scale;
+			translate = glm::translate(transform->GetPosition());
+			scale = glm::scale(transform->GetScale() * 1.25f);
+			model = translate * scale;
+			// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
+			glUniformMatrix4fv(glModel, 1, GL_FALSE, &model[0][0]);
+			check_gl_error_render();
+			// Bind VAO
+			glBindVertexArray(*VAOList[i]);
+			check_gl_error_render();
+			glDrawArrays(GL_TRIANGLES, 0, primitive->GetPrimitiveSize() / sizeof(Vertex));
+			check_gl_error_render();
+			assert(glGetError() == GL_NO_ERROR);
+			// Unbind VAO when done
+			glBindVertexArray(0);
+		}
+	}
 	return true;
 }
 

@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <map>
 #include <memory>
 // GLEW
@@ -21,6 +20,7 @@ class GameObjectFactory;
 class ResourceManager;
 class Renderer;
 class PhysicsManager;
+
 
 // The main engine events that have Subjects created from the start
 class EngineEvent : public Event
