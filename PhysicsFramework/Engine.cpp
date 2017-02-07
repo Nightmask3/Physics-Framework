@@ -9,6 +9,9 @@
 #include "Sprite.h"
 #include "Camera.h"
 
+#include <imgui.h>
+#include "imgui_impl_glfw_gl3.h"
+
 Engine::Engine()
 {
 	pResourceManager = std::make_unique<ResourceManager>(*this);
@@ -79,6 +82,9 @@ int Engine::Init()
 	// Set the renderer camera reference
 	pRenderer->SetActiveCamera(mainCamera);
 
+
+	// Setup ImGui binding
+	ImGui_ImplGlfwGL3_Init(pWindowManager->GetWindow(), true);
 	
 	return 0;
 }
@@ -100,6 +106,12 @@ int Engine::Load()
 int Engine::Tick()
 {
 
+	bool show_test_window = true;
+	bool show_another_window = false;
+	ImVec4 clear_color = ImColor(114, 144, 154);
+
+	ImGui_ImplGlfwGL3_NewFrame();
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(pWindowManager->GetWindow()))
 	{
@@ -111,6 +123,22 @@ int Engine::Tick()
 		// Notify all listeners to engine tick 
 		MainEventList[EngineEvent::ENGINE_TICK].Notify(this, &TickEvent);
 		
+		// 1. Show a simple window
+		// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+		{
+			static float f = 0.0f;
+			ImGui::Text("Hello, world!");
+			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+			ImGui::ColorEdit3("clear color", (float*)&clear_color);
+			if (ImGui::Button("Test Window")) show_test_window ^= 1;
+			if (ImGui::Button("Another Window")) show_another_window ^= 1;
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		}
+
+		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+		glClear(GL_COLOR_BUFFER_BIT);
+		ImGui::Render();
+
 		/* Swap front and back buffers */
 		glfwSwapBuffers(pWindowManager->GetWindow());
 
