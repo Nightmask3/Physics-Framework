@@ -20,7 +20,7 @@ class GameObjectFactory;
 class ResourceManager;
 class Renderer;
 class PhysicsManager;
-
+class ImGuiManager;
 
 // The main engine events that have Subjects created from the start
 class EngineEvent : public Event
@@ -50,6 +50,7 @@ private:
 	std::unique_ptr<ResourceManager> pResourceManager;
 	std::unique_ptr<Renderer> pRenderer;
 	std::unique_ptr<PhysicsManager> pPhysicsManager;
+	std::unique_ptr<ImGuiManager> pImGuiManager;
 	// A map of the main engine events
 	std::map<EngineEvent::EventList, Subject> MainEventList;
 
@@ -71,6 +72,7 @@ public:
 	inline ResourceManager & GetResourceManager() const { return *pResourceManager; }
 	inline Renderer & GetRenderer() const { return *pRenderer; }
 	inline PhysicsManager & GetPhysicsManager() const { return *pPhysicsManager; }
+	inline ImGuiManager & GetImGuiManager() const { return *pImGuiManager; }
 
 	inline WindowManager & GetWindowManager() { return *pWindowManager; }
 	inline InputManager & GetInputManager() { return *pInputManager; }
@@ -79,5 +81,7 @@ public:
 	inline ResourceManager & GetResourceManager() { return *pResourceManager; }
 	inline Renderer & GetRenderer() { return *pRenderer; }
 	inline PhysicsManager & GetPhysicsManager() { return *pPhysicsManager; }
+	inline ImGuiManager & GetImGuiManager() { return *pImGuiManager; }
+
 };
 

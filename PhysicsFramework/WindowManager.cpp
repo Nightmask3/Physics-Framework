@@ -29,12 +29,14 @@ void WindowManager::OnNotify(Object * object, Event * event)
 	EngineEvent * engineEvent = static_cast<EngineEvent *>(event);
 	if (engineEvent)
 	{
-		switch (engineEvent->EventID)
+		if(engineEvent->EventID == EngineEvent::EventList::ENGINE_INIT)
 		{
-			case EngineEvent::EventList::ENGINE_INIT:
-			{
-				InitializeWindow();
-			}
+			InitializeWindow();
 		}
+		else if (engineEvent->EventID == EngineEvent::EventList::ENGINE_EXIT)
+		{
+			glfwTerminate();
+		}
+		return;
 	}
 }

@@ -178,19 +178,15 @@ void Renderer::OnNotify(Object * object, Event * event)
 	
 	if (engineEvent)
 	{
-		switch (engineEvent->EventID)
+		if(engineEvent->EventID == EngineEvent::EventList::ENGINE_INIT)
 		{
-			case EngineEvent::EventList::ENGINE_INIT:
-			{
-				InititalizeRenderer();
-			}
-			break;
-			case EngineEvent::EventList::ENGINE_TICK:
-			{
-				Render();
-			}
-			break;
+			InititalizeRenderer();
 		}
+		else if (engineEvent->EventID == EngineEvent::EventList::ENGINE_TICK)		
+		{
+			Render();
+		}
+		return;
 	}
 
 	PrimitiveEvent * primitiveEvent = nullptr;
@@ -198,15 +194,13 @@ void Renderer::OnNotify(Object * object, Event * event)
 
 	if(primitiveEvent)
 	{
-		switch (primitiveEvent->EventID)
+		if (engineEvent->EventID == PrimitiveEvent::EventList::TEXTURE_REQUEST)
 		{
-			case PrimitiveEvent::EventList::TEXTURE_REQUEST:
-			{
-				// Already bound textures are not rebound
-				if (primitiveEvent->TextureID >= TextureCount)
-					BindTexture(static_cast<Primitive *>(object), primitiveEvent->TextureID);
-			}
+			// Already bound textures are not rebound
+			if (primitiveEvent->TextureID >= TextureCount)
+				BindTexture(static_cast<Primitive *>(object), primitiveEvent->TextureID);
 		}
+		return;
 	}
 }
 

@@ -55,6 +55,12 @@
     <Filter Include="Source Files\Shaders\DefaultShader">
       <UniqueIdentifier>{b9168f3c-76a2-4409-a66c-e3840e7945e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Widgets">
+      <UniqueIdentifier>{72beb7ef-532c-4b08-aaf6-fbaaa0710217}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Widgets">
+      <UniqueIdentifier>{de5ed7e1-6eeb-41bc-9b41-769a77f931b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -135,11 +141,20 @@
     <ClInclude Include="TextLumpHandler.h">
       <Filter>Header Files\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="resource1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiWidget.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldOutlinerWidget.h">
+      <Filter>Header Files\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowMenuBarWidget.h">
+      <Filter>Header Files\Widgets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -208,6 +223,15 @@
     </ClCompile>
     <ClCompile Include="DebugVertexShader.glsl">
       <Filter>Source Files\Shaders\DebugDrawShader</Filter>
+    </ClCompile>
+    <ClCompile Include="WorldOutlinerWidget.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiManager.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowMenuBarWidget.cpp">
+      <Filter>Source Files\Widgets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

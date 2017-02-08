@@ -75,7 +75,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
     <IncludePath>$(ProjectDir)\..\Dependencies\imgui;$(ProjectDir)\..\Dependencies\glm;$(ProjectDir)\..\Dependencies\glew-2.0.0\include;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\include;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)\..\Dependencies\glew-2.0.0\lib\Release\x64;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;$(ProjectDir)\..\Dependencies\SOIL\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)\..\Dependencies\imgui;$(ProjectDir)\..\Dependencies\glew-2.0.0\lib\Release\x64;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;$(ProjectDir)\..\Dependencies\SOIL\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\SOIL\src;C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\glm;C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\glew-2.0.0\include;C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\glfw-3.2.1.bin.WIN64\include;$(IncludePath)</IncludePath>
@@ -138,6 +138,8 @@
     <ClInclude Include="FrameRateController.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObjectFactory.h" />
+    <ClInclude Include="ImGuiManager.h" />
+    <ClInclude Include="ImGuiWidget.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Object.h" />
@@ -147,7 +149,6 @@
     <ClInclude Include="Primitive.h" />
     <ClInclude Include="RawLumpHandler.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="resource1.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderObject.h" />
@@ -159,6 +160,8 @@
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="WindowManager.h" />
+    <ClInclude Include="WindowMenuBarWidget.h" />
+    <ClInclude Include="WorldOutlinerWidget.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
@@ -167,6 +170,7 @@
     <ClCompile Include="FrameRateController.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObjectFactory.cpp" />
+    <ClCompile Include="ImGuiManager.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -185,6 +189,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="WindowManager.cpp" />
+    <ClCompile Include="WindowMenuBarWidget.cpp" />
+    <ClCompile Include="WorldOutlinerWidget.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

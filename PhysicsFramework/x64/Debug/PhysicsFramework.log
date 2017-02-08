@@ -1,41 +1,16 @@
-﻿  WindowManager.cpp
-  Transform.cpp
-  Subject.cpp
-  ShaderProgram.cpp
-  ResourceManager.cpp
-  Renderer.cpp
-c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\renderer.cpp(206): warning C4018: '>=': signed/unsigned mismatch
-  Sprite.cpp
-  Resource.cpp
-c:\program files (x86)\windows kits\8.1\include\shared\minwindef.h(60): warning C4005: 'MAX_PATH': macro redefinition
-  c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\resource.h(15): note: see previous definition of 'MAX_PATH'
-  Primitive.cpp
-c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\primitive.cpp(10): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-  PhysicsManager.cpp
-  Physics.cpp
-  Object.cpp
-  Mesh.cpp
-c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\mesh.cpp(94): warning C4244: '=': conversion from 'long' to 'float', possible loss of data
-c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\mesh.cpp(122): warning C4244: '=': conversion from 'long' to 'float', possible loss of data
-  main.cpp
-  InputManager.cpp
-  GameObjectFactory.cpp
-  GameObject.cpp
-  FrameRateController.cpp
-  Event.cpp
+﻿  ImGuiManager.cpp
+c:\program files (x86)\windows kits\8.1\include\shared\minwindef.h(130): warning C4005: 'APIENTRY': macro redefinition
+  c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\dependencies\glfw-3.2.1.bin.win64\include\glfw\glfw3.h(98): note: see previous definition of 'APIENTRY'
+  Generating Code...
+  Compiling...
+  WorldOutlinerWidget.cpp
+  WindowMenuBarWidget.cpp
   Engine.cpp
   Generating Code...
-c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\resourcemanager.cpp(55): warning C4172: returning address of local variable or temporary
-  Compiling...
-  Camera.cpp
-  Generating Code...
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-Engine.obj : error LNK2019: unresolved external symbol "struct ImGuiIO & __cdecl ImGui::GetIO(void)" (?GetIO@ImGui@@YAAEAUImGuiIO@@XZ) referenced in function "public: int __cdecl Engine::Tick(void)" (?Tick@Engine@@QEAAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol "void __cdecl ImGui::Render(void)" (?Render@ImGui@@YAXXZ) referenced in function "public: int __cdecl Engine::Tick(void)" (?Tick@Engine@@QEAAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol "void __cdecl ImGui::Text(char const *,...)" (?Text@ImGui@@YAXPEBDZZ) referenced in function "public: int __cdecl Engine::Tick(void)" (?Tick@Engine@@QEAAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol "bool __cdecl ImGui::Button(char const *,struct ImVec2 const &)" (?Button@ImGui@@YA_NPEBDAEBUImVec2@@@Z) referenced in function "public: int __cdecl Engine::Tick(void)" (?Tick@Engine@@QEAAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol "bool __cdecl ImGui::ColorEdit3(char const *,float * const)" (?ColorEdit3@ImGui@@YA_NPEBDQEAM@Z) referenced in function "public: int __cdecl Engine::Tick(void)" (?Tick@Engine@@QEAAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol "bool __cdecl ImGui::SliderFloat(char const *,float *,float,float,char const *,float)" (?SliderFloat@ImGui@@YA_NPEBDPEAMMM0M@Z) referenced in function "public: int __cdecl Engine::Tick(void)" (?Tick@Engine@@QEAAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol "bool __cdecl ImGui_ImplGlfwGL3_Init(struct GLFWwindow *,bool)" (?ImGui_ImplGlfwGL3_Init@@YA_NPEAUGLFWwindow@@_N@Z) referenced in function "public: int __cdecl Engine::Init(void)" (?Init@Engine@@QEAAHXZ)
-Engine.obj : error LNK2019: unresolved external symbol "void __cdecl ImGui_ImplGlfwGL3_NewFrame(void)" (?ImGui_ImplGlfwGL3_NewFrame@@YAXXZ) referenced in function "public: int __cdecl Engine::Tick(void)" (?Tick@Engine@@QEAAHXZ)
-C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.exe : fatal error LNK1120: 8 unresolved externals
+SOIL.lib(image_DXT.obj) : warning LNK4099: PDB 'SOIL.pdb' was not found with 'SOIL.lib(image_DXT.obj)' or at 'C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\SOIL.pdb'; linking object as if no debug info
+SOIL.lib(image_helper.obj) : warning LNK4099: PDB 'SOIL.pdb' was not found with 'SOIL.lib(image_helper.obj)' or at 'C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\SOIL.pdb'; linking object as if no debug info
+SOIL.lib(SOIL.obj) : warning LNK4099: PDB 'SOIL.pdb' was not found with 'SOIL.lib(SOIL.obj)' or at 'C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\SOIL.pdb'; linking object as if no debug info
+SOIL.lib(stb_image_aug.obj) : warning LNK4099: PDB 'SOIL.pdb' was not found with 'SOIL.lib(stb_image_aug.obj)' or at 'C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\SOIL.pdb'; linking object as if no debug info
+  PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.exe
+  PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.pdb (Partial PDB)

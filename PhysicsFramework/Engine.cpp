@@ -8,9 +8,7 @@
 #include "PhysicsManager.h"
 #include "Sprite.h"
 #include "Camera.h"
-
-#include <imgui.h>
-#include "imgui_impl_glfw_gl3.h"
+#include "ImGuiManager.h"
 
 Engine::Engine()
 {
@@ -40,8 +38,12 @@ Engine::Engine()
 	pPhysicsManager = std::make_unique<PhysicsManager>(*this);
 
 	// Do the same for game object factory...
-	pGameObjectFactory = std::make_unique<GameObjectFactory>(this);
+	pGameObjectFactory = std::make_unique<GameObjectFactory>(this); // Requires pointer and not const ref
 	EngineInitialized.AddObserver(pGameObjectFactory.get());
+
+	// Do the same for ImGui manager
+	pImGuiManager = std::make_unique<ImGuiManager>(*this);
+	EngineInitialized.AddObserver(pImGuiManager.get());
 
 	// Adds the engine initialized subject to the main event list (must be done after adding all observers as emplace uses a copy in a map)
 	MainEventList.emplace(std::make_pair(EngineEvent::ENGINE_INIT, EngineInitialized));
@@ -62,10 +64,21 @@ Engine::Engine()
 	EngineTick.AddObserver(pFrameRateController.get());
 	// Do the same for the renderer...
 	EngineTick.AddObserver(pRenderer.get());
-	// Do the same for the physics manager
+	// Do the same for the physics manager...
 	EngineTick.AddObserver(pPhysicsManager.get());
+	// Do the same for the ImGui Manager...
+	EngineTick.AddObserver(pImGuiManager.get());
 
 	MainEventList.emplace(std::make_pair(EngineEvent::ENGINE_TICK, EngineTick));
+	
+	/*-------------- ENGINE EXIT EVENT REGISTRATION --------------*/
+	Subject EngineExit;
+	// Register window manager to get an exit event
+	EngineExit.AddObserver(pWindowManager.get());
+	// Do the same for ImGuiManager...
+	EngineExit.AddObserver(pImGuiManager.get());
+
+	MainEventList.emplace(std::make_pair(EngineEvent::ENGINE_EXIT, EngineExit));
 
 }
 
@@ -82,10 +95,6 @@ int Engine::Init()
 	// Set the renderer camera reference
 	pRenderer->SetActiveCamera(mainCamera);
 
-
-	// Setup ImGui binding
-	ImGui_ImplGlfwGL3_Init(pWindowManager->GetWindow(), true);
-	
 	return 0;
 }
 
@@ -103,19 +112,25 @@ int Engine::Load()
 	return 0;
 }
 
+int Engine::Exit()
+{
+	EngineEvent ExitEvent;
+	ExitEvent.EventID = EngineEvent::ENGINE_EXIT;
+	// Notify all listeners to engine exit
+	MainEventList[EngineEvent::ENGINE_EXIT].Notify(this, &ExitEvent);
+
+	return 0;
+}
+
 int Engine::Tick()
 {
-
-	bool show_test_window = true;
-	bool show_another_window = false;
-	ImVec4 clear_color = ImColor(114, 144, 154);
-
-	ImGui_ImplGlfwGL3_NewFrame();
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(pWindowManager->GetWindow()))
 	{
-		/* Render here */
+		// Needs to be called at start of every frame
+		ImGuiManager::ImGuiNewFrame();
+
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		EngineEvent TickEvent;
@@ -123,21 +138,8 @@ int Engine::Tick()
 		// Notify all listeners to engine tick 
 		MainEventList[EngineEvent::ENGINE_TICK].Notify(this, &TickEvent);
 		
-		// 1. Show a simple window
-		// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
-		{
-			static float f = 0.0f;
-			ImGui::Text("Hello, world!");
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-			ImGui::ColorEdit3("clear color", (float*)&clear_color);
-			if (ImGui::Button("Test Window")) show_test_window ^= 1;
-			if (ImGui::Button("Another Window")) show_another_window ^= 1;
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		}
-
-		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-		glClear(GL_COLOR_BUFFER_BIT);
-		ImGui::Render();
+		// Draws GUI widgets on top of everything else
+		ImGuiManager::ImGuiRender();
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(pWindowManager->GetWindow());
@@ -151,7 +153,7 @@ int Engine::Tick()
 
 	}
 
-	glfwTerminate();
+	Exit();
 	return 0;
 }
 
