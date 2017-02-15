@@ -33,34 +33,30 @@ public:
 
 	GameObject * SpawnGameObjectFromArchetype(const char * aFileName);
 	GameObject * SpawnGameObject(Transform & aTransform = Transform());
-	template <typename T> T * SpawnComponent(GameObject * aOwner)
+	template <typename T> T * SpawnComponent()
 	{
 		Component * mComponent = nullptr;
 		if (typeid(T) == typeid(Transform))
 		{
 			// Create root component from supplied/default transform
 			mComponent = new Transform();
-			mComponent->SetOwner(aOwner);	
 		}
 		if (typeid(T) == typeid(Sprite))
 		{
 			int renderListSize = pEngineReference->GetRenderer().GetRenderListSize();
-			// adding 1 because OpenGL regards VAO and VBO value of 0 to be unset (great choice there -.-)
+			// adding 1 because OpenGL regards VAO and VBO value of 0 to be unset
 			mComponent = new Sprite(renderListSize + 1, renderListSize + 1);
-			mComponent->SetOwner(aOwner);
 			pEngineReference->GetRenderer().RegisterPrimitive(static_cast<Primitive *>(mComponent));
 		}
 		else if (typeid(T) == typeid(Mesh))
 		{
 			int renderListSize = pEngineReference->GetRenderer().GetRenderListSize();
 			mComponent = new Mesh(renderListSize + 1, renderListSize + 1);
-			mComponent->SetOwner(aOwner);
 			pEngineReference->GetRenderer().RegisterPrimitive(static_cast<Primitive *>(mComponent));
 		}
 		else if (typeid(T) == typeid(Physics))
 		{
 			mComponent = new Physics();
-			mComponent->SetOwner(aOwner);
 			pEngineReference->GetPhysicsManager().RegisterComponent(static_cast<Physics *>(mComponent));
 		}
 		return static_cast<T *>(mComponent);

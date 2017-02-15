@@ -18,6 +18,6 @@ public:
 
 	virtual void BindVertexData(std::vector<Vertex> & aVertexData);
 
-	void Serialize(char * aTextData) {};
+	void Deserialize(char * aTextData) {};
 	void Update() {};
 };

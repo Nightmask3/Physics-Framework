@@ -3,6 +3,7 @@ layout(triangles) in;
 layout(line_strip, max_vertices=4) out;
 
 in vec4 VertexColor[];
+in vec3 VertexNormal[];
 in vec2 VertexUV[];
 
 out vec4 GeometryColor;

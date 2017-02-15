@@ -74,8 +74,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <IncludePath>$(ProjectDir)\..\Dependencies\imgui;$(ProjectDir)\..\Dependencies\glm;$(ProjectDir)\..\Dependencies\glew-2.0.0\include;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\include;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)\..\Dependencies\imgui;$(ProjectDir)\..\Dependencies\glew-2.0.0\lib\Release\x64;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;$(ProjectDir)\..\Dependencies\SOIL\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)\..\Dependencies\imgui;$(ProjectDir)\..\Dependencies\glm;$(ProjectDir)\..\Dependencies\glew-2.0.0\include;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\include;$(ProjectDir)\..\Dependencies\assimp\include;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)\..\Dependencies\glew-2.0.0\lib\Release\x64;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;$(ProjectDir)\..\Dependencies\SOIL\lib;$(ProjectDir)\..\Dependencies\assimp\lib64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\SOIL\src;C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\glm;C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\glew-2.0.0\include;C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\glfw-3.2.1.bin.WIN64\include;$(IncludePath)</IncludePath>
@@ -96,11 +96,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\Dependencies\imgui;$(ProjectDir)\..\Dependencies\SOIL\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\Dependencies\assimp;$(ProjectDir)\..\Dependencies\imgui;$(ProjectDir)\..\Dependencies\SOIL\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;SOIL.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

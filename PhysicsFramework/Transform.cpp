@@ -3,7 +3,7 @@ Component::ComponentType Transform::GetComponentID()
 {
 	return (ComponentType::TRANSFORM);
 }
-void Transform::Serialize(TextFileData aTextData)
+void Transform::Deserialize(TextFileData aTextData)
 {
 	// Get reference to data
 	char * transformTextData = aTextData.pData;

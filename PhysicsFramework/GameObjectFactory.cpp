@@ -51,11 +51,12 @@ GameObject * GameObjectFactory::SpawnGameObjectFromArchetype(const char * aFileN
 			}
 			
 			// Create component and serialize
-			Mesh * meshComponent = SpawnComponent<Mesh>(newGameObject);
+			Mesh * meshComponent = SpawnComponent<Mesh>();
+			meshComponent->SetOwner(newGameObject);
 			TextFileData meshData;
 			meshData.pData = meshTextData;
 			meshData.Size = meshTextDataSize;
-			meshComponent->Serialize(meshData);
+			meshComponent->Deserialize(meshData);
 			newGameObject->AddComponent(meshComponent);
 			counterText += meshTextDataSize - 1;
 		}
@@ -77,11 +78,12 @@ GameObject * GameObjectFactory::SpawnGameObjectFromArchetype(const char * aFileN
 			}
 
 			// Create component and serialize
-			Transform * transformComponent = SpawnComponent<Transform>(newGameObject);
+			Transform * transformComponent = SpawnComponent<Transform>();
+			transformComponent->SetOwner(newGameObject);
 			TextFileData transformData;
 			transformData.pData = transformTextData;
 			transformData.Size = transformTextDataSize;
-			transformComponent->Serialize(transformData);
+			transformComponent->Deserialize(transformData);
 			newGameObject->AddComponent(transformComponent);
 		}
 	

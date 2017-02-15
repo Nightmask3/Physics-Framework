@@ -3,13 +3,22 @@
 #include <iostream>
 #include <algorithm>
 
-// Simple OpenGL Image Loader (SOIL)
+// Assimp headers
+#include <assimp/Importer.hpp>       // C++ importer interface
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/mesh.h>            // Mesh data structure
+#include <assimp/color4.h>			// Color data structure
+#include <assimp/postprocess.h>     // Post processing flags
+
+// Simple OpenGL Image Loader (SOIL) headers
 #include "SOIL.h"
 #include "Texture.h"
 
 #include "Engine.h"
 #include "ResourceManager.h"
 #include "Renderer.h"
+#include "GameObjectFactory.h"
+#include "Mesh.h"
 
 TextFileData & ResourceManager::LoadTextFile(const char* aFileName, AccessType aAccessType) const
 {
@@ -68,19 +77,91 @@ Texture * ResourceManager::LoadTexture(int width, int height, char * filename)
 	return newTexture;
 }
 
+Mesh * ResourceManager::ImportMesh(std::string & aFilename)
+{
+	// Create an instance of the Importer class  
+	Assimp::Importer importer;  
+	
+	// Load file with postprocessing tags
+	const aiScene* scene = 
+		importer.ReadFile(aFilename,
+		//aiProcess_CalcTangentSpace|
+		aiProcess_Triangulate |
+		//aiProcess_JoinIdenticalVertices|
+		aiProcess_SortByPType  
+		);
+	// If the import failed, report it  
+	if( !scene)  
+	{    
+		std::cout << importer.GetErrorString();    
+		return nullptr; 
+	}
+
+	if (scene->HasMeshes())
+	{
+		aiMesh * importedMesh = scene->mMeshes[0];
+		Mesh * newMesh = EngineHandle.GetGameObjectFactory().SpawnComponent<Mesh>();
+		
+		std::vector<Vertex> importedVertexData;
+		for (int i = 0; i < importedMesh->mNumVertices; ++i)
+		{
+			glm::vec3 newVertexPosition, newVertexNormal;
+			glm::vec4 newVertexColor;
+			glm::vec2 newVertexUV;
+
+			// Positions
+			newVertexPosition.x = importedMesh->mVertices->x;
+			newVertexPosition.y = importedMesh->mVertices->y;
+			newVertexPosition.z = importedMesh->mVertices->z;
+
+			// Normals
+			newVertexNormal.x = importedMesh->mNormals->x;
+			newVertexNormal.y = importedMesh->mNormals->y;
+			newVertexNormal.z = importedMesh->mNormals->z;
+
+			// Colors - if a color channel exists
+			if (importedMesh->GetNumColorChannels())
+			{
+				newVertexColor.x = importedMesh->mColors[0]->r;
+				newVertexColor.y = importedMesh->mColors[0]->g;
+				newVertexColor.z = importedMesh->mColors[0]->b;
+				newVertexColor.w = importedMesh->mColors[0]->a;
+			}
+			else // default to white
+				newVertexColor = glm::vec4(1);
+
+			// UVs - if a UV channel exists
+			if (importedMesh->GetNumUVChannels())
+			{
+				newVertexUV.x = importedMesh->mTextureCoords[0]->x;
+				newVertexUV.y = importedMesh->mTextureCoords[0]->y;
+			}
+
+			// Create new vertex and add it to vertex list
+			Vertex newVertex(newVertexPosition, newVertexNormal, newVertexColor, newVertexUV);
+			importedVertexData.push_back(newVertex);
+		}
+
+		newMesh->SetVertices(importedVertexData);
+		return newMesh;
+	}
+	else
+	{
+		std::cout << "No meshes in imported file: " << aFilename << std::endl;
+		return nullptr;
+	}
+
+}
+
 void ResourceManager::OnNotify(Object * object, Event * event)
 {
 	// Check if this is an Engine event
 	EngineEvent * engineEvent = static_cast<EngineEvent *>(event);
 	if (engineEvent)
 	{
-		switch (engineEvent->EventID)
+		if (engineEvent->EventID == EngineEvent::EventList::ENGINE_LOAD)
 		{
-			case EngineEvent::EventList::ENGINE_LOAD:
-			{
-				LoadTexture(256, 256, "..\\Resources\\Flare.png");
-				break;
-			}
+			LoadTexture(256, 256, "..\\Resources\\Flare.png");
 		}
 	}
 }

@@ -66,7 +66,7 @@ public:
 	// Used to send renderer requests for textures
 	Subject TextureRequest;
 
-	void Serialize(TextFileData aTextData) {};
+	void Deserialize(TextFileData aTextData) {};
 	void Update();
 
 };

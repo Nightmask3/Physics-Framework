@@ -9,6 +9,8 @@ class WindowManager : public Observer
 	/*----------MEMBER VARIABLES----------*/
 private:
 	GLFWwindow * pWindow;
+	int WindowSizeX = 1024;
+	int WindowSizeY = 768;
 	/*------------------------------- ENGINE REFERENCE -------------------------------*/
 	Engine const & EngineHandle;
 

@@ -13,12 +13,13 @@ inline Component::ComponentType Mesh::GetComponentID()
 	return (ComponentType::PRIMITIVE);
 }
 
+
 void Mesh::BindVertexData(std::vector<Vertex>& aVertexData)
 {
 	Primitive::BindVertexData(aVertexData);
 }
 
-void Mesh::Serialize(TextFileData aTextData)
+void Mesh::Deserialize(TextFileData aTextData)
 {
 	// Get reference to data
 	char * meshTextData = aTextData.pData;
@@ -138,19 +139,18 @@ void Mesh::Serialize(TextFileData aTextData)
 		}*/
 	}
 
-	// Create vertices using the just populated lists
-	std::vector<Vertex> newVertexList;
-	newVertexList.reserve(vertexPositionList.size());
+	
+	Vertices.reserve(vertexPositionList.size());
 
 	for (int i = 0; i < vertexPositionList.size(); ++i)
 	{
 		Vertex newVertex;
 		newVertex.Position = vertexPositionList[i];
-		newVertex.Color = vertexColorList[i];
+		newVertex.Color = glm::vec4(vertexColorList[i], 1);
 		newVertex.UVs = vertexUVList[i];
-		newVertexList.push_back(newVertex);
+		Vertices.push_back(newVertex);
 	}
 
 	// Bind vertex data for this mesh with the newly obtained vertex list
-	BindVertexData(newVertexList);
+	BindVertexData(Vertices);
 }

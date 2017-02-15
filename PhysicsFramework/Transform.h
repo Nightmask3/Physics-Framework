@@ -44,7 +44,7 @@ public:
 	inline void SetRotation(glm::vec3 newRotation) { Rotation = newRotation; }
 	inline void SetScale(glm::vec3 newScale) { Scale = newScale; }
 	
-	virtual void Serialize(TextFileData aTextFileData) override;
+	virtual void Deserialize(TextFileData aTextFileData) override;
 	void Update();
 };
 

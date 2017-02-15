@@ -109,6 +109,12 @@ int Engine::Load()
 	GameObject * cube2 = pGameObjectFactory->SpawnGameObjectFromArchetype("Cube.txt");
 	cube2->GetComponent<Transform>()->SetPosition(glm::vec3(5.5f, 0.5f, 0.5f));
 	
+	GameObject * cube3 = pGameObjectFactory->SpawnGameObject();
+	cube3->GetComponent<Transform>()->SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
+	Mesh * cube3Mesh = pResourceManager->ImportMesh(std::string("Cube.fbx"));
+	cube3->AddComponent(cube3Mesh);
+	cube3Mesh->SetOwner(cube3);
+
 	return 0;
 }
 

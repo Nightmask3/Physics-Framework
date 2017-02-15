@@ -8,7 +8,9 @@
 #include "Observer.h"
 #include "Texture.h"
 #include "Resource.h"
+
 class Renderer;
+class Mesh;
 
 enum AccessType
 {
@@ -44,7 +46,11 @@ public:
 	Engine const & GetEngine() { return EngineHandle; }
 
 	TextFileData & LoadTextFile(const char* aFileName, AccessType aAccessType) const;
-	Texture * LoadTexture(int width, int height, char * filename);
 	
+	Texture * LoadTexture(int aWidth, int aHeight, char * aFilename);
+	
+	// Uses Assimp importer to read mesh data from file and returns it
+	Mesh * ImportMesh(std::string & aFilename);
+
 	virtual void OnNotify(Object * object, Event * event) override;
 };

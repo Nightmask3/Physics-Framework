@@ -26,7 +26,7 @@ private:
 
 	/*----------MEMBER FUNCTIONS----------*/
 private:
-	virtual void Serialize(TextFileData aTextData) = 0;
+	virtual void Deserialize(TextFileData aTextData) = 0;
 	virtual void HandleEvent(Event *pEvent) {}
 protected:	// Made protected because we don't want objects of this class to be instantiated directly, but derived classes can access it
 	Component(ComponentType type) : eComponentType(type) {}
