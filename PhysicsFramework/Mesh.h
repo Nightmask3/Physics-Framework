@@ -6,13 +6,14 @@ class Mesh : public Primitive
 	/*----------MEMBER VARIABLES----------*/
 private:
 	PrimitiveType ePrimitiveType;
-	std::vector<Vertex> Vertices;
 	/*----------MEMBER VARIABLES----------*/
 public:
 	Mesh(GLuint aVAO, GLuint aVBO);
 	virtual ~Mesh() {};
 
 	static ComponentType GetComponentID();
+
+	std::vector<Vertex> Vertices;
 
 	// Use move semantics to prevent a copy
 	inline void SetVertices(std::vector<Vertex> & aVertexData) {

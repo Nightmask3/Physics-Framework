@@ -8,7 +8,7 @@ Mesh::Mesh(GLuint aVAO, GLuint aVBO) : Primitive(Primitive::MESH, aVAO, aVBO)
 	
 }
 
-inline Component::ComponentType Mesh::GetComponentID()
+Component::ComponentType Mesh::GetComponentID()
 {
 	return (ComponentType::PRIMITIVE);
 }

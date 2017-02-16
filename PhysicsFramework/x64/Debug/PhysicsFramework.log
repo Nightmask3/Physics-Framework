@@ -1,3 +1,14 @@
-﻿  Engine.cpp
+﻿  ShaderProgram.cpp
+  Renderer.cpp
+c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\renderer.cpp(190): warning C4018: '>=': signed/unsigned mismatch
+  Engine.cpp
+c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\engine.cpp(133): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  Generating Code...
+  Compiling...
+  ResourceManager.cpp
+c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\resourcemanager.cpp(106): warning C4018: '<': signed/unsigned mismatch
+  GameObjectFactory.cpp
+  Generating Code...
+c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\resourcemanager.cpp(64): warning C4172: returning address of local variable or temporary
   PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.exe
   PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.pdb (Partial PDB)

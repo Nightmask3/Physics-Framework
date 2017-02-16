@@ -41,10 +41,6 @@ private:
 	/*------------------------------- ENGINE REFERENCE -------------------------------*/
 	Engine const & EngineHandle;
 
-	// Later on use an array of unique ptrs to cameras owned by renderer, 
-	// active camera at any time is pointed to by this pointer
-	Camera * pActiveCamera;
-
 	// The horizontal Field of View, in degrees : the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
 	float FieldOfView = 45.0f;
 
@@ -54,6 +50,9 @@ public:
 	// Holds the number of currently active/bound textures
 	GLuint TextureCount;
 
+	// Later on use an array of unique ptrs to cameras owned by renderer, 
+	// active camera at any time is pointed to by this pointer
+	Camera * pActiveCamera;
 	/*----------MEMBER FUNCTIONS----------*/
 public:
 	Renderer(Engine const & aEngine) :EngineHandle(aEngine),

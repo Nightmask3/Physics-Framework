@@ -1,4 +1,6 @@
 #include <glm/gtc/random.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 
 #include "Engine.h"
 #include "WindowManager.h"
@@ -122,7 +124,69 @@ void Engine::Load()
 	Mesh * cube4Mesh = pResourceManager->ImportMesh(std::string("Cube.fbx"));
 	cube4->AddComponent(cube4Mesh);
 	cube4Mesh->SetOwner(cube4);
-	
+
+	GameObject * minkowskiDifference = pGameObjectFactory->SpawnGameObject();
+	std::vector<Vertex> MinkowskiDifferenceVertices;
+	Mesh * minkowskiMesh = pGameObjectFactory->SpawnComponent<Mesh>();
+	minkowskiMesh->SetOwner(minkowskiDifference);
+	minkowskiDifference->AddComponent(minkowskiMesh);
+	int size = cube3->GetComponent<Mesh>()->Vertices.size() * cube4->GetComponent<Mesh>()->Vertices.size();
+	MinkowskiDifferenceVertices.reserve(size);
+
+	// Update camera values before constructing view matrix
+	glm::vec3 cameraPosition = pRenderer->pActiveCamera->GetCameraPosition();
+	glm::vec3 cameraTarget = pRenderer->pActiveCamera->GetCameraLookDirection();
+	glm::vec3 upVector = pRenderer->pActiveCamera->GetCameraUpDirection();
+
+	/*-------------------------------- VIEW MATRIX -------------------------------*/
+	glm::mat4 view;
+	view = glm::lookAt(
+		cameraPosition,
+		cameraTarget,
+		upVector
+	);
+
+	glm::mat4 projection;
+	projection = glm::perspective(
+		45.f, // The horizontal Field of View, in degrees : the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
+		4.0f / 3.0f, // Aspect Ratio. Depends on the size of your window. Notice that 4/3 == 800/600 == 1280/960, sounds familiar ?
+		0.1f,        // Near clipping plane. Keep as big as possible, or you'll get precision issues.
+		100.0f       // Far clipping plane. Keep as little as possible.
+	);
+
+	for (int i = 0; i < cube3Mesh->Vertices.size(); ++i)
+	{
+		// Calculate the MVP matrix and set the matrix uniform
+		glm::mat4 mvp;
+		glm::mat4 model;
+		glm::mat4 translate, scale;
+		translate = glm::translate(cube3->GetComponent<Transform>()->GetPosition());
+		scale = glm::scale(cube3->GetComponent<Transform>()->GetScale() * 1.25f);
+		model = translate * scale;
+		mvp = projection * view * model;
+
+		Vertex newVertex;
+		newVertex.Position = glm::vec3( mvp * glm::vec4(cube3Mesh->Vertices[i].Position, 1) - glm::vec4(cube4Mesh->Vertices[i].Position, 1));
+		MinkowskiDifferenceVertices.push_back(newVertex);
+	}
+	for (int i = 0; i < cube4Mesh->Vertices.size(); ++i)
+	{
+		// Calculate the MVP matrix and set the matrix uniform
+		glm::mat4 mvp;
+		glm::mat4 model;
+		glm::mat4 translate, scale;
+		translate = glm::translate(cube3->GetComponent<Transform>()->GetPosition());
+		scale = glm::scale(cube3->GetComponent<Transform>()->GetScale() * 1.25f);
+		model = translate * scale;
+		mvp = projection * view * model;
+
+		Vertex newVertex;
+		newVertex.Position = glm::vec3(mvp * glm::vec4(cube4Mesh->Vertices[i].Position, 1) - glm::vec4(cube3Mesh->Vertices[i].Position, 1));
+		MinkowskiDifferenceVertices.push_back(newVertex);
+	}
+
+	minkowskiMesh->SetVertices(MinkowskiDifferenceVertices);
+
 	return;
 }
 
