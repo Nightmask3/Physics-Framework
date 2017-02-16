@@ -86,9 +86,9 @@ Mesh * ResourceManager::ImportMesh(std::string & aFilename)
 	const aiScene* scene = 
 		importer.ReadFile(aFilename,
 		//aiProcess_CalcTangentSpace|
-		aiProcess_Triangulate |
+		aiProcess_Triangulate// |
 		//aiProcess_JoinIdenticalVertices|
-		aiProcess_SortByPType  
+		//aiProcess_SortByPType  
 		);
 	// If the import failed, report it  
 	if( !scene)  
@@ -110,22 +110,22 @@ Mesh * ResourceManager::ImportMesh(std::string & aFilename)
 			glm::vec2 newVertexUV;
 
 			// Positions
-			newVertexPosition.x = importedMesh->mVertices->x;
-			newVertexPosition.y = importedMesh->mVertices->y;
-			newVertexPosition.z = importedMesh->mVertices->z;
+			newVertexPosition.x = importedMesh->mVertices[i].x;
+			newVertexPosition.y = importedMesh->mVertices[i].y;
+			newVertexPosition.z = importedMesh->mVertices[i].z;
 
 			// Normals
-			newVertexNormal.x = importedMesh->mNormals->x;
-			newVertexNormal.y = importedMesh->mNormals->y;
-			newVertexNormal.z = importedMesh->mNormals->z;
+			newVertexNormal.x = importedMesh->mNormals[i].x;
+			newVertexNormal.y = importedMesh->mNormals[i].y;
+			newVertexNormal.z = importedMesh->mNormals[i].z;
 
 			// Colors - if a color channel exists
 			if (importedMesh->GetNumColorChannels())
 			{
-				newVertexColor.x = importedMesh->mColors[0]->r;
-				newVertexColor.y = importedMesh->mColors[0]->g;
-				newVertexColor.z = importedMesh->mColors[0]->b;
-				newVertexColor.w = importedMesh->mColors[0]->a;
+				newVertexColor.x = importedMesh->mColors[0][i].r;
+				newVertexColor.y = importedMesh->mColors[0][i].g;
+				newVertexColor.z = importedMesh->mColors[0][i].b;
+				newVertexColor.w = importedMesh->mColors[0][i].a;
 			}
 			else // default to white
 				newVertexColor = glm::vec4(1);
@@ -136,7 +136,12 @@ Mesh * ResourceManager::ImportMesh(std::string & aFilename)
 				newVertexUV.x = importedMesh->mTextureCoords[0]->x;
 				newVertexUV.y = importedMesh->mTextureCoords[0]->y;
 			}
-
+			
+			/*std::cout << "Position: " << newVertexPosition.x << " " << newVertexPosition.y << " " << newVertexPosition.z << " "<< std::endl;
+			std::cout << "Normal: " << newVertexNormal.x << " " << newVertexNormal.y << " " << newVertexNormal.z << " " << std::endl;
+			std::cout << "Color: " << newVertexColor.x << " " << newVertexColor.y << " " << newVertexColor.z << " " << newVertexColor.w << std::endl;
+			std::cout << "UV: " << newVertexUV.x << " " << newVertexUV.y << " " << std::endl; 
+			*/	
 			// Create new vertex and add it to vertex list
 			Vertex newVertex(newVertexPosition, newVertexNormal, newVertexColor, newVertexUV);
 			importedVertexData.push_back(newVertex);

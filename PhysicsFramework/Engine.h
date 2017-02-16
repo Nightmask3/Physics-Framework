@@ -57,11 +57,11 @@ private:
 	/*----------MEMBER FUNCTIONS----------*/
 public:
 	Engine();
-	int Init();
-	int Load();
+	void Init();
+	void Load();
 	int Unload();
-	int Exit();
-	int Tick();
+	void Exit();
+	void Tick();
 	virtual ~Engine();
 	std::map<EngineEvent::EventList, Subject> & GetMainEventList() { return MainEventList; }
 

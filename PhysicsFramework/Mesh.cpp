@@ -146,6 +146,7 @@ void Mesh::Deserialize(TextFileData aTextData)
 	{
 		Vertex newVertex;
 		newVertex.Position = vertexPositionList[i];
+		newVertex.Normal = glm::vec3(0, 0, 0);
 		newVertex.Color = glm::vec4(vertexColorList[i], 1);
 		newVertex.UVs = vertexUVList[i];
 		Vertices.push_back(newVertex);

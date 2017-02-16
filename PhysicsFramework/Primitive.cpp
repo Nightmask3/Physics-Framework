@@ -16,6 +16,7 @@ void Primitive::BindVertexData(std::vector<Vertex>& aVertexData)
 	glBufferData(GL_ARRAY_BUFFER, primitiveSize, &aVertexData[0], GL_STATIC_DRAW);
 	/*--------------------------- VERTEX ATTRIBUTE POINTERS --------------------------------*/
 	// Position
+	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(
 		0,
 		3,
@@ -24,9 +25,9 @@ void Primitive::BindVertexData(std::vector<Vertex>& aVertexData)
 		sizeof(Vertex),
 		(GLvoid*)0
 	);
-	glEnableVertexAttribArray(0);
 
 	// Normal
+	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(
 		1,
 		3,
@@ -35,9 +36,9 @@ void Primitive::BindVertexData(std::vector<Vertex>& aVertexData)
 		sizeof(Vertex),
 		(GLvoid*)(3 * sizeof(GLfloat))
 	);
-	glEnableVertexAttribArray(1);
-
+	
 	// Color
+	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(
 		2,
 		4,
@@ -46,8 +47,9 @@ void Primitive::BindVertexData(std::vector<Vertex>& aVertexData)
 		sizeof(Vertex),
 		(GLvoid*)(6 * sizeof(GLfloat))
 	);
-	glEnableVertexAttribArray(2);
+	
 	// Texture Coordinates
+	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(
 		3,
 		2,
@@ -56,7 +58,7 @@ void Primitive::BindVertexData(std::vector<Vertex>& aVertexData)
 		sizeof(Vertex),
 		(GLvoid*)(10 * sizeof(GLfloat))
 	);
-	glEnableVertexAttribArray(3);
+
 	// Unbind VAO
 	glBindVertexArray(0);
 }

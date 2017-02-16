@@ -82,7 +82,7 @@ Engine::Engine()
 
 }
 
-int Engine::Init()
+void Engine::Init()
 {
 	EngineEvent InitEvent;
 	InitEvent.EventID = EngineEvent::ENGINE_INIT;
@@ -95,40 +95,48 @@ int Engine::Init()
 	// Set the renderer camera reference
 	pRenderer->SetActiveCamera(mainCamera);
 
-	return 0;
+	return;
 }
 
-int Engine::Load()
+void Engine::Load()
 {
 	EngineEvent LoadEvent;
 	LoadEvent.EventID = EngineEvent::ENGINE_LOAD;
 	// Notify all listeners to engine load
 	MainEventList[EngineEvent::ENGINE_LOAD].Notify(this, &LoadEvent);
 
-	GameObject * cube1 = pGameObjectFactory->SpawnGameObjectFromArchetype("Cube.txt");
-	GameObject * cube2 = pGameObjectFactory->SpawnGameObjectFromArchetype("Cube.txt");
-	cube2->GetComponent<Transform>()->SetPosition(glm::vec3(5.5f, 0.5f, 0.5f));
-	
+	GameObject * pivot = pGameObjectFactory->SpawnGameObject();
+	Mesh * pivotMesh = pResourceManager->ImportMesh(std::string("Pivot.fbx"));
+	pivot->GetComponent<Transform>()->SetScale(glm::vec3(-0.1f));
+	pivot->AddComponent(pivotMesh);
+	pivotMesh->SetOwner(pivot);
+
 	GameObject * cube3 = pGameObjectFactory->SpawnGameObject();
 	cube3->GetComponent<Transform>()->SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
 	Mesh * cube3Mesh = pResourceManager->ImportMesh(std::string("Cube.fbx"));
 	cube3->AddComponent(cube3Mesh);
 	cube3Mesh->SetOwner(cube3);
 
-	return 0;
+	GameObject * cube4 = pGameObjectFactory->SpawnGameObject();
+	cube4->GetComponent<Transform>()->SetPosition(glm::vec3(0.0f, -5.0f, 0.0f));
+	Mesh * cube4Mesh = pResourceManager->ImportMesh(std::string("Cube.fbx"));
+	cube4->AddComponent(cube4Mesh);
+	cube4Mesh->SetOwner(cube4);
+	
+	return;
 }
 
-int Engine::Exit()
+void Engine::Exit()
 {
 	EngineEvent ExitEvent;
 	ExitEvent.EventID = EngineEvent::ENGINE_EXIT;
 	// Notify all listeners to engine exit
 	MainEventList[EngineEvent::ENGINE_EXIT].Notify(this, &ExitEvent);
 
-	return 0;
+	return;
 }
 
-int Engine::Tick()
+void Engine::Tick()
 {
 
 	/* Loop until the user closes the window */
@@ -160,7 +168,7 @@ int Engine::Tick()
 	}
 
 	Exit();
-	return 0;
+	return;
 }
 
 

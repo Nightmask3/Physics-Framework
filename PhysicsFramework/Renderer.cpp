@@ -88,17 +88,9 @@ bool Renderer::Render()
 	/*-------------------------------- REGULAR MESH RENDER-------------------------------*/
 	DefaultShader.Use();
 
-	// Get the Model Matrix
-	GLint glModel = glGetUniformLocation(DefaultShader.GetShaderProgram(), "model");
-	// Get the View Matrix
-	GLint glView = glGetUniformLocation(DefaultShader.GetShaderProgram(), "view");
-	// Get the Projection Matrix
-	GLint glProjection = glGetUniformLocation(DefaultShader.GetShaderProgram(), "projection");
-
-	// Set view and projection matrix
-	glUniformMatrix4fv(glView, 1, GL_FALSE, &(view[0][0]));
-	glUniformMatrix4fv(glProjection, 1, GL_FALSE, &(projection[0][0]));
-
+	// Get the MVP Matrix id
+	GLint glModelViewProjection = glGetUniformLocation(DefaultShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+	
 	for (int i = 0; i < RenderList.size(); ++i)
 	{
 		Transform * transform = nullptr;
@@ -106,13 +98,16 @@ bool Renderer::Render()
 						
 		GameObject const * renderObject = primitive->GetConstOwner(); 
 		transform = renderObject->GetComponent<Transform>();
+		// Calculate the MVP matrix and set the matrix uniform
+		glm::mat4 mvp;
 		glm::mat4 model;
 		glm::mat4 translate, scale;
 		translate = glm::translate(transform->GetPosition());
 		scale = glm::scale(transform->GetScale());
 		model = translate * scale;
+		mvp = projection * view * model;
 		// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
-		glUniformMatrix4fv(glModel, 1, GL_FALSE, &model[0][0]);
+		glUniformMatrix4fv(glModelViewProjection, 1, GL_FALSE, &mvp[0][0]);
 		check_gl_error_render();
 		// Bind TBO
 		glBindTexture(GL_TEXTURE_2D, primitive->GetTBO());
@@ -131,16 +126,8 @@ bool Renderer::Render()
 	{
 		DebugShader.Use();
 
-		// Get the Model Matrix
-		GLint glModel = glGetUniformLocation(DebugShader.GetShaderProgram(), "model");
-		// Get the View Matrix
-		GLint glView = glGetUniformLocation(DebugShader.GetShaderProgram(), "view");
-		// Get the Projection Matrix
-		GLint glProjection = glGetUniformLocation(DebugShader.GetShaderProgram(), "projection");
-
-		// Set view and projection matrix
-		glUniformMatrix4fv(glView, 1, GL_FALSE, &(view[0][0]));
-		glUniformMatrix4fv(glProjection, 1, GL_FALSE, &(projection[0][0]));
+		// Get the MVP Matrix id
+		glModelViewProjection = glGetUniformLocation(DebugShader.GetShaderProgram(), "ModelViewProjectionMatrix");
 
 		for (int i = 0; i < RenderList.size(); ++i)
 		{
@@ -149,13 +136,16 @@ bool Renderer::Render()
 
 			GameObject const * renderObject = primitive->GetConstOwner();
 			transform = renderObject->GetComponent<Transform>();
+			// Calculate the MVP matrix and set the matrix uniform
+			glm::mat4 mvp;
 			glm::mat4 model;
 			glm::mat4 translate, scale;
 			translate = glm::translate(transform->GetPosition());
 			scale = glm::scale(transform->GetScale() * 1.25f);
 			model = translate * scale;
+			mvp = projection * view * model;
 			// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
-			glUniformMatrix4fv(glModel, 1, GL_FALSE, &model[0][0]);
+			glUniformMatrix4fv(glModelViewProjection, 1, GL_FALSE, &mvp[0][0]);
 			check_gl_error_render();
 			// Bind VAO
 			glBindVertexArray(*VAOList[i]);

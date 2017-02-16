@@ -1,4 +1,5 @@
 #version 450 core
+in vec3 GeometryNormal;
 in vec4 GeometryColor;
 in vec2 GeometryUV;
 
