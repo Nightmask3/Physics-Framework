@@ -17,7 +17,7 @@
 class Transform : public Component
 {
 	/*----------MEMBER VARIABLES----------*/
-private:
+public:
 	glm::vec3 Position;			
 	glm::vec3 Rotation;			
 	glm::vec3 Scale;			

@@ -30,7 +30,17 @@ public:
 		MODEL,
 		PrimitiveCount
 	};
+	bool RenderDebug = true;
+	std::vector<Vertex> Vertices;
 
+	// Use move semantics to prevent a copy
+	inline void SetVertices(std::vector<Vertex> & aVertexData) {
+		Vertices = std::move(aVertexData);
+		// Bind VAO with new vertices
+		BindVertexData(Vertices);
+	}
+
+	glm::vec3 FindFarthestPointInDirection(glm::vec3 aDirection);
 private:
 	PrimitiveType ePrimitiveType;
 	int PrimitiveSize;
@@ -57,8 +67,11 @@ public:
 	inline GLuint GetVAO() { return VAO; }
 	inline GLuint GetVBO() { return VBO; }
 	inline GLuint GetTBO() { return TBO; }
+
 	inline void SetPrimitiveSize(int size) { PrimitiveSize = size; }
 	inline void SetTBO(GLuint aTBO) { TBO = aTBO; }
+	// Sets all vertex colors to a single color
+	void SetVertexColorsUniform(glm::vec3 aNewColor);
 
 	virtual void BindVertexData(std::vector<Vertex> & aVertexData);
 	void ApplyTexture(unsigned int aTextureID);

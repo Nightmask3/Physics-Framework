@@ -8,13 +8,6 @@ public:
 	~FramerateController();
 
 	virtual void OnNotify(Object * object, Event * event);
-
-	// Getters
-	inline float GetFPSLimit() { return 1 / FixedDelta; }
-	inline float GetFPS() { return 1 / DeltaTime; }
-	inline float GetDeltaTime() { return DeltaTime; }
-	inline float GetTotalTime() { return TotalTime; }
-
 	Engine const & GetEngine() { return EngineHandle; }
 
 private:
@@ -22,7 +15,7 @@ private:
 	void SetFrameRateLimit(unsigned int Limit);
 	void UpdateFrameTime();
 	/*----------MEMBER VARIABLES----------*/
-private:
+public:
 	// Total time accumulator
 	float TotalTime;
 	// Frame time limit
@@ -33,6 +26,7 @@ private:
 	float CurrentTime;
 	// New time in seconds
 	float NewTime;
+private:
 	/*------------------------------- ENGINE REFERENCE -------------------------------*/
 	Engine const & EngineHandle;
 

@@ -31,9 +31,6 @@
     <Filter Include="Header Files\Components">
       <UniqueIdentifier>{56239b23-e6d1-40b1-8cd4-120f094b5542}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\RenderUtilities">
-      <UniqueIdentifier>{f05e0f1b-629a-48b0-a804-7a4c88544f71}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\RenderUtilities">
       <UniqueIdentifier>{a51f1cf6-3dd3-43ba-91e8-6b7be8938731}</UniqueIdentifier>
     </Filter>
@@ -60,6 +57,18 @@
     </Filter>
     <Filter Include="Source Files\Widgets">
       <UniqueIdentifier>{de5ed7e1-6eeb-41bc-9b41-769a77f931b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utilities">
+      <UniqueIdentifier>{9b9e9ac6-e422-41da-a162-db598e3bec90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utilities\RenderUtilities">
+      <UniqueIdentifier>{f05e0f1b-629a-48b0-a804-7a4c88544f71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utilities\ResourceUtilities">
+      <UniqueIdentifier>{8020916c-13a0-4372-a9ed-b97c3919e980}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utilities\PhysicsUtilities">
+      <UniqueIdentifier>{e699f5b8-8b69-4bd4-95e5-95af3ad5dd3c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -103,16 +112,16 @@
       <Filter>Header Files\Managers</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
-      <Filter>Header Files\RenderUtilities</Filter>
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
     </ClInclude>
     <ClInclude Include="ShaderProgram.h">
-      <Filter>Header Files\RenderUtilities</Filter>
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
     </ClInclude>
     <ClInclude Include="ResourceManager.h">
       <Filter>Header Files\Managers</Filter>
     </ClInclude>
     <ClInclude Include="RenderObject.h">
-      <Filter>Header Files\RenderUtilities</Filter>
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
     </ClInclude>
     <ClInclude Include="Primitive.h">
       <Filter>Header Files\Components</Filter>
@@ -135,12 +144,6 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="RawLumpHandler.h">
-      <Filter>Header Files\Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="TextLumpHandler.h">
-      <Filter>Header Files\Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Header Files\Entities</Filter>
     </ClInclude>
@@ -155,6 +158,21 @@
     </ClInclude>
     <ClInclude Include="WindowMenuBarWidget.h">
       <Filter>Header Files\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="UtilityFunctions.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="RawLumpHandler.h">
+      <Filter>Header Files\Utilities\ResourceUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="TextLumpHandler.h">
+      <Filter>Header Files\Utilities\ResourceUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsUtilities.h">
+      <Filter>Header Files\Utilities\PhysicsUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Controller.h">
+      <Filter>Header Files\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -232,6 +250,12 @@
     </ClCompile>
     <ClCompile Include="WindowMenuBarWidget.cpp">
       <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="UtilityFunctions.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Controller.cpp">
+      <Filter>Source Files\Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

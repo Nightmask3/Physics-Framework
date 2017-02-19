@@ -40,10 +40,14 @@ private:
 	GLuint * TBOList[MAXIMUM_SPRITES];
 	/*------------------------------- ENGINE REFERENCE -------------------------------*/
 	Engine const & EngineHandle;
+	/*--------------------------- MATRICES --------------------------------*/
+	glm::mat4 Projection;
+	glm::mat4 View;
 
 	// The horizontal Field of View, in degrees : the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
 	float FieldOfView = 45.0f;
 
+	GameObject * MinkowskiDifference;
 public:
 	// List of render components
 	std::vector<Primitive *> RenderList;
@@ -53,6 +57,8 @@ public:
 	// Later on use an array of unique ptrs to cameras owned by renderer, 
 	// active camera at any time is pointed to by this pointer
 	Camera * pActiveCamera;
+	// Contains all the pairs of points between which debug lines are drawn every frame
+	std::vector<std::pair<glm::vec3, glm::vec3>> DebugLinePointList;
 	/*----------MEMBER FUNCTIONS----------*/
 public:
 	Renderer(Engine const & aEngine) :EngineHandle(aEngine),
@@ -89,7 +95,11 @@ public:
 	void InititalizeRenderer();
 	void RegisterPrimitive(Primitive * aNewPrimitive);
 	bool BindTexture(Primitive * aPrimitive, int aTextureID);
-	bool Render();
+	
+	void Render();
+	void MainRenderPass();
+	void DebugRenderPass();
+	void RenderDebugLines();
 
 	static void check_gl_error_render()
 	{

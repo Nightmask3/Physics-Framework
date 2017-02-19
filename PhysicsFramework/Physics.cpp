@@ -1,17 +1,30 @@
 #include "Physics.h"
 #include "Transform.h"
 #include "GameObject.h"
+#include "Controller.h"
 
-inline Component::ComponentType Physics::GetComponentID()
+Component::ComponentType Physics::GetComponentID()
 {
 	return (ComponentType::PHYSICS);
+}
+
+void Physics::UpdateTransform()
+{
+	// Update owner if it isn't being controlled. Controller updates physics directly
+	Controller * controller = nullptr;
+	controller = this->GetOwner()->GetComponent<Controller>();
+	if (controller)
+		return;
+
+	Transform * transform = this->GetOwner()->GetComponent<Transform>();
+	transform->SetPosition(CurrentPosition);
 }
 
 Physics::Derivative Physics::Evaluate(float t, float dt, const Derivative & d)
 {
 	glm::vec3 positionTemp, velocityTemp;
 
-	positionTemp = PositionCurr;
+	positionTemp = CurrentPosition;
 	positionTemp.x += d.mDerivedVelocity.x * dt;
 	positionTemp.y += d.mDerivedVelocity.y * dt;
 	positionTemp.z += d.mDerivedVelocity.z * dt;
@@ -30,18 +43,17 @@ Physics::Derivative Physics::Evaluate(float t, float dt, const Derivative & d)
 void Physics::IntegrateExplicitEuler(float dt)
 {
 	Velocity = Velocity + (Force / Mass) * dt;
-	PositionPrev = PositionCurr;
-	PositionCurr = PositionPrev + Velocity * dt;
+	PositionPrev = CurrentPosition;
+	CurrentPosition = PositionPrev + Velocity * dt;
 	Force *= 0.99;
 
-	Transform * transform = this->GetOwner()->GetComponent<Transform>();
-	transform->SetPosition(PositionCurr);
+	UpdateTransform();
 }
 
 void Physics::IntegrateRK4(float totalTime, float dt)
 {
 	Derivative a, b, c, d;
-	PositionPrev = PositionCurr;
+	PositionPrev = CurrentPosition;
 	// Finds 4 derivatives
 	a = Evaluate(totalTime, 0.0f, Derivative());
 	b = Evaluate(totalTime, dt*0.5f, a);
@@ -69,22 +81,21 @@ void Physics::IntegrateRK4(float totalTime, float dt)
 		(a.mDerivedAcceleration.z + 2.0f*(b.mDerivedAcceleration.z + c.mDerivedAcceleration.z) + d.mDerivedAcceleration.z);
 
 	// Change position and velocity accordingly
-	PositionCurr.x += dxdt * dt;
-	PositionCurr.y += dydt * dt;
-	PositionCurr.z += dzdt * dt;
+	CurrentPosition.x += dxdt * dt;
+	CurrentPosition.y += dydt * dt;
+	CurrentPosition.z += dzdt * dt;
 
 	Velocity.x += dvxdt * dt;
 	Velocity.y += dvydt * dt;
 	Velocity.z += dvzdt * dt;
 
-	Transform * transform = this->GetOwner()->GetComponent<Transform>();
-	transform->SetPosition(PositionCurr);
+	UpdateTransform();
 }
 
 void Physics::IntegratePositionVerlet(float dt)
 {
-	PositionNext += (PositionCurr - PositionPrev) + (Force / Mass) * dt * dt;
-	PositionPrev = PositionCurr;
+	PositionNext += (CurrentPosition - PositionPrev) + (Force / Mass) * dt * dt;
+	PositionPrev = CurrentPosition;
 
 	Transform * transform = this->GetOwner()->GetComponent<Transform>();
 	transform->SetPosition(PositionNext);

@@ -2,6 +2,10 @@
 #include <glm/gtx/transform.hpp>
 
 #include "Renderer.h"
+#include "GameObjectFactory.h"
+#include "GameObject.h"
+#include "UtilityFunctions.h"
+
 
 void Renderer::RegisterPrimitive(Primitive * aNewPrimitive)
 {
@@ -53,7 +57,7 @@ void Renderer::InititalizeRenderer()
 	DebugShader.CreateDebugShaderProgram();
 }
 
-bool Renderer::Render()
+void Renderer::Render()
 {
 	// Update camera values before constructing view matrix
 	glm::vec3 cameraPosition = pActiveCamera->GetCameraPosition();
@@ -61,20 +65,17 @@ bool Renderer::Render()
 	glm::vec3 upVector = pActiveCamera->GetCameraUpDirection();
 
 	/*-------------------------------- VIEW MATRIX -------------------------------*/
-	glm::mat4 view;
-	view = glm::lookAt(
-		cameraPosition, 
-		cameraTarget,   
-		upVector    
+	View = glm::lookAt(
+		cameraPosition,
+		cameraTarget,
+		upVector
 	);
 
 	// Update field of view before constructing projection matrix
 	FieldOfView += InputManager::GetScrollDelta().y * pActiveCamera->GetSensitivity();
 
 	/*-------------------------------- PROJECTION MATRIX -------------------------------*/
-	// Creates the projection matrix
-	glm::mat4 projection;
- 	projection = glm::perspective(
+	Projection = glm::perspective(
 		FieldOfView, // The horizontal Field of View, in degrees : the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
 		4.0f / 3.0f, // Aspect Ratio. Depends on the size of your window. Notice that 4/3 == 800/600 == 1280/960, sounds familiar ?
 		0.1f,        // Near clipping plane. Keep as big as possible, or you'll get precision issues.
@@ -85,6 +86,17 @@ bool Renderer::Render()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	// Clear color and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// Draw all gameobjects
+	MainRenderPass();
+
+	if(EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_TAB))
+		// Draw wireframes, face & vertex normals, debug lines
+		DebugRenderPass();
+}
+
+void Renderer::MainRenderPass()
+{
 	/*-------------------------------- REGULAR MESH RENDER-------------------------------*/
 	DefaultShader.Use();
 
@@ -105,7 +117,7 @@ bool Renderer::Render()
 		translate = glm::translate(transform->GetPosition());
 		scale = glm::scale(transform->GetScale());
 		model = translate * scale;
-		mvp = projection * view * model;
+		mvp = Projection * View * model;
 		// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
 		glUniformMatrix4fv(glModelViewProjection, 1, GL_FALSE, &mvp[0][0]);
 		check_gl_error_render();
@@ -120,20 +132,71 @@ bool Renderer::Render()
 		// Unbind VAO when done
 		glBindVertexArray(0);
 	}
+	return;
+}
 
+void Renderer::DebugRenderPass()
+{
+	
 	/*-------------------------------- DEBUG MESH RENDER-------------------------------*/
-	if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_TAB))
+	DebugShader.Use();
+	
+	// Get the MVP Matrix id
+	GLint glModelViewProjection = glGetUniformLocation(DebugShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+
+	Mesh * shape1 = static_cast<Mesh *>(RenderList[2]);
+	Mesh * shape2 = static_cast<Mesh *>(RenderList[3]);
+
+	int size1 = shape1->Vertices.size();
+	int size2 = shape2->Vertices.size();
+	std::vector<Vertex> MinkowskiDifferenceVertices;
+
+	for (int i = 0; i < size1; ++i)
 	{
-		DebugShader.Use();
+		// Calculate the model matrices and set the matrix uniform
+		glm::mat4 model1, model2;
+		glm::mat4 translate, scale;
+		translate = glm::translate(shape1->GetOwner()->GetComponent<Transform>()->GetPosition());
+		scale = glm::scale(shape1->GetOwner()->GetComponent<Transform>()->GetScale());
+		model1 = translate * scale;
 
-		// Get the MVP Matrix id
-		glModelViewProjection = glGetUniformLocation(DebugShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+		translate = glm::translate(shape2->GetOwner()->GetComponent<Transform>()->GetPosition());
+		scale = glm::scale(shape2->GetOwner()->GetComponent<Transform>()->GetScale());
+		model2 = translate * scale;
 
-		for (int i = 0; i < RenderList.size(); ++i)
+		glm::vec4 position1 = model1 * glm::vec4(shape1->Vertices[i].Position, 1);
+		glm::vec4 position2 = model2 * glm::vec4(shape2->Vertices[i].Position, 1);
+		Vertex newVertex;
+		newVertex.Position = glm::vec3(position2 - position1);
+		MinkowskiDifferenceVertices.push_back(newVertex);
+	}
+
+	// Sort Minkowski Difference vertices
+	// https://stackoverflow.com/questions/6880899/sort-a-set-of-3-d-points-in-clockwise-counter-clockwise-order
+	glm::vec3 zAxis = glm::vec3(0, 0, 1);
+	glm::vec3 xAxis = glm::vec3(1, 0, 0);
+
+	std::vector<std::pair<int, float>> order(MinkowskiDifferenceVertices.size());
+
+	for (int i = 0; i < MinkowskiDifferenceVertices.size(); ++i)
+	{
+		float zAngle = glm::dot(MinkowskiDifferenceVertices[i].Position, zAxis);
+		float xAngle = glm::dot(MinkowskiDifferenceVertices[i].Position, xAxis);
+		float angle = atan2(zAngle, xAngle);
+		order[i] = std::make_pair(i, angle);
+	}
+
+	std::sort(order.begin(), order.end(), Utility::FloatOrdering());
+	Utility::SortUsingOrderingPairs(MinkowskiDifferenceVertices, order);
+	MinkowskiDifference->GetComponent<Mesh>()->SetVertices(MinkowskiDifferenceVertices);
+
+	for (int i = 0; i < RenderList.size(); ++i)
+	{
+		Transform * transform = nullptr;
+		Primitive * primitive = RenderList[i];
+
+		if (primitive->RenderDebug)
 		{
-			Transform * transform = nullptr;
-			Primitive * primitive = RenderList[i];
-
 			GameObject const * renderObject = primitive->GetConstOwner();
 			transform = renderObject->GetComponent<Transform>();
 			// Calculate the MVP matrix and set the matrix uniform
@@ -143,7 +206,7 @@ bool Renderer::Render()
 			translate = glm::translate(transform->GetPosition());
 			scale = glm::scale(transform->GetScale() * 1.25f);
 			model = translate * scale;
-			mvp = projection * view * model;
+			mvp = Projection * View * model;
 			// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
 			glUniformMatrix4fv(glModelViewProjection, 1, GL_FALSE, &mvp[0][0]);
 			check_gl_error_render();
@@ -157,7 +220,30 @@ bool Renderer::Render()
 			glBindVertexArray(0);
 		}
 	}
-	return true;
+
+	//RenderDebugLines();
+}
+
+void Renderer::RenderDebugLines()
+{
+	glLineWidth(2.5);
+	glColor3f(1.0, 0.0, 0.0);
+	// Draw lines between all points that have been registered 
+	for (int i = 0; i < DebugLinePointList.size(); ++i)
+	{
+		glm::vec3 startingPoint = DebugLinePointList[i].first;
+		glm::vec3 endingPoint = DebugLinePointList[i].second;
+
+		glBegin(GL_LINES);
+		glVertex3f(startingPoint.x, startingPoint.y, startingPoint.z);
+		glVertex3f(endingPoint.x, endingPoint.y, endingPoint.z);
+		glEnd();
+	}
+
+	if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_TAB) == false)
+	{
+		DebugLinePointList.clear();
+	}
 }
 
 void Renderer::OnNotify(Object * object, Event * event)
@@ -171,6 +257,13 @@ void Renderer::OnNotify(Object * object, Event * event)
 		if(engineEvent->EventID == EngineEvent::EventList::ENGINE_INIT)
 		{
 			InititalizeRenderer();
+
+			/*---------- MINKOWSKI DIFFERENCE INIT ----------*/
+			MinkowskiDifference = EngineHandle.GetGameObjectFactory().SpawnGameObject();
+			std::vector<Vertex> MinkowskiDifferenceVertices;
+			Mesh * minkowskiMesh = EngineHandle.GetGameObjectFactory().SpawnComponent<Mesh>();
+			minkowskiMesh->SetOwner(MinkowskiDifference);
+			MinkowskiDifference->AddComponent(minkowskiMesh);
 		}
 		else if (engineEvent->EventID == EngineEvent::EventList::ENGINE_TICK)		
 		{

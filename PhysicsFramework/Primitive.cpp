@@ -1,8 +1,37 @@
 #include "Primitive.h"
+#include <glm/glm.hpp>
+
+// Uses the simple method of looping through all vertices and projecting them along direction
+// Return the vertex with the largest projection
+glm::vec3 Primitive::FindFarthestPointInDirection(glm::vec3 aDirection)
+{
+	int index = 0, maxiumum = 0;
+	maxiumum = glm::dot(aDirection, Vertices[0].Position);
+	for (int i = 1; i < Vertices.size(); ++i)
+	{
+		float PositionProjectedAlongDirection = glm::dot(aDirection, Vertices[i].Position);
+		if (PositionProjectedAlongDirection > maxiumum)
+		{
+			maxiumum = PositionProjectedAlongDirection;
+			index = i;
+		}
+	}
+	return Vertices[index].Position;
+}
 
 inline Component::ComponentType Primitive::GetComponentID()
 {
 	return (ComponentType::PRIMITIVE);
+}
+
+void Primitive::SetVertexColorsUniform(glm::vec3 aNewColor)
+{
+	for (int i = 0; i < Vertices.size(); ++i)
+	{
+		Vertices[i].Color = glm::vec4(aNewColor, 1);
+	}
+	// Rebuffer the VBO once colors have been changed
+	BindVertexData(Vertices);
 }
 
 void Primitive::BindVertexData(std::vector<Vertex>& aVertexData)

@@ -133,6 +133,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="Controller.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="FrameRateController.h" />
@@ -146,6 +147,7 @@
     <ClInclude Include="Observer.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="PhysicsManager.h" />
+    <ClInclude Include="PhysicsUtilities.h" />
     <ClInclude Include="Primitive.h" />
     <ClInclude Include="RawLumpHandler.h" />
     <ClInclude Include="Resource.h" />
@@ -158,6 +160,7 @@
     <ClInclude Include="TextLumpHandler.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="UtilityFunctions.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="WindowManager.h" />
     <ClInclude Include="WindowMenuBarWidget.h" />
@@ -165,6 +168,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Controller.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="FrameRateController.cpp" />
@@ -188,6 +192,7 @@
     <ClCompile Include="DebugVertexShader.glsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="UtilityFunctions.cpp" />
     <ClCompile Include="WindowManager.cpp" />
     <ClCompile Include="WindowMenuBarWidget.cpp" />
     <ClCompile Include="WorldOutlinerWidget.cpp" />

@@ -18,18 +18,18 @@ void Camera::OnNotify(Object * aObject, Event * aEvent)
 
 void Camera::Update()
 {
-	float cameraSpeed = 10.0f * FrameControllerReference.GetDeltaTime();
+	float cameraSpeed = 10.0f * FrameControllerReference.DeltaTime;
 	glm::vec3 cameraTranslation;
 	switch (Type)
 	{
 		case CameraType::FREE:
 		{
-			if (InputManagerReference.isKeyPressed(GLFW_KEY_W) || InputManagerReference.isKeyPressed(GLFW_KEY_UP))
+			if (InputManagerReference.isKeyPressed(GLFW_KEY_W))
 			{
 				cameraTranslation = CameraLookDirection * cameraSpeed;
 				CameraPosition += cameraTranslation;
 			}
-			if (InputManagerReference.isKeyPressed(GLFW_KEY_A) || InputManagerReference.isKeyPressed(GLFW_KEY_LEFT))
+			if (InputManagerReference.isKeyPressed(GLFW_KEY_A))
 			{
 				cameraTranslation = glm::cross(CameraLookDirection, CameraUpDirection);
 				cameraTranslation = glm::normalize(cameraTranslation);
@@ -37,13 +37,13 @@ void Camera::Update()
 				// Subtract to move left
 				CameraPosition -= cameraTranslation;
 			}
-			if (InputManagerReference.isKeyPressed(GLFW_KEY_S) || InputManagerReference.isKeyPressed(GLFW_KEY_DOWN))
+			if (InputManagerReference.isKeyPressed(GLFW_KEY_S))
 			{
 				// Subtract to move backwards
 				cameraTranslation = CameraLookDirection * cameraSpeed;
 				CameraPosition -= cameraTranslation;
 			}
-			if (InputManagerReference.isKeyPressed(GLFW_KEY_D) || InputManagerReference.isKeyPressed(GLFW_KEY_RIGHT))
+			if (InputManagerReference.isKeyPressed(GLFW_KEY_D))
 			{
 				cameraTranslation = glm::cross(CameraLookDirection, CameraUpDirection);
 				cameraTranslation = glm::normalize(cameraTranslation);

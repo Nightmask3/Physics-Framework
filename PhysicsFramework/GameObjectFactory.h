@@ -18,6 +18,7 @@
 #include "Physics.h"
 #include "Sprite.h"
 #include "Mesh.h"
+#include "Controller.h"
 
 class GameObjectFactory : public Observer
 {
@@ -58,6 +59,10 @@ public:
 		{
 			mComponent = new Physics();
 			pEngineReference->GetPhysicsManager().RegisterComponent(static_cast<Physics *>(mComponent));
+		}
+		else if (typeid(T) == typeid(Controller))
+		{
+			mComponent = new Controller(pEngineReference->GetInputManager(), pEngineReference->GetFramerateController());
 		}
 		return static_cast<T *>(mComponent);
 	}

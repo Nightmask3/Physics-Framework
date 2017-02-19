@@ -1,5 +1,9 @@
 #include "GameObject.h"
 #include "Engine.h"
+#include "Physics.h"
+#include "Transform.h"
+#include "Controller.h"
+
 void GameObject::OnNotify(Object * aObject, Event * aEvent)
 {
 	// Check if this is an Engine event
@@ -32,7 +36,7 @@ Component * GameObject::GetComponent(Component::ComponentType aType)
 			return (ComponentList[i].get());
 	}
 	
-	std::cout << "Component of that type does not exist in GameObject:" << std::endl;
+	//std::cout << "Component of that type does not exist in GameObject:" << std::endl;
 	return nullptr;
 }
 
@@ -44,7 +48,7 @@ Component * GameObject::GetComponent(Component::ComponentType aType) const
 			return (ComponentList[i].get());
 	}
 
-	std::cout << "Component of that type does not exist in GameObject:" << std::endl;
+	//std::cout << "Component of that type does not exist in GameObject:" << std::endl;
 	return nullptr;
 }
 
@@ -56,4 +60,23 @@ Component * GameObject::GetComponent(Component::ComponentType aType) const
 void GameObject::AddComponent(Component * aNewComponent)
 {
 	ComponentList.emplace_back(aNewComponent);
+	aNewComponent->SetOwner(this);
+	
+	Physics * aNewPhysics = nullptr;
+	aNewPhysics = dynamic_cast<Physics *>(aNewComponent);
+	if (aNewPhysics)
+	{
+		Transform * transform = aNewPhysics->GetOwner()->GetComponent<Transform>();
+		aNewPhysics->SetPosition(transform->GetPosition());
+		aNewPhysics->SetPositionNext(transform->GetPosition());
+		return;
+	}
+
+	Controller * aNewController = nullptr;
+	aNewController = dynamic_cast<Controller *>(aNewComponent);
+	if (aNewController)
+	{
+		Transform * ownerTransform = aNewController->GetOwner()->GetComponent<Transform>();
+		aNewController->TargetTransform = ownerTransform;
+	}
 }

@@ -18,6 +18,7 @@ public:
 		TRANSFORM,
 		PRIMITIVE,
 		PHYSICS,
+		CONTROLLER,
 		TypeCount
 	};
 private:

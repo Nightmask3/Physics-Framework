@@ -2,6 +2,8 @@
 #include "Observer.h"
 #include "GameObject.h"
 #include "Physics.h"
+#include "Primitive.h"
+#include "PhysicsUtilities.h"
 
 class CollideEvent : public Event
 {
@@ -37,6 +39,12 @@ public:
 
 	void Simulation();
 	void Update();
-	
+
+	void DetectCollision();
+	bool GJKCollisionHandler(Physics * aPhysicsObject1, Physics * aPhysicsObject2);
+	ContactData EPAContactDetection(Simplex & aSimplex, Primitive * aShape1, Primitive * aShape2);
+	ContactData ExtrapolateContactInformation(PolytopeFace * aClosestFace);
+	bool CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 & aSearchDirection);
+
 	virtual void OnNotify(Object * object, Event * event) override;
 };

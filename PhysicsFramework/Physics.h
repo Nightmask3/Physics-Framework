@@ -17,7 +17,7 @@ public:
 		}
 	};
 	glm::vec3 PositionNext;
-	glm::vec3 PositionCurr;
+	glm::vec3 CurrentPosition;
 	glm::vec3 PositionPrev;
 	glm::vec3 Velocity;
 	glm::vec3 Force;
@@ -30,7 +30,7 @@ public:
 	{
 		Velocity = glm::vec3();
 		PositionNext = glm::vec3();
-		PositionCurr = glm::vec3();
+		CurrentPosition = glm::vec3();
 		PositionPrev = glm::vec3();
 		Momentum = glm::vec3();
 		Force = glm::vec3();
@@ -39,15 +39,15 @@ public:
 	}
 	~Physics() {}
 	
-	static ComponentType GetComponentID();
+	static Component::ComponentType GetComponentID();
 	
 	// GETTERS
 	inline float GetMass() { return Mass; }
-	inline glm::vec3 GetPositionCurr() { return PositionCurr; }
+	inline glm::vec3 GetCurrentPosition() { return CurrentPosition; }
 	inline glm::vec3 GetVelocity() { return Velocity; }
 	// SETTERS
 	inline void SetMass(float mass) { Mass = mass; InverseMass = 1 / Mass; }
-	inline void SetPosition(glm::vec3 position) { PositionCurr = position; }
+	inline void SetPosition(glm::vec3 position) { CurrentPosition = position; }
 	inline void SetPositionNext(glm::vec3 position) { PositionNext = position; }
 	inline void ApplyForce(glm::vec3 newForce) { Force += newForce; }
 
