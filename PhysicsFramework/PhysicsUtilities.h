@@ -7,11 +7,11 @@ struct SupportPoint
 {
 	glm::vec3 MinkowskiHullVertex;
 	// World space support points
-	glm::vec3 WS_SupportPointA;
-	glm::vec3 WS_SupportPointB;
+	glm::vec3 World_SupportPointA;
+	glm::vec3 World_SupportPointB;
 	// Object space support points
-	glm::vec3 OS_SupportPointA;
-	glm::vec3 OS_SupportPointB;
+	glm::vec3 Local_SupportPointA;
+	glm::vec3 Local_SupportPointB;
 
 	bool operator == (const SupportPoint & ref) { return MinkowskiHullVertex == ref.MinkowskiHullVertex; }
 };
@@ -85,4 +85,6 @@ struct ContactData
 	glm::vec3 Normal;
 	glm::vec3 Position;
 	float PenetrationDepth;
+	glm::mat4 LocalToWorldMatrixA;
+	glm::mat4 LocalToWorldMatrixB;
 };

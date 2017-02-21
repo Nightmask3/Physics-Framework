@@ -42,6 +42,21 @@ void PhysicsManager::DetectCollision()
 			Physics * physicsObject1 = PhysicsObjectsList[i];
 			Physics * physicsObject2 = PhysicsObjectsList[j];
 			ContactData newContactData;
+			// Calculate the model matrices and store in contact data for future use
+			glm::mat4 model1, model2;
+			glm::mat4 translate = glm::translate(physicsObject1->GetOwner()->GetComponent<Transform>()->GetPosition());
+			glm::mat4 rotate = glm::mat4_cast(physicsObject1->GetOwner()->GetComponent<Transform>()->GetRotation());
+			glm::mat4 scale = glm::scale(physicsObject1->GetOwner()->GetComponent<Transform>()->GetScale());
+			model1 = translate * rotate * scale;
+
+			translate = glm::translate(physicsObject2->GetOwner()->GetComponent<Transform>()->GetPosition());
+			rotate = glm::mat4_cast(physicsObject2->GetOwner()->GetComponent<Transform>()->GetRotation());
+			scale = glm::scale(physicsObject2->GetOwner()->GetComponent<Transform>()->GetScale());
+			model2 = translate * rotate * scale;
+
+			newContactData.LocalToWorldMatrixA = model1;
+			newContactData.LocalToWorldMatrixB = model2;
+
 			// Set to Red if colliding, Green if not colliding
 			if (GJKCollisionHandler(physicsObject1, physicsObject2, newContactData))
 			{
@@ -52,7 +67,7 @@ void PhysicsManager::DetectCollision()
 				Mesh * mesh2 = physicsObject2->GetOwner()->GetComponent<Mesh>();
 				mesh2->SetVertexColorsUniform(glm::vec3(1.0f, 0.0f, 0.0f));
 
-				glm::vec3 endPoint = newContactData.Position + 5.0f * newContactData.Normal;
+				glm::vec3 endPoint = newContactData.Position + 2.0f * newContactData.Normal;
 
 				Line newDebugLine(glm::vec3(newContactData.Position), endPoint);
 				EngineHandle.GetRenderer().RegisterDebugLine(newDebugLine);
@@ -80,7 +95,7 @@ bool PhysicsManager::GJKCollisionHandler(Physics * aPhysicsObject1, Physics * aP
 	// Choose initial search direction as the vector from center of Object1 to the center of Object2
 	glm::vec3 searchDirection = aPhysicsObject2->GetCurrentPosition() - aPhysicsObject1->GetCurrentPosition();
 	// Find farthest point along search direction to get first point on the Minkowski surface, and add it to the simplex
-	SupportPoint newSupportPoint = Utility::Support(mesh1, mesh2, searchDirection);
+	SupportPoint newSupportPoint = Utility::Support(mesh1, mesh2, searchDirection, aContactData.LocalToWorldMatrixA, aContactData.LocalToWorldMatrixB);
 	simplex.Push(newSupportPoint);
 
 	// Invert the search direction for the next point
@@ -93,20 +108,9 @@ bool PhysicsManager::GJKCollisionHandler(Physics * aPhysicsObject1, Physics * aP
 	{
 		if (iterationCount++ >= iterationLimit) return false;
 
-		/*if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_TAB))
-		{
-			EngineHandle.GetRenderer().DebugLinePointList.push_back(std::make_pair(newSimplexPoint, glm::vec3(0)));
-		}*/
-
 		// Add a new point to the simplex, continuing to search for origin
-		SupportPoint newSupportPoint = Utility::Support(mesh1, mesh2, searchDirection);
+		SupportPoint newSupportPoint = Utility::Support(mesh1, mesh2, searchDirection, aContactData.LocalToWorldMatrixA, aContactData.LocalToWorldMatrixB);
 		simplex.Push(newSupportPoint);
-
-	/*	if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_TAB))
-		{
-			int listSize = EngineHandle.GetRenderer().DebugLinePointList.size();
-			EngineHandle.GetRenderer().DebugLinePointList[listSize - 1].second = newSimplexPoint;
-		}*/
 
 		// If projection of newly added point along the search direction has not crossed the origin,
 		// the Minkowski Difference could not contain the origin, objects are not colliding
@@ -119,11 +123,7 @@ bool PhysicsManager::GJKCollisionHandler(Physics * aPhysicsObject1, Physics * aP
 			// If the new point IS past the origin, check if the simplex contains the origin
 			if (CheckIfSimplexContainsOrigin(simplex, searchDirection))
 			{
-				
-				ContactData collisionResult = EPAContactDetection(simplex, mesh1, mesh2);
-				collisionResult.Normal = glm::normalize(collisionResult.Normal);
-				aContactData = collisionResult;
-				return true;
+				return EPAContactDetection(simplex, mesh1, mesh2, aContactData);
 			}
 		}
 	}
@@ -323,7 +323,7 @@ bool PhysicsManager::CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 
 }
 
 // Based on the Expanding Polytope Algorithm (EPA) as described here: http://allenchou.net/2013/12/game-physics-contact-generation-epa/
-ContactData PhysicsManager::EPAContactDetection(Simplex & aSimplex, Primitive * aShape1, Primitive * aShape2)
+bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Primitive * aShape1, Primitive * aShape2, ContactData & aContactData)
 {
 	const float exitThreshold = 0.001f;
 	const unsigned iterationLimit = 50;
@@ -339,7 +339,7 @@ ContactData PhysicsManager::EPAContactDetection(Simplex & aSimplex, Primitive * 
 	polytopeFaces.emplace_back(aSimplex.b, aSimplex.d, aSimplex.c);
 	while (true)
 	{
-		if (iterationCount++ >= iterationLimit) return ContactData();
+		if (iterationCount++ >= iterationLimit) return false;
 
 		// Find the closest face to origin (i.e. projection of any vertex along its face normal with the least value)
 		float minimumDistance = FLT_MAX;
@@ -349,19 +349,18 @@ ContactData PhysicsManager::EPAContactDetection(Simplex & aSimplex, Primitive * 
 			float distance = glm::dot(iterator->FaceNormal, iterator->Points[0].MinkowskiHullVertex);
 			if (distance < minimumDistance)
 			{
-				distance = minimumDistance;
+				minimumDistance = distance;
 				closestFace = iterator;
 			}
 		}
 		// With the closest face now known, find new support point on the Minkowski Hull using normal to that face
-		SupportPoint newPolytopePoint = Utility::Support(aShape1, aShape2, closestFace->FaceNormal);
+		SupportPoint newPolytopePoint = Utility::Support(aShape1, aShape2, closestFace->FaceNormal, aContactData.LocalToWorldMatrixA, aContactData.LocalToWorldMatrixB);
 
 		// If this new point is within a tolerable limit of the origin, 
 		// assume we have found the closest triangle on the Minkowski Hull to the origin
 		if (glm::dot(closestFace->FaceNormal, closestFace->Points[0].MinkowskiHullVertex) - minimumDistance < exitThreshold)
 		{
-			// Generate contact info and return
-			return ExtrapolateContactInformation(&(*closestFace));
+			return ExtrapolateContactInformation(&(*closestFace), aContactData);
 		}
 
 		// Otherwise, check what faces can be 'seen' from the newly added support point and delete them from the polytope
@@ -398,24 +397,32 @@ ContactData PhysicsManager::EPAContactDetection(Simplex & aSimplex, Primitive * 
 // you obtain the closest face to the penetration in world space.
 // Barycentric projection allows you to save the contribution to a point 
 // in a triangle between its vertices, and you can use that to obtain the contact point in world space
-ContactData PhysicsManager::ExtrapolateContactInformation(PolytopeFace * aClosestFace)
+bool PhysicsManager::ExtrapolateContactInformation(PolytopeFace * aClosestFace, ContactData & aContactData)
 {
-	ContactData newContactData;
-
 	const float distanceFromOrigin = glm::dot(aClosestFace->FaceNormal, aClosestFace->Points[0].MinkowskiHullVertex);
 
 	// calculate the barycentric coordinates of the closest triangle with respect to
 	// the projection of the origin onto the triangle
 	float bary_u, bary_v, bary_w;
 	Utility::BarycentricProjection(aClosestFace->FaceNormal * distanceFromOrigin, aClosestFace->Points[0].MinkowskiHullVertex, aClosestFace->Points[1].MinkowskiHullVertex, aClosestFace->Points[2].MinkowskiHullVertex, bary_u, bary_v, bary_w);
-	// Contact point on object A in world space
-	newContactData.Position = (bary_u * aClosestFace->Points[0].WS_SupportPointA) + (bary_v * aClosestFace->Points[1].WS_SupportPointA) + (bary_w * aClosestFace->Points[2].WS_SupportPointA);
-	// Contact normal
-	newContactData.Normal = -aClosestFace->FaceNormal;
-	// Penetration depth
-	newContactData.PenetrationDepth = distanceFromOrigin;
+	
+	// if any of the barycentric coefficients have a magnitude greater than 1, then the origin is not within the triangular prism described by 'triangle'
+	// thus, there is no collision here, return false
+	if (fabs(bary_u) > 1.0f || fabs(bary_v) > 1.0f || fabs(bary_w) > 1.0f)
+		return false;
 
-	return newContactData;
+	glm::vec3 supportWorld1 = glm::vec3(glm::vec4(aClosestFace->Points[0].Local_SupportPointA, 1) * aContactData.LocalToWorldMatrixA);
+	glm::vec3 supportWorld2 = glm::vec3(glm::vec4(aClosestFace->Points[1].Local_SupportPointA, 1) * aContactData.LocalToWorldMatrixA);
+	glm::vec3 supportWorld3 = glm::vec3(glm::vec4(aClosestFace->Points[2].Local_SupportPointA, 1) * aContactData.LocalToWorldMatrixA);
+
+	// Contact point on object A in local space
+	aContactData.Position = (bary_u * supportWorld1) + (bary_v * supportWorld2) + (bary_w * supportWorld3);
+	// Contact normal
+	aContactData.Normal = glm::normalize(-aClosestFace->FaceNormal);
+	// Penetration depth
+	aContactData.PenetrationDepth = distanceFromOrigin;
+	
+	return true;
 }
 
 
