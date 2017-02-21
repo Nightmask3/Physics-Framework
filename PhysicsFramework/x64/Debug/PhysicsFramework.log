@@ -1,4 +1,4 @@
 ﻿  PhysicsManager.cpp
-c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\physicsmanager.cpp(319): warning C4715: 'PhysicsManager::CheckIfSimplexContainsOrigin': not all control paths return a value
+c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\physicsmanager.cpp(323): warning C4715: 'PhysicsManager::CheckIfSimplexContainsOrigin': not all control paths return a value
   PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.exe
   PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.pdb (Partial PDB)

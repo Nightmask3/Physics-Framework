@@ -31,9 +31,6 @@
     <Filter Include="Header Files\Components">
       <UniqueIdentifier>{56239b23-e6d1-40b1-8cd4-120f094b5542}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\RenderUtilities">
-      <UniqueIdentifier>{a51f1cf6-3dd3-43ba-91e8-6b7be8938731}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Shaders">
       <UniqueIdentifier>{49024d6a-f0d5-4650-8207-acbaaf343fad}</UniqueIdentifier>
     </Filter>
@@ -69,6 +66,21 @@
     </Filter>
     <Filter Include="Header Files\Utilities\PhysicsUtilities">
       <UniqueIdentifier>{e699f5b8-8b69-4bd4-95e5-95af3ad5dd3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders\DebugDrawShader\Lines">
+      <UniqueIdentifier>{e0386d48-6bb0-4809-8465-8491a5094b1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utilities\RenderUtilities">
+      <UniqueIdentifier>{a51f1cf6-3dd3-43ba-91e8-6b7be8938731}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components\Primitives">
+      <UniqueIdentifier>{b9ea4580-1048-44ca-8eff-8b6f5ec1ed86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components\Primitives">
+      <UniqueIdentifier>{3d58b6e9-4dca-4694-b8fe-05653801e7ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders\DebugDrawShader\Normals">
+      <UniqueIdentifier>{b4d4998e-1aa9-4a19-9319-8474a3003f62}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -120,12 +132,6 @@
     <ClInclude Include="ResourceManager.h">
       <Filter>Header Files\Managers</Filter>
     </ClInclude>
-    <ClInclude Include="RenderObject.h">
-      <Filter>Header Files\Utilities\RenderUtilities</Filter>
-    </ClInclude>
-    <ClInclude Include="Primitive.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
     <ClInclude Include="Texture.h">
       <Filter>Header Files\Entities</Filter>
     </ClInclude>
@@ -133,12 +139,6 @@
       <Filter>Header Files\Managers</Filter>
     </ClInclude>
     <ClInclude Include="Physics.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Sprite.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
@@ -173,6 +173,21 @@
     </ClInclude>
     <ClInclude Include="Controller.h">
       <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Line.h">
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Primitive.h">
+      <Filter>Header Files\Components\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite.h">
+      <Filter>Header Files\Components\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Components\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug.h">
+      <Filter>Header Files\Components\Primitives</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -210,7 +225,7 @@
       <Filter>Source Files\Managers</Filter>
     </ClCompile>
     <ClCompile Include="ShaderProgram.cpp">
-      <Filter>Source Files\RenderUtilities</Filter>
+      <Filter>Source Files\Utilities\RenderUtilities</Filter>
     </ClCompile>
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Source Files\Managers</Filter>
@@ -218,29 +233,17 @@
     <ClCompile Include="PhysicsManager.cpp">
       <Filter>Source Files\Managers</Filter>
     </ClCompile>
-    <ClCompile Include="Primitive.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
     <ClCompile Include="Transform.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
     <ClCompile Include="Physics.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Sprite.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
     <ClCompile Include="Resource.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files\Entities</Filter>
-    </ClCompile>
-    <ClCompile Include="DebugVertexShader.glsl">
-      <Filter>Source Files\Shaders\DebugDrawShader</Filter>
     </ClCompile>
     <ClCompile Include="WorldOutlinerWidget.cpp">
       <Filter>Source Files\Widgets</Filter>
@@ -257,14 +260,23 @@
     <ClCompile Include="Controller.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
+    <ClCompile Include="NormalsVertexShader.glsl">
+      <Filter>Source Files\Shaders\DebugDrawShader\Normals</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug.cpp">
+      <Filter>Source Files\Components\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Primitive.cpp">
+      <Filter>Source Files\Components\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Sprite.cpp">
+      <Filter>Source Files\Components\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files\Components\Primitives</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DebugFragmentShader.glsl">
-      <Filter>Source Files\Shaders\DebugDrawShader</Filter>
-    </None>
-    <None Include="DebugGeometryShader.glsl">
-      <Filter>Source Files\Shaders\DebugDrawShader</Filter>
-    </None>
     <None Include="DefaultFragmentShader.glsl">
       <Filter>Source Files\Shaders\DefaultShader</Filter>
     </None>
@@ -275,6 +287,18 @@
       <Filter>Source Files\Shaders\DefaultShader</Filter>
     </None>
     <None Include="ClassDiagram.cd" />
+    <None Include="LineVertexShader.glsl">
+      <Filter>Source Files\Shaders\DebugDrawShader\Lines</Filter>
+    </None>
+    <None Include="LineFragmentShader.glsl">
+      <Filter>Source Files\Shaders\DebugDrawShader\Lines</Filter>
+    </None>
+    <None Include="NormalsFragmentShader.glsl">
+      <Filter>Source Files\Shaders\DebugDrawShader\Normals</Filter>
+    </None>
+    <None Include="NormalsGeometryShader.glsl">
+      <Filter>Source Files\Shaders\DebugDrawShader\Normals</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Resources\Flare.png">

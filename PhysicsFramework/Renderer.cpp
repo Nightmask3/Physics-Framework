@@ -1,17 +1,33 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 
 #include "Renderer.h"
 #include "GameObjectFactory.h"
 #include "GameObject.h"
+#include "Line.h"
 #include "UtilityFunctions.h"
-
 
 void Renderer::RegisterPrimitive(Primitive * aNewPrimitive)
 {
-	*VAOList[RenderList.size()] = *VBOList[RenderList.size()] = (GLuint)(RenderList.size() + 1);
+	*DefaultVAOList[RenderList.size()] = *DefaultVBOList[RenderList.size()] = (GLuint)(RenderList.size() + 1);
 	RenderList.push_back(aNewPrimitive);
 	aNewPrimitive->TextureRequest.AddObserver(this);
+}
+
+void Renderer::CreateDebugLinePrimitive()
+{
+	DebugLinePrimitive = EngineHandle.GetGameObjectFactory().SpawnComponent<Debug>();
+	Line newLine(glm::vec3(0), glm::vec3(1));
+	DebugLinesCounter++;
+	newLine.VAO = DebugLinePrimitive->GetVAO();
+	newLine.VBO = DebugLinePrimitive->GetVBO();
+	newLine.BindVertexData();
+}
+
+void Renderer::RegisterDebugLine(Line & aLine)
+{
+	DebugLinesStack.push_back(aLine);
 }
 
 void Renderer::InititalizeRenderer()
@@ -30,13 +46,13 @@ void Renderer::InititalizeRenderer()
 	std::cout << "Renderer: " << renderer << std::endl;
 	std::cout << "OpenGL version:" << version << std::endl;
 	/*---------- BUFFER ALLOCATION ----------*/
-	for (int i = 0; i < MAXIMUM_SPRITES; i++)
+	for (int i = 0; i < MAXIMUM_RENDER_OBJECTS; i++)
 	{
 		// Allocates the vertex data objects
-		VAOList[i] = new GLuint;
-		glGenVertexArrays(1, VAOList[i]);
-		VBOList[i] = new GLuint;
-		glGenBuffers(1, VBOList[i]);
+		DefaultVAOList[i] = new GLuint;
+		glGenVertexArrays(1, DefaultVAOList[i]);
+		DefaultVBOList[i] = new GLuint;
+		glGenBuffers(1, DefaultVBOList[i]);
 		EABList[i] = new GLuint;
 		glGenBuffers(1, EABList[i]);
 		TBOList[i] = new GLuint;
@@ -50,11 +66,16 @@ void Renderer::InititalizeRenderer()
 	glDisable(GL_CULL_FACE);		// Backface Culling
 
 	/*---------- SHADER CREATION ----------*/
-	// Create and use debug shader program
+	// Create and use default shader program
 	DefaultShader.CreateDefaultShaderProgram();
 	DefaultShader.Use();
+	// Create debug normals shader program, reserve for later
+	DebugNormalsShader.CreateDebugNormalsShaderProgram();
+	// Create debug lines shader program, reserve for later
+	DebugLinesShader.CreateDebugLineShaderProgram();
 
-	DebugShader.CreateDebugShaderProgram();
+	/*---------- PRIMITIVE CREATION ----------*/
+	CreateDebugLinePrimitive();
 }
 
 void Renderer::Render()
@@ -107,89 +128,77 @@ void Renderer::MainRenderPass()
 	{
 		Transform * transform = nullptr;
 		Primitive * primitive = RenderList[i];
-						
+
+		// Skip any debug objects
+		if (primitive->GetPrimitiveType() == Primitive::DEBUG)
+			continue;
+
 		GameObject const * renderObject = primitive->GetConstOwner(); 
 		transform = renderObject->GetComponent<Transform>();
 		// Calculate the MVP matrix and set the matrix uniform
 		glm::mat4 mvp;
 		glm::mat4 model;
-		glm::mat4 translate, scale;
-		translate = glm::translate(transform->GetPosition());
-		scale = glm::scale(transform->GetScale());
-		model = translate * scale;
+		glm::mat4 translate = glm::translate(transform->GetPosition());
+		glm::mat4 rotate = glm::mat4_cast(transform->GetRotation());
+		glm::mat4 scale = glm::scale(transform->GetScale());
+		model = translate * rotate * scale;
 		mvp = Projection * View * model;
+		glEnableClientState(GL_VERTEX_ARRAY);
 		// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
 		glUniformMatrix4fv(glModelViewProjection, 1, GL_FALSE, &mvp[0][0]);
 		check_gl_error_render();
 		// Bind TBO
 		glBindTexture(GL_TEXTURE_2D, primitive->GetTBO());
 		// Bind VAO
-		glBindVertexArray(*VAOList[i]);
+		glBindVertexArray(*DefaultVAOList[i]);
 		check_gl_error_render();
 		glDrawArrays(GL_TRIANGLES, 0, primitive->GetPrimitiveSize()/sizeof(Vertex));
 		check_gl_error_render();
 		assert(glGetError() == GL_NO_ERROR);
 		// Unbind VAO when done
 		glBindVertexArray(0);
+		glDisableClientState(GL_VERTEX_ARRAY);
 	}
+	DefaultShader.Unuse();
+
+	// Render debug lines
+	DebugLinesShader.Use();
+	glModelViewProjection = glGetUniformLocation(DebugLinesShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+	RenderDebugLines(glModelViewProjection);
+	DebugLinesShader.Unuse();
+
 	return;
 }
 
 void Renderer::DebugRenderPass()
 {
-	
+	GLint glModelViewProjection;
 	/*-------------------------------- DEBUG MESH RENDER-------------------------------*/
-	DebugShader.Use();
+	// Render wireframes
+	DefaultShader.Use();
+	glModelViewProjection = glGetUniformLocation(DefaultShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+	RenderDebugWireframes(glModelViewProjection);
+	DefaultShader.Unuse();
+
+	// Render normals
+	DebugNormalsShader.Use();
+	glModelViewProjection = glGetUniformLocation(DebugNormalsShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+	RenderDebugNormals(glModelViewProjection);
+	DebugNormalsShader.Unuse();
+
+	// Render Minkowski Difference
+	//Mesh * shape1 = static_cast<Mesh *>(RenderList[2]);
+	//Mesh * shape2 = static_cast<Mesh *>(RenderList[3]);
+	//std::vector<Vertex> MinkowskiDifferenceVertices;
+	//Utility::CalculateMinkowskiDifference(MinkowskiDifferenceVertices, shape1, shape2);
+
 	
-	// Get the MVP Matrix id
-	GLint glModelViewProjection = glGetUniformLocation(DebugShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+}
 
-	Mesh * shape1 = static_cast<Mesh *>(RenderList[2]);
-	Mesh * shape2 = static_cast<Mesh *>(RenderList[3]);
-
-	int size1 = shape1->Vertices.size();
-	int size2 = shape2->Vertices.size();
-	std::vector<Vertex> MinkowskiDifferenceVertices;
-
-	for (int i = 0; i < size1; ++i)
-	{
-		// Calculate the model matrices and set the matrix uniform
-		glm::mat4 model1, model2;
-		glm::mat4 translate, scale;
-		translate = glm::translate(shape1->GetOwner()->GetComponent<Transform>()->GetPosition());
-		scale = glm::scale(shape1->GetOwner()->GetComponent<Transform>()->GetScale());
-		model1 = translate * scale;
-
-		translate = glm::translate(shape2->GetOwner()->GetComponent<Transform>()->GetPosition());
-		scale = glm::scale(shape2->GetOwner()->GetComponent<Transform>()->GetScale());
-		model2 = translate * scale;
-
-		glm::vec4 position1 = model1 * glm::vec4(shape1->Vertices[i].Position, 1);
-		glm::vec4 position2 = model2 * glm::vec4(shape2->Vertices[i].Position, 1);
-		Vertex newVertex;
-		newVertex.Position = glm::vec3(position2 - position1);
-		MinkowskiDifferenceVertices.push_back(newVertex);
-	}
-
-	// Sort Minkowski Difference vertices
-	// https://stackoverflow.com/questions/6880899/sort-a-set-of-3-d-points-in-clockwise-counter-clockwise-order
-	glm::vec3 zAxis = glm::vec3(0, 0, 1);
-	glm::vec3 xAxis = glm::vec3(1, 0, 0);
-
-	std::vector<std::pair<int, float>> order(MinkowskiDifferenceVertices.size());
-
-	for (int i = 0; i < MinkowskiDifferenceVertices.size(); ++i)
-	{
-		float zAngle = glm::dot(MinkowskiDifferenceVertices[i].Position, zAxis);
-		float xAngle = glm::dot(MinkowskiDifferenceVertices[i].Position, xAxis);
-		float angle = atan2(zAngle, xAngle);
-		order[i] = std::make_pair(i, angle);
-	}
-
-	std::sort(order.begin(), order.end(), Utility::FloatOrdering());
-	Utility::SortUsingOrderingPairs(MinkowskiDifferenceVertices, order);
-	MinkowskiDifference->GetComponent<Mesh>()->SetVertices(MinkowskiDifferenceVertices);
-
+void Renderer::RenderDebugWireframes(GLint aMVPAttributeIndex)
+{
+	// Render all objects, scaled up and in wireframe mode
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	for (int i = 0; i < RenderList.size(); ++i)
 	{
 		Transform * transform = nullptr;
@@ -202,48 +211,95 @@ void Renderer::DebugRenderPass()
 			// Calculate the MVP matrix and set the matrix uniform
 			glm::mat4 mvp;
 			glm::mat4 model;
-			glm::mat4 translate, scale;
-			translate = glm::translate(transform->GetPosition());
-			scale = glm::scale(transform->GetScale() * 1.25f);
-			model = translate * scale;
+			glm::mat4 translate = glm::translate(transform->GetPosition());
+			glm::mat4 rotate = glm::mat4_cast(transform->GetRotation());
+			glm::mat4 scale = glm::scale(transform->GetScale() * 1.25f);
+			model = translate * rotate * scale;
 			mvp = Projection * View * model;
+			glEnableClientState(GL_VERTEX_ARRAY);
 			// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
-			glUniformMatrix4fv(glModelViewProjection, 1, GL_FALSE, &mvp[0][0]);
+			glUniformMatrix4fv(aMVPAttributeIndex, 1, GL_FALSE, &mvp[0][0]);
 			check_gl_error_render();
 			// Bind VAO
-			glBindVertexArray(*VAOList[i]);
+			glBindVertexArray(*DefaultVAOList[i]);
 			check_gl_error_render();
 			glDrawArrays(GL_TRIANGLES, 0, primitive->GetPrimitiveSize() / sizeof(Vertex));
 			check_gl_error_render();
 			assert(glGetError() == GL_NO_ERROR);
 			// Unbind VAO when done
 			glBindVertexArray(0);
+			glDisableClientState(GL_VERTEX_ARRAY);
 		}
 	}
-
-	//RenderDebugLines();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void Renderer::RenderDebugLines()
+void Renderer::RenderDebugNormals(GLint aMVPAttributeIndex)
 {
-	glLineWidth(2.5);
-	glColor3f(1.0, 0.0, 0.0);
-	// Draw lines between all points that have been registered 
-	for (int i = 0; i < DebugLinePointList.size(); ++i)
+	// Render Normals
+	for (int i = 0; i < RenderList.size(); ++i)
 	{
-		glm::vec3 startingPoint = DebugLinePointList[i].first;
-		glm::vec3 endingPoint = DebugLinePointList[i].second;
+		Transform * transform = nullptr;
+		Primitive * primitive = RenderList[i];
 
-		glBegin(GL_LINES);
-		glVertex3f(startingPoint.x, startingPoint.y, startingPoint.z);
-		glVertex3f(endingPoint.x, endingPoint.y, endingPoint.z);
-		glEnd();
+		if (primitive->RenderDebug)
+		{
+			GameObject const * renderObject = primitive->GetConstOwner();
+			transform = renderObject->GetComponent<Transform>();
+			// Calculate the MVP matrix and set the matrix uniform
+			glm::mat4 mvp;
+			glm::mat4 model;
+			glm::mat4 translate = glm::translate(transform->GetPosition());
+			glm::mat4 rotate = glm::mat4_cast(transform->GetRotation());
+			glm::mat4 scale = glm::scale(transform->GetScale() * 1.25f);
+			model = translate * rotate * scale;
+			mvp = Projection * View * model;
+			glEnableClientState(GL_VERTEX_ARRAY);
+			// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
+			glUniformMatrix4fv(aMVPAttributeIndex, 1, GL_FALSE, &mvp[0][0]);
+			check_gl_error_render();
+			// Bind VAO
+			glBindVertexArray(*DefaultVAOList[i]);
+			check_gl_error_render();
+			glDrawArrays(GL_TRIANGLES, 0, primitive->GetPrimitiveSize() / sizeof(Vertex));
+			check_gl_error_render();
+			assert(glGetError() == GL_NO_ERROR);
+			// Unbind VAO when done
+			glBindVertexArray(0);
+			glDisableClientState(GL_VERTEX_ARRAY);
+		}
 	}
+}
 
-	if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_TAB) == false)
+void Renderer::RenderDebugLines(GLint aMVPAttributeIndex)
+{
+	glm::mat4 projectionView = Projection * View;
+
+	// Draw all lines that have been registered 
+	for (int i = 0; i < DebugLinesStack.size(); ++i)
 	{
-		DebugLinePointList.clear();
+		glm::mat4 model;
+		glm::mat4 translate = glm::translate(DebugLinesStack[i].PointA);
+		// Create rotation matrix using the direction the line points in
+		glm::vec3 normal = DebugLinesStack[i].PointA - DebugLinesStack[i].PointB;
+		normal = glm::normalize(normal);
+		glm::mat4 rotate = glm::orientation(normal, glm::vec3(1, 0, 0));
+		glm::mat4 scale = glm::scale(glm::vec3(5));
+		model = translate * rotate * scale;
+		projectionView = projectionView * model;
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glUniformMatrix4fv(aMVPAttributeIndex, 1, GL_FALSE, &projectionView[0][0]);
+		check_gl_error_render();
+		glBindVertexArray(DebugLinePrimitive->GetVAO());
+		check_gl_error_render();
+		glDrawArrays(GL_TRIANGLES, 0, 9);
+		check_gl_error_render();
+		glBindVertexArray(0);
+		glDisableClientState(GL_VERTEX_ARRAY);
+
 	}
+	DebugLinesStack.clear();
+	DebugLinesCounter = 0;
 }
 
 void Renderer::OnNotify(Object * object, Event * event)
@@ -257,13 +313,14 @@ void Renderer::OnNotify(Object * object, Event * event)
 		if(engineEvent->EventID == EngineEvent::EventList::ENGINE_INIT)
 		{
 			InititalizeRenderer();
+			
+			///*---------- MINKOWSKI DIFFERENCE INIT ----------*/
+			//MinkowskiDifference = EngineHandle.GetGameObjectFactory().SpawnGameObject();
+			//std::vector<Vertex> MinkowskiDifferenceVertices;
+			//Mesh * minkowskiMesh = EngineHandle.GetGameObjectFactory().SpawnComponent<Mesh>();
+			//minkowskiMesh->SetOwner(MinkowskiDifference);
+			//MinkowskiDifference->AddComponent(minkowskiMesh);
 
-			/*---------- MINKOWSKI DIFFERENCE INIT ----------*/
-			MinkowskiDifference = EngineHandle.GetGameObjectFactory().SpawnGameObject();
-			std::vector<Vertex> MinkowskiDifferenceVertices;
-			Mesh * minkowskiMesh = EngineHandle.GetGameObjectFactory().SpawnComponent<Mesh>();
-			minkowskiMesh->SetOwner(MinkowskiDifference);
-			MinkowskiDifference->AddComponent(minkowskiMesh);
 		}
 		else if (engineEvent->EventID == EngineEvent::EventList::ENGINE_TICK)		
 		{

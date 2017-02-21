@@ -41,7 +41,7 @@ public:
 	void Update();
 
 	void DetectCollision();
-	bool GJKCollisionHandler(Physics * aPhysicsObject1, Physics * aPhysicsObject2);
+	bool GJKCollisionHandler(Physics * aPhysicsObject1, Physics * aPhysicsObject2, ContactData & aContactData);
 	ContactData EPAContactDetection(Simplex & aSimplex, Primitive * aShape1, Primitive * aShape2);
 	ContactData ExtrapolateContactInformation(PolytopeFace * aClosestFace);
 	bool CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 & aSearchDirection);

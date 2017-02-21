@@ -75,4 +75,6 @@ namespace Utility
 		w = (d00 * d21 - d01 * d20) / denom;
 		u = 1.0f - v - w;
 	}
+
+	void CalculateMinkowskiDifference(std::vector<Vertex> & aMinkowskiDifference, Mesh * aShape1, Mesh * aShape2);
 }

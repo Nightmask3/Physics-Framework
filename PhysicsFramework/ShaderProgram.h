@@ -29,9 +29,11 @@ public:
 	// Creates, links and validates the Default Shader Program 
 	bool CreateDefaultShaderProgram();
 
-	// Creates, links and validates the Default Shader Program 
-	bool CreateDebugShaderProgram();
+	// Creates, links and validates the Debug - Wireframes, normals - Shader Program 
+	bool CreateDebugNormalsShaderProgram();
 
+	// Creates, links and validates the Debug - Lines - Shader Program 
+	bool CreateDebugLineShaderProgram();
 
 	ShaderProgram(Renderer const & render) : RendererReference(render) {}
 	virtual ~ShaderProgram();
@@ -50,8 +52,13 @@ private:
 	bool CreateDefaultFragmentShader();
 	bool CreateDefaultGeometryShader();
 	
-	// Debug shader programs
-	bool CreateDebugVertexShader();
-	bool CreateDebugFragmentShader();
-	bool CreateDebugGeometryShader();
+	// Debug wireframe, face and vertex normal rendering shader programs
+	bool CreateDebugNormalsVertexShader();
+	bool CreateDebugNormalsFragmentShader();
+	bool CreateDebugNormalsGeometryShader();
+
+	// Debug lines shader program
+	bool CreateDebugLineVertexShader();
+	bool CreateDebugLineFragmentShader();
+
 };

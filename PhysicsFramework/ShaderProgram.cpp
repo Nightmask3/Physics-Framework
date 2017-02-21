@@ -40,6 +40,11 @@ void ShaderProgram::Use()
 	glUseProgram(ShaderProgramID);
 }
 
+void ShaderProgram::Unuse()
+{
+	glUseProgram(0);
+}
+
 ShaderProgram::~ShaderProgram()
 {
 	// SHADER DELETION
@@ -166,14 +171,14 @@ bool ShaderProgram::CreateDefaultShaderProgram()
 		return false;
 	}
 }
-/*--------------------------- DEBUG SHADERS --------------------------------*/
-bool ShaderProgram::CreateDebugVertexShader()
+/*--------------------------- DEBUG FACE, VERTEX NORMALS SHADERS ---------------------------------*/
+bool ShaderProgram::CreateDebugNormalsVertexShader()
 {
-	std::cout << "/*--------------------------- DEBUG SHADERS --------------------------------*/";
+	std::cout << "/*--------------------------- DEBUG FACE, VERTEX NORMALS SHADERS --------------------------------*/";
 	Engine const & engineRef = GetRenderer().GetEngine();
 	/*--------------------------- VERTEX SHADER --------------------------------*/
 	// Reads the content of vertex shader code into a string
-	std::string vertexSource = std::string(engineRef.GetResourceManager().LoadTextFile("DebugVertexShader.glsl", READ).pData);
+	std::string vertexSource = std::string(engineRef.GetResourceManager().LoadTextFile("NormalsVertexShader.glsl", READ).pData);
 	VertexShader = glCreateShader(GL_VERTEX_SHADER);
 	vertexFile[0] = { vertexSource.c_str() };
 	glShaderSource(VertexShader, 1, vertexFile, NULL);
@@ -196,12 +201,12 @@ bool ShaderProgram::CreateDebugVertexShader()
 	}
 }
 
-bool ShaderProgram::CreateDebugFragmentShader()
+bool ShaderProgram::CreateDebugNormalsFragmentShader()
 {
 	Engine const & engineRef = GetRenderer().GetEngine();
 	/*--------------------------- FRAGMENT SHADER --------------------------------*/
 	// Reads the content of fragment shader code into a string
-	std::string fragmentSource = std::string(engineRef.GetResourceManager().LoadTextFile("DebugFragmentShader.glsl", READ).pData);
+	std::string fragmentSource = std::string(engineRef.GetResourceManager().LoadTextFile("NormalsFragmentShader.glsl", READ).pData);
 	FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	fragmentFile[0] = { fragmentSource.c_str() };
 	glShaderSource(FragmentShader, 1, fragmentFile, NULL);
@@ -224,12 +229,12 @@ bool ShaderProgram::CreateDebugFragmentShader()
 	}
 }
 
-bool ShaderProgram::CreateDebugGeometryShader()
+bool ShaderProgram::CreateDebugNormalsGeometryShader()
 {
 	Engine const & engineRef = GetRenderer().GetEngine();
 	/*--------------------------- GEOMETRY SHADER --------------------------------*/
 	// Reads the content of geometry shader code into a string
-	std::string geometrySource = std::string(engineRef.GetResourceManager().LoadTextFile("DebugGeometryShader.glsl", READ).pData);
+	std::string geometrySource = std::string(engineRef.GetResourceManager().LoadTextFile("NormalsGeometryShader.glsl", READ).pData);
 	GeometryShader = glCreateShader(GL_GEOMETRY_SHADER);
 	geometryFile[0] = { geometrySource.c_str() };
 	glShaderSource(GeometryShader, 1, geometryFile, NULL);
@@ -252,16 +257,107 @@ bool ShaderProgram::CreateDebugGeometryShader()
 	}
 }
 
-bool ShaderProgram::CreateDebugShaderProgram()
+/*--------------------------- DEBUG LINE SHADERS --------------------------------*/
+bool ShaderProgram::CreateDebugLineVertexShader()
+{
+	std::cout << "/*--------------------------- DEBUG LINE SHADERS --------------------------------*/";
+	Engine const & engineRef = GetRenderer().GetEngine();
+	/*--------------------------- VERTEX SHADER --------------------------------*/
+	// Reads the content of vertex shader code into a string
+	std::string vertexSource = std::string(engineRef.GetResourceManager().LoadTextFile("LineVertexShader.glsl", READ).pData);
+	VertexShader = glCreateShader(GL_VERTEX_SHADER);
+	vertexFile[0] = { vertexSource.c_str() };
+	glShaderSource(VertexShader, 1, vertexFile, NULL);
+	glCompileShader(VertexShader);
+	/*--------------------------- VERTEX SHADER DEBUG --------------------------------*/
+	GLint status;
+	glGetShaderiv(VertexShader, GL_COMPILE_STATUS, &status);
+	if (status == GL_TRUE)
+	{
+		std::cout << "\nVertex shader compiled successfully.";
+		return true;
+	}
+	else
+	{
+		std::cout << "\nVertex shader failed to compile.";
+		char buffer[512];
+		glGetShaderInfoLog(VertexShader, 512, NULL, buffer);
+		std::cout << buffer;
+		return false;
+	}
+}
+
+bool ShaderProgram::CreateDebugLineFragmentShader()
+{
+	Engine const & engineRef = GetRenderer().GetEngine();
+	/*--------------------------- FRAGMENT SHADER --------------------------------*/
+	// Reads the content of fragment shader code into a string
+	std::string fragmentSource = std::string(engineRef.GetResourceManager().LoadTextFile("LineFragmentShader.glsl", READ).pData);
+	FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	fragmentFile[0] = { fragmentSource.c_str() };
+	glShaderSource(FragmentShader, 1, fragmentFile, NULL);
+	glCompileShader(FragmentShader);
+	/*--------------------------- FRAGMENT SHADER DEBUG --------------------------------*/
+	GLint status;
+	glGetShaderiv(FragmentShader, GL_COMPILE_STATUS, &status);
+	if (status == GL_TRUE)
+	{
+		std::cout << "\nFragment shader compiled successfully.";
+		return true;
+	}
+	else
+	{
+		std::cout << "\nFragment shader failed to compile.";
+		char buffer[512];
+		glGetShaderInfoLog(FragmentShader, 512, NULL, buffer);
+		std::cout << buffer;
+		return false;
+	}
+}
+/*--------------------------- SHADER CREATION - WIREFRAMES, NORMALS --------------------------------*/
+bool ShaderProgram::CreateDebugNormalsShaderProgram()
 {
 	/*--------------------------- SHADER CREATION --------------------------------*/
-	CreateDebugVertexShader();
-	CreateDebugGeometryShader();
-	CreateDebugFragmentShader();
+	CreateDebugNormalsVertexShader();
+	CreateDebugNormalsGeometryShader();
+	CreateDebugNormalsFragmentShader();
 	ShaderProgramID = glCreateProgram();
 	// SHADER ATTACHMENT
 	glAttachShader(ShaderProgramID, VertexShader);
 	glAttachShader(ShaderProgramID, GeometryShader);
+	glAttachShader(ShaderProgramID, FragmentShader);
+	//glBindFragDataLocation(shaderProgram, 0, "outColor"); // Not necessary, but when using multiple buffers, binds the fragment data output to the right buffer
+
+	// LINKING
+	glLinkProgram(ShaderProgramID);
+	// VALIDATION
+	glValidateProgram(ShaderProgramID);
+	/*--------------------------- SHADER PROGRAM DEBUG --------------------------------*/
+	GLint linked;
+	glGetProgramiv(ShaderProgramID, GL_LINK_STATUS, &linked);
+	if (linked == GL_TRUE)
+	{
+		std::cout << "\nShader program compiled successfully." << std::endl;
+		return true;
+	}
+	else
+	{
+		std::cout << "\nShader program failed to compile.";
+		char buffer[512];
+		glGetShaderInfoLog(ShaderProgramID, 512, NULL, buffer);
+		std::cout << buffer << std::endl;
+		return false;
+	}
+}
+/*--------------------------- SHADER CREATION - LINES --------------------------------*/
+bool ShaderProgram::CreateDebugLineShaderProgram()
+{
+	/*--------------------------- SHADER CREATION --------------------------------*/
+	CreateDebugLineVertexShader();
+	CreateDebugLineFragmentShader();
+	ShaderProgramID = glCreateProgram();
+	// SHADER ATTACHMENT
+	glAttachShader(ShaderProgramID, VertexShader);
 	glAttachShader(ShaderProgramID, FragmentShader);
 	//glBindFragDataLocation(shaderProgram, 0, "outColor"); // Not necessary, but when using multiple buffers, binds the fragment data output to the right buffer
 

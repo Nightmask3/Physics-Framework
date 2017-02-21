@@ -78,7 +78,7 @@ void Transform::Deserialize(TextFileData aTextData)
 					counterValue = 0;
 				}
 				// Set rotation value
-				Rotation = newRotation;
+				Rotation = glm::quat(newRotation);
 			}
 			counterText += 1;
 		}

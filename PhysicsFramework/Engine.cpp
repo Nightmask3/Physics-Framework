@@ -33,9 +33,6 @@ Engine::Engine()
 	// Do the same for input manager...
 	pInputManager = std::make_unique<InputManager>(*this);
 	EngineInitialized.AddObserver(pInputManager.get());
-	// Do the same for the renderer...
-	pRenderer = std::make_unique<Renderer>(*this);
-	EngineInitialized.AddObserver(pRenderer.get());
 
 	// Physics manager doesn't need init events
 	pPhysicsManager = std::make_unique<PhysicsManager>(*this);
@@ -43,6 +40,10 @@ Engine::Engine()
 	// Do the same for game object factory...
 	pGameObjectFactory = std::make_unique<GameObjectFactory>(this); // Requires pointer and not const ref
 	EngineInitialized.AddObserver(pGameObjectFactory.get());
+
+	// Do the same for the renderer...
+	pRenderer = std::make_unique<Renderer>(*this);
+	EngineInitialized.AddObserver(pRenderer.get());
 
 	// Do the same for ImGui manager
 	pImGuiManager = std::make_unique<ImGuiManager>(*this);
@@ -102,7 +103,7 @@ void Engine::Init()
 	// Initialize pivot and other game objects
 	GameObject * pivot = pGameObjectFactory->SpawnGameObject();
 	Mesh * pivotMesh = pResourceManager->ImportMesh(std::string("Pivot.fbx"));
-	pivot->GetComponent<Transform>()->SetScale(glm::vec3(-0.1f));
+	pivot->GetComponent<Transform>()->SetScale(glm::vec3(0.1f, -0.1f,-0.1f));
 	pivot->AddComponent(pivotMesh);
 	pivotMesh->RenderDebug = false;
 
@@ -162,10 +163,9 @@ void Engine::Tick()
 		TickEvent.EventID = EngineEvent::ENGINE_TICK;
 		// Notify all listeners to engine tick 
 		MainEventList[EngineEvent::ENGINE_TICK].Notify(this, &TickEvent);
-		
+
 		// Draws GUI widgets on top of everything else
 		ImGuiManager::ImGuiRender();
-
 		/* Swap front and back buffers */
 		glfwSwapBuffers(pWindowManager->GetWindow());
 

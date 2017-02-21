@@ -19,6 +19,7 @@
 #include "Sprite.h"
 #include "Mesh.h"
 #include "Controller.h"
+#include "Debug.h"
 
 class GameObjectFactory : public Observer
 {
@@ -41,6 +42,13 @@ public:
 		{
 			// Create root component from supplied/default transform
 			mComponent = new Transform();
+		}
+		if (typeid(T) == typeid(Debug))
+		{
+			int renderListSize = pEngineReference->GetRenderer().GetRenderListSize();
+			// adding 1 because OpenGL regards VAO and VBO value of 0 to be unset
+			mComponent = new Debug(renderListSize + 1, renderListSize + 1);
+			pEngineReference->GetRenderer().RegisterPrimitive(static_cast<Primitive *>(mComponent));
 		}
 		if (typeid(T) == typeid(Sprite))
 		{

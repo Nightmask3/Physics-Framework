@@ -25,9 +25,9 @@ class Primitive : public Component
 public:
 	enum PrimitiveType
 	{
+		DEBUG,
 		SPRITE,
 		MESH,
-		MODEL,
 		PrimitiveCount
 	};
 	bool RenderDebug = true;

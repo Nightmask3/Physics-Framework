@@ -21,7 +21,7 @@ void check_gl_error_render()
 }
 Sprite::Sprite(GLuint VAO, GLuint VBO) : Primitive(PrimitiveType::SPRITE, VAO, VBO)
 {
-	BindVertexData(std::vector<Vertex>());
+	
 }
 
 inline Component::ComponentType Sprite::GetComponentID()

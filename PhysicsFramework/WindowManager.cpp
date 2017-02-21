@@ -11,7 +11,7 @@ int WindowManager::InitializeWindow()
 		return -1;
 	
 	/* Create a windowed mode window and its OpenGL context */
-	pWindow = glfwCreateWindow(WindowSizeX, WindowSizeY, "Physics Framework", NULL, NULL);
+	pWindow = glfwCreateWindow(Width, Height, "Physics Framework", NULL, NULL);
 	if (!pWindow)
 	{
 		std::cout << "Could not Initialize Window!";

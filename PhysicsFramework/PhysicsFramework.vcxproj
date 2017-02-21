@@ -134,6 +134,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Controller.h" />
+    <ClInclude Include="Debug.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="FrameRateController.h" />
@@ -142,6 +143,7 @@
     <ClInclude Include="ImGuiManager.h" />
     <ClInclude Include="ImGuiWidget.h" />
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="Line.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Observer.h" />
@@ -153,7 +155,6 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Renderer.h" />
-    <ClInclude Include="RenderObject.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Subject.h" />
@@ -169,6 +170,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Controller.cpp" />
+    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="FrameRateController.cpp" />
@@ -189,7 +191,7 @@
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="Subject.cpp" />
     <ClCompile Include="Transform.cpp" />
-    <ClCompile Include="DebugVertexShader.glsl">
+    <ClCompile Include="NormalsVertexShader.glsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="UtilityFunctions.cpp" />
@@ -199,13 +201,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
-    <None Include="DebugFragmentShader.glsl">
+    <None Include="NormalsFragmentShader.glsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
-    <None Include="DebugGeometryShader.glsl" />
+    <None Include="NormalsGeometryShader.glsl" />
     <None Include="DefaultFragmentShader.glsl" />
     <None Include="DefaultGeometryShader.glsl" />
     <None Include="DefaultVertexShader.glsl" />
+    <None Include="LineFragmentShader.glsl" />
+    <None Include="LineVertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Resources\Flare.png" />

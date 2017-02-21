@@ -2,7 +2,7 @@
 // C++ header files
 #include <iostream>
 #include <fstream>
-#include <vector>
+#include <list>
 // Math header files
 #include "glm/vec2.hpp"
 #include "glm/mat3x3.hpp"
@@ -20,24 +20,26 @@
 #include "Primitive.h"
 // Render utilities
 #include "ShaderProgram.h"
+#include "Line.h"
 
 class Renderer : public Observer
 {
 	/*----------MEMBER VARIABLES----------*/
 private:
 	/*--------------------------- CONSTANTS --------------------------------*/
-	const static int MAXIMUM_SPRITES = 4096;
+	const static int MAXIMUM_RENDER_OBJECTS = 4096;
 	/*--------------------------- SHADER PROGRAMS --------------------------------*/
 	ShaderProgram DefaultShader;
-	ShaderProgram DebugShader;
+	ShaderProgram DebugNormalsShader;
+	ShaderProgram DebugLinesShader;
 	/*--------------------------- VERTEX ARRAY OBJECTS --------------------------------*/
-	GLuint * VAOList[MAXIMUM_SPRITES];
+	GLuint * DefaultVAOList[MAXIMUM_RENDER_OBJECTS];
 	/*--------------------------- VERTEX BUFFER OBJECTS --------------------------------*/
-	GLuint * VBOList[MAXIMUM_SPRITES];
+	GLuint * DefaultVBOList[MAXIMUM_RENDER_OBJECTS];
 	/*--------------------------- ELEMENT BUFFER OBJECTS --------------------------------*/
-	GLuint * EABList[MAXIMUM_SPRITES];
+	GLuint * EABList[MAXIMUM_RENDER_OBJECTS];
 	/*--------------------------- TEXTURE BUFFER OBJECTS --------------------------------*/
-	GLuint * TBOList[MAXIMUM_SPRITES];
+	GLuint * TBOList[MAXIMUM_RENDER_OBJECTS];
 	/*------------------------------- ENGINE REFERENCE -------------------------------*/
 	Engine const & EngineHandle;
 	/*--------------------------- MATRICES --------------------------------*/
@@ -48,6 +50,9 @@ private:
 	float FieldOfView = 45.0f;
 
 	GameObject * MinkowskiDifference;
+	std::vector<Line> DebugLinesStack;
+	int DebugLinesCounter;
+	Primitive * DebugLinePrimitive;
 public:
 	// List of render components
 	std::vector<Primitive *> RenderList;
@@ -57,27 +62,26 @@ public:
 	// Later on use an array of unique ptrs to cameras owned by renderer, 
 	// active camera at any time is pointed to by this pointer
 	Camera * pActiveCamera;
-	// Contains all the pairs of points between which debug lines are drawn every frame
-	std::vector<std::pair<glm::vec3, glm::vec3>> DebugLinePointList;
 	/*----------MEMBER FUNCTIONS----------*/
 public:
 	Renderer(Engine const & aEngine) :EngineHandle(aEngine),
 		DefaultShader(*this), 
-		DebugShader(*this),
+		DebugNormalsShader(*this),
+		DebugLinesShader(*this),
 		TextureCount(0)
 	{}
 
 	virtual ~Renderer()
 	{
-		for (int i = 0; i < MAXIMUM_SPRITES; i++)
+		for (int i = 0; i < MAXIMUM_RENDER_OBJECTS; i++)
 		{
 			// BUFFER DELETION
-			glDeleteBuffers(1, VBOList[i]);
+			glDeleteBuffers(1, DefaultVBOList[i]);
 			glDeleteBuffers(1, EABList[i]);
 			// TEXTURE DELETION
 			glDeleteTextures(1, TBOList[i]);
 			// VERTEX ARRAY DELETION
-			glDeleteVertexArrays(1, VAOList[i]);
+			glDeleteVertexArrays(1, DefaultVAOList[i]);
 		}
 	}
 
@@ -93,13 +97,23 @@ public:
 	inline void SetActiveCamera(Camera * aCameraPtr) { pActiveCamera = aCameraPtr; }
 
 	void InititalizeRenderer();
+	// Gives a primitive a VAO, VBO to use, adds to list of render objects
 	void RegisterPrimitive(Primitive * aNewPrimitive);
+	// Create the debug line primitive and save it for later
+	void CreateDebugLinePrimitive();
+	// Pushes debug line onto a stack of lines to be drawn
+	void RegisterDebugLine(Line & aLine);
 	bool BindTexture(Primitive * aPrimitive, int aTextureID);
 	
 	void Render();
+	// Main pass render functions
 	void MainRenderPass();
+
+	// Debug pass render function
 	void DebugRenderPass();
-	void RenderDebugLines();
+	void RenderDebugWireframes(GLint aMVPAttributeIndex);
+	void RenderDebugNormals(GLint aMVPAttributeIndex);
+	void RenderDebugLines(GLint aMVPAttributeIndex);
 
 	static void check_gl_error_render()
 	{

@@ -41,9 +41,9 @@ void PhysicsManager::DetectCollision()
 				break;
 			Physics * physicsObject1 = PhysicsObjectsList[i];
 			Physics * physicsObject2 = PhysicsObjectsList[j];
-
+			ContactData newContactData;
 			// Set to Red if colliding, Green if not colliding
-			if (GJKCollisionHandler(physicsObject1, physicsObject2))
+			if (GJKCollisionHandler(physicsObject1, physicsObject2, newContactData))
 			{
 				std::cout << "Colliding!\n";
 				Mesh * mesh1 = physicsObject1->GetOwner()->GetComponent<Mesh>();
@@ -52,7 +52,10 @@ void PhysicsManager::DetectCollision()
 				Mesh * mesh2 = physicsObject2->GetOwner()->GetComponent<Mesh>();
 				mesh2->SetVertexColorsUniform(glm::vec3(1.0f, 0.0f, 0.0f));
 
+				glm::vec3 endPoint = newContactData.Position + 5.0f * newContactData.Normal;
 
+				Line newDebugLine(glm::vec3(newContactData.Position), endPoint);
+				EngineHandle.GetRenderer().RegisterDebugLine(newDebugLine);
 			}
 			else
 			{
@@ -68,7 +71,7 @@ void PhysicsManager::DetectCollision()
 }
 
 // Casey Muratori explains it best: https://www.youtube.com/watch?v=Qupqu1xe7Io
-bool PhysicsManager::GJKCollisionHandler(Physics * aPhysicsObject1, Physics * aPhysicsObject2)
+bool PhysicsManager::GJKCollisionHandler(Physics * aPhysicsObject1, Physics * aPhysicsObject2, ContactData & aContactData)
 {
 	Mesh * mesh1 = aPhysicsObject1->GetOwner()->GetComponent<Mesh>();
 	Mesh * mesh2 = aPhysicsObject2->GetOwner()->GetComponent<Mesh>();
@@ -119,6 +122,7 @@ bool PhysicsManager::GJKCollisionHandler(Physics * aPhysicsObject1, Physics * aP
 				
 				ContactData collisionResult = EPAContactDetection(simplex, mesh1, mesh2);
 				collisionResult.Normal = glm::normalize(collisionResult.Normal);
+				aContactData = collisionResult;
 				return true;
 			}
 		}
@@ -354,6 +358,7 @@ ContactData PhysicsManager::EPAContactDetection(Simplex & aSimplex, Primitive * 
 
 		// If this new point is within a tolerable limit of the origin, 
 		// assume we have found the closest triangle on the Minkowski Hull to the origin
+		if (glm::dot(closestFace->FaceNormal, closestFace->Points[0].MinkowskiHullVertex) - minimumDistance < exitThreshold)
 		{
 			// Generate contact info and return
 			return ExtrapolateContactInformation(&(*closestFace));
