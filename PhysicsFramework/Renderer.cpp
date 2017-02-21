@@ -123,7 +123,18 @@ void Renderer::MainRenderPass()
 
 	// Get the MVP Matrix id
 	GLint glModelViewProjection = glGetUniformLocation(DefaultShader.GetShaderProgram(), "ModelViewProjectionMatrix");
-	
+	if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_CAPS_LOCK))
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+
+	// Render Minkowski Difference
+	Mesh * shape1 = static_cast<Mesh *>(RenderList[3]);
+	Mesh * shape2 = static_cast<Mesh *>(RenderList[4]);
+	std::vector<Vertex> MinkowskiDifferenceVertices;
+	Utility::CalculateMinkowskiDifference(MinkowskiDifferenceVertices, shape1, shape2);
+	MinkowskiDifference->GetComponent<Mesh>()->BindVertexData(MinkowskiDifferenceVertices);
+
 	for (int i = 0; i < RenderList.size(); ++i)
 	{
 		Transform * transform = nullptr;
@@ -160,6 +171,7 @@ void Renderer::MainRenderPass()
 		glDisableClientState(GL_VERTEX_ARRAY);
 	}
 	DefaultShader.Unuse();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// Render debug lines
 	DebugLinesShader.Use();
@@ -186,12 +198,7 @@ void Renderer::DebugRenderPass()
 	RenderDebugNormals(glModelViewProjection);
 	DebugNormalsShader.Unuse();
 
-	// Render Minkowski Difference
-	//Mesh * shape1 = static_cast<Mesh *>(RenderList[2]);
-	//Mesh * shape2 = static_cast<Mesh *>(RenderList[3]);
-	//std::vector<Vertex> MinkowskiDifferenceVertices;
-	//Utility::CalculateMinkowskiDifference(MinkowskiDifferenceVertices, shape1, shape2);
-
+	
 	
 }
 
@@ -315,11 +322,11 @@ void Renderer::OnNotify(Object * object, Event * event)
 			InititalizeRenderer();
 			
 			///*---------- MINKOWSKI DIFFERENCE INIT ----------*/
-			//MinkowskiDifference = EngineHandle.GetGameObjectFactory().SpawnGameObject();
-			//std::vector<Vertex> MinkowskiDifferenceVertices;
-			//Mesh * minkowskiMesh = EngineHandle.GetGameObjectFactory().SpawnComponent<Mesh>();
-			//minkowskiMesh->SetOwner(MinkowskiDifference);
-			//MinkowskiDifference->AddComponent(minkowskiMesh);
+			MinkowskiDifference = EngineHandle.GetGameObjectFactory().SpawnGameObject();
+			std::vector<Vertex> MinkowskiDifferenceVertices;
+			Mesh * minkowskiMesh = EngineHandle.GetGameObjectFactory().SpawnComponent<Mesh>();
+			minkowskiMesh->SetOwner(MinkowskiDifference);
+			MinkowskiDifference->AddComponent(minkowskiMesh);
 
 		}
 		else if (engineEvent->EventID == EngineEvent::EventList::ENGINE_TICK)		

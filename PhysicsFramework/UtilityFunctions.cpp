@@ -34,20 +34,28 @@ void Utility::CalculateMinkowskiDifference(std::vector<Vertex>& aMinkowskiDiffer
 	{
 		// Calculate the model matrices and set the matrix uniform
 		glm::mat4 model1, model2;
-		glm::mat4 translate, scale;
-		translate = glm::translate(aShape1->GetOwner()->GetComponent<Transform>()->GetPosition());
-		scale = glm::scale(aShape1->GetOwner()->GetComponent<Transform>()->GetScale());
-		model1 = translate * scale;
+		glm::mat4 translate, rotate, scale;
+		Transform * transform1 = aShape1->GetOwner()->GetComponent<Transform>();
+		translate = glm::translate(transform1->GetPosition());
+		rotate = glm::mat4_cast(transform1->GetRotation());
+		scale = glm::scale(transform1->GetScale());
+		model1 = translate * rotate * scale;
 
-		translate = glm::translate(aShape2->GetOwner()->GetComponent<Transform>()->GetPosition());
-		scale = glm::scale(aShape2->GetOwner()->GetComponent<Transform>()->GetScale());
-		model2 = translate * scale;
+		Transform * transform2 = aShape2->GetOwner()->GetComponent<Transform>();
+
+		translate = glm::translate(transform2->GetPosition());
+		rotate = glm::mat4_cast(transform2->GetRotation());
+		scale = glm::scale(transform2->GetScale());
+		model2 = translate * rotate * scale;
 
 		glm::vec4 position1 = model1 * glm::vec4(aShape1->Vertices[i].Position, 1);
-		glm::vec4 position2 = model2 * glm::vec4(aShape2->Vertices[i].Position, 1);
 		Vertex newVertex;
-		newVertex.Position = glm::vec3(position2 - position1);
-		MinkowskiDifferenceVertices.push_back(newVertex);
+		for (int j = 0; j < size2; ++j)
+		{
+			glm::vec4 position2 = model2 * glm::vec4(aShape2->Vertices[j].Position, 1);
+			newVertex.Position = glm::vec3(position2 - position1);
+			MinkowskiDifferenceVertices.push_back(newVertex);
+		}
 	}
 
 	// Sort Minkowski Difference vertices
@@ -69,4 +77,5 @@ void Utility::CalculateMinkowskiDifference(std::vector<Vertex>& aMinkowskiDiffer
 	Utility::SortUsingOrderingPairs(MinkowskiDifferenceVertices, order);
 	
 	aMinkowskiDifference = std::move(MinkowskiDifferenceVertices);
+
 }

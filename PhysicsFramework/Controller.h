@@ -15,7 +15,7 @@ private:
 	glm::vec3 leftVector = glm::vec3(1.0f, 0.0f, 0.0f);
 	glm::vec3 forwardVector = glm::vec3(0.0f, 0.0f, -1.0f);
 public:
-	float MovementSpeed = 50.0f;
+	float MovementSpeed = 1.f;
 	Transform * TargetTransform = nullptr;
 
 	/*----------MEMBER FUNCTIONS----------*/
