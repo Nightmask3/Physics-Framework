@@ -1,8 +1,7 @@
 #include "WindowMenuBarWidget.h"
 
-void WindowMenuBarWidget::DrawMenu()
+void WindowMenuBarWidget::DrawFileMenu()
 {
-	ImGui::MenuItem("(dummy menu)", NULL, false, false);
 	if (ImGui::MenuItem("New")) {}
 	if (ImGui::MenuItem("Open", "Ctrl+O")) {}
 	if (ImGui::MenuItem("Save", "Ctrl+S")) {}
@@ -27,20 +26,24 @@ void WindowMenuBarWidget::DrawMenu()
 
 bool WindowMenuBarWidget::DrawWidget()
 {
-	// Menu
-	if (ImGui::BeginMenuBar())
+	if (ImGui::BeginMainMenuBar())
 	{
-		if (ImGui::BeginMenu("Menu"))
+		if (ImGui::BeginMenu("File"))
 		{
-			DrawMenu();
+			DrawFileMenu();
 			ImGui::EndMenu();
 		}
-		if (ImGui::BeginMenu("Help"))
+		if (ImGui::BeginMenu("Edit"))
 		{
-			ImGui::Text("Infinitus Engine v0.2");
+			if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
+			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+			ImGui::Separator();
+			if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+			if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+			if (ImGui::MenuItem("Paste", "CTRL+V")) {}
 			ImGui::EndMenu();
 		}
-		ImGui::EndMenuBar();
+		ImGui::EndMainMenuBar();
 	}
 
 	return true;

@@ -8,22 +8,22 @@
 #include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
 
-class WindowMenuBarWidget;
+class ImGuiWidget;
 
 class ImGuiManager : public Observer
 {
 	/*----------MEMBER VARIABLES----------*/
 private:
-	
+	std::vector<ImGuiWidget *> WidgetList;
 	/*------------------------------- ENGINE REFERENCE -------------------------------*/
-	Engine const & EngineHandle;
+	Engine & EngineHandle;
 
 	/*----------MEMBER FUNCTIONS----------*/
 private:
 	void DrawWidgets();
-	
+
 public:
-	ImGuiManager(Engine const & aEngine) : EngineHandle(aEngine) {}
+	ImGuiManager(Engine & aEngine) : EngineHandle(aEngine) {}
 	~ImGuiManager();
 
 	Engine const & GetEngine() { return EngineHandle; }

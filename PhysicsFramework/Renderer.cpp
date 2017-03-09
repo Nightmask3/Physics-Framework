@@ -5,7 +5,6 @@
 #include "Renderer.h"
 #include "GameObjectFactory.h"
 #include "GameObject.h"
-#include "Line.h"
 #include "UtilityFunctions.h"
 
 void Renderer::RegisterPrimitive(Primitive * aNewPrimitive)
@@ -19,10 +18,18 @@ void Renderer::CreateDebugLinePrimitive()
 {
 	DebugLinePrimitive = EngineHandle.GetGameObjectFactory().SpawnComponent<Debug>();
 	Line newLine(glm::vec3(0), glm::vec3(1));
-	DebugLinesCounter++;
 	newLine.VAO = DebugLinePrimitive->GetVAO();
 	newLine.VBO = DebugLinePrimitive->GetVBO();
 	newLine.BindVertexData();
+}
+
+void Renderer::CreateDebugQuadPrimitive()
+{
+	DebugQuadPrimitive = EngineHandle.GetGameObjectFactory().SpawnComponent<Debug>();
+	Quad newQuad(glm::vec3(0));
+	newQuad.VAO = DebugQuadPrimitive->GetVAO();
+	newQuad.VBO = DebugQuadPrimitive->GetVBO();
+	newQuad.BindVertexData();
 }
 
 void Renderer::RegisterDebugLine(Line & aLine)
@@ -73,9 +80,12 @@ void Renderer::InititalizeRenderer()
 	DebugNormalsShader.CreateDebugNormalsShaderProgram();
 	// Create debug lines shader program, reserve for later
 	DebugLinesShader.CreateDebugLineShaderProgram();
+	// Create debug quads shader program, reserve for later
+	DebugQuadsShader.CreateDebugQuadShaderProgram();
 
 	/*---------- PRIMITIVE CREATION ----------*/
 	CreateDebugLinePrimitive();
+	CreateDebugQuadPrimitive();
 }
 
 void Renderer::Render()
@@ -128,12 +138,12 @@ void Renderer::MainRenderPass()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
-	// Render Minkowski Difference
-	Mesh * shape1 = static_cast<Mesh *>(RenderList[3]);
-	Mesh * shape2 = static_cast<Mesh *>(RenderList[4]);
-	std::vector<Vertex> MinkowskiDifferenceVertices;
-	Utility::CalculateMinkowskiDifference(MinkowskiDifferenceVertices, shape1, shape2);
-	MinkowskiDifference->GetComponent<Mesh>()->BindVertexData(MinkowskiDifferenceVertices);
+	//// Render Minkowski Difference
+	//Mesh * shape1 = static_cast<Mesh *>(RenderList[3]);
+	//Mesh * shape2 = static_cast<Mesh *>(RenderList[4]);
+	//std::vector<Vertex> MinkowskiDifferenceVertices;
+	//Utility::CalculateMinkowskiDifference(MinkowskiDifferenceVertices, shape1, shape2);
+	//MinkowskiDifference->GetComponent<Mesh>()->BindVertexData(MinkowskiDifferenceVertices);
 
 	for (int i = 0; i < RenderList.size(); ++i)
 	{
@@ -179,27 +189,32 @@ void Renderer::MainRenderPass()
 	RenderDebugLines(glModelViewProjection);
 	DebugLinesShader.Unuse();
 
-	return;
+	// Render debug quads
+	DebugQuadsShader.Use();
+	GLint glModelMatrixAttributeIndex, glViewMatrixAttributeIndex, glProjectionMatrixAttributeIndex, glBillboardModeAttributeIndex;
+	glModelMatrixAttributeIndex = glGetUniformLocation(DebugQuadsShader.GetShaderProgram(), "ModelMatrix");
+	glViewMatrixAttributeIndex = glGetUniformLocation(DebugQuadsShader.GetShaderProgram(), "ViewMatrix");
+	glProjectionMatrixAttributeIndex = glGetUniformLocation(DebugQuadsShader.GetShaderProgram(), "ProjectionMatrix");
+	glBillboardModeAttributeIndex = glGetUniformLocation(DebugQuadsShader.GetShaderProgram(), "BillboardMode");
+	RenderDebugQuads(glModelMatrixAttributeIndex, glViewMatrixAttributeIndex, glProjectionMatrixAttributeIndex, glBillboardModeAttributeIndex);
+	DebugQuadsShader.Unuse();
 }
 
 void Renderer::DebugRenderPass()
 {
-	GLint glModelViewProjection;
+	GLint glModelViewProjectionAttribute;
 	/*-------------------------------- DEBUG MESH RENDER-------------------------------*/
 	// Render wireframes
 	DefaultShader.Use();
-	glModelViewProjection = glGetUniformLocation(DefaultShader.GetShaderProgram(), "ModelViewProjectionMatrix");
-	RenderDebugWireframes(glModelViewProjection);
+	glModelViewProjectionAttribute = glGetUniformLocation(DefaultShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+	RenderDebugWireframes(glModelViewProjectionAttribute);
 	DefaultShader.Unuse();
 
 	// Render normals
 	DebugNormalsShader.Use();
-	glModelViewProjection = glGetUniformLocation(DebugNormalsShader.GetShaderProgram(), "ModelViewProjectionMatrix");
-	RenderDebugNormals(glModelViewProjection);
+	glModelViewProjectionAttribute = glGetUniformLocation(DebugNormalsShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+	RenderDebugNormals(glModelViewProjectionAttribute);
 	DebugNormalsShader.Unuse();
-
-	
-	
 }
 
 void Renderer::RenderDebugWireframes(GLint aMVPAttributeIndex)
@@ -282,7 +297,7 @@ void Renderer::RenderDebugLines(GLint aMVPAttributeIndex)
 {
 	glm::mat4 projectionView = Projection * View;
 
-	// Draw all lines that have been registered 
+	// Draw all Lines that have been registered 
 	for (int i = 0; i < DebugLinesStack.size(); ++i)
 	{
 		glm::mat4 model;
@@ -291,7 +306,7 @@ void Renderer::RenderDebugLines(GLint aMVPAttributeIndex)
 		glm::vec3 normal = DebugLinesStack[i].PointA - DebugLinesStack[i].PointB;
 		normal = glm::normalize(normal);
 		glm::mat4 rotate = glm::orientation(normal, glm::vec3(1, 0, 0));
-		glm::mat4 scale = glm::scale(glm::vec3(5));
+		glm::mat4 scale = glm::scale(glm::vec3(DebugLinesStack[i].Scale));
 		model = translate * rotate * scale;
 		projectionView = projectionView * model;
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -299,14 +314,41 @@ void Renderer::RenderDebugLines(GLint aMVPAttributeIndex)
 		check_gl_error_render();
 		glBindVertexArray(DebugLinePrimitive->GetVAO());
 		check_gl_error_render();
-		glDrawArrays(GL_TRIANGLES, 0, 9);
+		glDrawArrays(GL_TRIANGLES, 0, DebugLinesStack[i].VertexCount);
 		check_gl_error_render();
 		glBindVertexArray(0);
 		glDisableClientState(GL_VERTEX_ARRAY);
 
 	}
 	DebugLinesStack.clear();
-	DebugLinesCounter = 0;
+}
+
+void Renderer::RenderDebugQuads(GLint aModelAttributeIndex, GLint aViewAttributeIndex, GLint aProjectionAttributeIndex, GLint aBillboardModeAttributeIndex)
+{
+	// Set projection and view matrices
+	glUniformMatrix4fv(aProjectionAttributeIndex, 1, GL_FALSE, &Projection[0][0]);
+	glUniformMatrix4fv(aViewAttributeIndex, 1, GL_FALSE, &View[0][0]);
+	// Use cylindrical billboarding
+	glUniform1i(aBillboardModeAttributeIndex, 0);
+
+	// Draw all Quads that have been registered 
+	for (int i = 0; i < DebugQuadsStack.size(); ++i)
+	{
+		glm::mat4 model;
+		glm::mat4 translate = glm::translate(DebugQuadsStack[i].WorldPosition);
+		glm::mat4 scale = glm::scale(glm::vec3(DebugQuadsStack[i].Scale));
+		model = translate * scale;
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glUniformMatrix4fv(aModelAttributeIndex, 1, GL_FALSE, &model[0][0]);
+		check_gl_error_render();
+		glBindVertexArray(DebugQuadPrimitive->GetVAO());
+		check_gl_error_render();
+		glDrawArrays(GL_TRIANGLES, 0, DebugQuadsStack[i].VertexCount);
+		check_gl_error_render();
+		glBindVertexArray(0);
+		glDisableClientState(GL_VERTEX_ARRAY);
+	}
+	DebugQuadsStack.clear();
 }
 
 void Renderer::OnNotify(Object * object, Event * event)
@@ -321,7 +363,7 @@ void Renderer::OnNotify(Object * object, Event * event)
 		{
 			InititalizeRenderer();
 			
-			///*---------- MINKOWSKI DIFFERENCE INIT ----------*/
+			/*---------- MINKOWSKI DIFFERENCE INIT ----------*/
 			MinkowskiDifference = EngineHandle.GetGameObjectFactory().SpawnGameObject();
 			std::vector<Vertex> MinkowskiDifferenceVertices;
 			Mesh * minkowskiMesh = EngineHandle.GetGameObjectFactory().SpawnComponent<Mesh>();
@@ -349,6 +391,11 @@ void Renderer::OnNotify(Object * object, Event * event)
 		}
 		return;
 	}
+}
+
+void Renderer::RegisterDebugQuad(Quad & aQuad)
+{
+	DebugQuadsStack.push_back(aQuad);
 }
 
 // aPrimitive : Primitive the texture is being assigned to

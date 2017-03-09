@@ -21,6 +21,7 @@
 // Render utilities
 #include "ShaderProgram.h"
 #include "Line.h"
+#include "Quad.h"
 
 class Renderer : public Observer
 {
@@ -32,6 +33,7 @@ private:
 	ShaderProgram DefaultShader;
 	ShaderProgram DebugNormalsShader;
 	ShaderProgram DebugLinesShader;
+	ShaderProgram DebugQuadsShader;
 	/*--------------------------- VERTEX ARRAY OBJECTS --------------------------------*/
 	GLuint * DefaultVAOList[MAXIMUM_RENDER_OBJECTS];
 	/*--------------------------- VERTEX BUFFER OBJECTS --------------------------------*/
@@ -41,7 +43,7 @@ private:
 	/*--------------------------- TEXTURE BUFFER OBJECTS --------------------------------*/
 	GLuint * TBOList[MAXIMUM_RENDER_OBJECTS];
 	/*------------------------------- ENGINE REFERENCE -------------------------------*/
-	Engine const & EngineHandle;
+	Engine & EngineHandle;
 	/*--------------------------- MATRICES --------------------------------*/
 	glm::mat4 Projection;
 	glm::mat4 View;
@@ -51,8 +53,9 @@ private:
 
 	GameObject * MinkowskiDifference;
 	std::vector<Line> DebugLinesStack;
-	int DebugLinesCounter;
+	std::vector<Quad> DebugQuadsStack;
 	Primitive * DebugLinePrimitive;
+	Primitive * DebugQuadPrimitive;
 public:
 	// List of render components
 	std::vector<Primitive *> RenderList;
@@ -64,10 +67,11 @@ public:
 	Camera * pActiveCamera;
 	/*----------MEMBER FUNCTIONS----------*/
 public:
-	Renderer(Engine const & aEngine) :EngineHandle(aEngine),
+	Renderer(Engine & aEngine) :EngineHandle(aEngine),
 		DefaultShader(*this), 
 		DebugNormalsShader(*this),
 		DebugLinesShader(*this),
+		DebugQuadsShader(*this),
 		TextureCount(0)
 	{}
 
@@ -90,8 +94,7 @@ public:
 	inline int GetRenderListSize() { return (int)RenderList.size(); }
 	inline int GetTextureCount() { return TextureCount; }
 	
-	Engine const & GetEngine() { return EngineHandle; }
-	Engine const & GetEngine() const { return EngineHandle; }
+	Engine & GetEngine() { return EngineHandle; }
 
 	// Setters
 	inline void SetActiveCamera(Camera * aCameraPtr) { pActiveCamera = aCameraPtr; }
@@ -101,8 +104,13 @@ public:
 	void RegisterPrimitive(Primitive * aNewPrimitive);
 	// Create the debug line primitive and save it for later
 	void CreateDebugLinePrimitive();
+	// Create the debug quad primitive and save it for later
+	void CreateDebugQuadPrimitive();
 	// Pushes debug line onto a stack of lines to be drawn
 	void RegisterDebugLine(Line & aLine);
+	// Pushes debug quad onto a stack of quads to be drawn
+	void RegisterDebugQuad(Quad & aQuad);
+
 	bool BindTexture(Primitive * aPrimitive, int aTextureID);
 	
 	void Render();
@@ -114,7 +122,8 @@ public:
 	void RenderDebugWireframes(GLint aMVPAttributeIndex);
 	void RenderDebugNormals(GLint aMVPAttributeIndex);
 	void RenderDebugLines(GLint aMVPAttributeIndex);
-
+	void RenderDebugQuads(GLint aModelAttributeIndex, GLint aViewAttributeIndex, GLint aProjectionAttributeIndex, GLint aBillboardModeAttributeIndex);
+	
 	static void check_gl_error_render()
 	{
 		GLenum err(glGetError());

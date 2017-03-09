@@ -17,7 +17,8 @@ void InputManager::ScrollCallback(GLFWwindow * aWindow, double aXOffset, double 
 	ScrollDelta = CurrentScrollDirection - PreviousScrollDirection;
 }
 
-InputManager::InputManager(Engine const & aEngine) : EngineHandle(aEngine)
+
+InputManager::InputManager(Engine & aEngine) : EngineHandle(aEngine)
 {
 	// Upon construction set callback function for scroll input
 	glfwSetScrollCallback(EngineHandle.GetWindowManager().GetWindow(), InputManager::ScrollCallback);

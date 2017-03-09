@@ -4,10 +4,6 @@
 class Debug : public Primitive
 {
 	/*----------MEMBER VARIABLES----------*/
-private:
-	PrimitiveType ePrimitiveType;
-
-	/*----------MEMBER VARIABLES----------*/
 public:
 	Debug(GLuint VAO, GLuint VBO);
 	virtual ~Debug() {};

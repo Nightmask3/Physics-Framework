@@ -65,15 +65,6 @@ public:
 	virtual ~Engine();
 	std::map<EngineEvent::EventList, Subject> & GetMainEventList() { return MainEventList; }
 
-	inline WindowManager & GetWindowManager()  const { return *pWindowManager; }
-	inline InputManager & GetInputManager() const { return *pInputManager; }
-	inline FramerateController & GetFramerateController() const { return *pFrameRateController; }
-	inline GameObjectFactory & GetGameObjectFactory() const { return *pGameObjectFactory; }
-	inline ResourceManager & GetResourceManager() const { return *pResourceManager; }
-	inline Renderer & GetRenderer() const { return *pRenderer; }
-	inline PhysicsManager & GetPhysicsManager() const { return *pPhysicsManager; }
-	inline ImGuiManager & GetImGuiManager() const { return *pImGuiManager; }
-
 	inline WindowManager & GetWindowManager() { return *pWindowManager; }
 	inline InputManager & GetInputManager() { return *pInputManager; }
 	inline FramerateController & GetFramerateController() { return *pFrameRateController; }

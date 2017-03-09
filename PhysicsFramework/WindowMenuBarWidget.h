@@ -4,7 +4,7 @@
 class WindowMenuBarWidget : public ImGuiWidget
 {
 private:
-	void DrawMenu();
+	void DrawFileMenu();
 public:
 	virtual bool DrawWidget() override;
 };

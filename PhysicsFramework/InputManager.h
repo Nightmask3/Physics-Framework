@@ -18,11 +18,11 @@ private:
 	static glm::vec2 PreviousScrollDirection;
 	static glm::vec2 ScrollDelta;
 	/*------------------------------- ENGINE REFERENCE -------------------------------*/
-	Engine const & EngineHandle;
+	Engine & EngineHandle;
 
 	/*----------MEMBER FUNCTIONS----------*/
 public:
-	InputManager(Engine const & aEngine);
+	InputManager(Engine & aEngine);
 	virtual ~InputManager();
 
 	Engine const & GetEngine() { return EngineHandle; }
@@ -60,9 +60,8 @@ public:
 	void HideCursor();
 private:
 	glm::vec2 GetMousePosition();
-
+	// Scroll
 	static void ScrollCallback(GLFWwindow * aWindow, double aXOffset, double aYOffset);
-
-
+	
 };
 

@@ -2,7 +2,7 @@
 #include "WindowManager.h"
 
 #include "WindowMenuBarWidget.h"
-
+#include "WorldOutlinerWidget.h"
 // Included here to actually have the implementation for the linker
 #include "imgui.cpp"
 #include "imgui_draw.cpp"
@@ -34,18 +34,18 @@ void ImGuiManager::DrawWidgets()
 		static float f = 0.0f;
 		ImGui::Text("Use WASD & QE to move the camera. \nTAB activates debug draw");
 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-		if (ImGui::Button("Test Window")) show_test_window ^= 1;
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}
 
+	for (int i = 0; i < WidgetList.size(); ++i)
+		WidgetList[i]->DrawWidget();
 
-
-	// 2. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
-	/*if (show_test_window)
-	{
-		ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-		ImGui::ShowTestWindow(&show_test_window);
-	}*/
+	//// 2. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
+	//if (show_test_window)
+	//{
+	//	ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+	//	ImGui::ShowTestWindow(&show_test_window);
+	//}
 
 }
 
@@ -60,6 +60,10 @@ void ImGuiManager::OnNotify(Object * object, Event * event)
 		{
 			// Setup ImGui binding
 			ImGui_ImplGlfwGL3_Init(EngineHandle.GetWindowManager().GetWindow(), true);
+
+			// Add widgets
+			WidgetList.push_back(new WindowMenuBarWidget());
+			WidgetList.push_back(new WorldOutlinerWidget());
 		}
 		else if (engineEvent->EventID == EngineEvent::EventList::ENGINE_TICK)
 		{

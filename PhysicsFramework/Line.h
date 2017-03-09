@@ -6,8 +6,10 @@
 
 struct Line
 {
-	glm::vec3 PointA;
-	glm::vec3 PointB;
+	glm::vec3 PointA = glm::vec3(0);
+	glm::vec3 PointB = glm::vec3(0);
+	float Scale = 1.0f;
+	static const int VertexCount = 9;
 	glm::vec3 Color = glm::vec3(1, 0, 0);
 	GLuint VAO;
 	GLuint VBO;
@@ -39,8 +41,8 @@ struct Line
 		};
 
 		GLsizei stride = 7 * sizeof(GLfloat);
-		glm::mat4 translate = glm::translate(PointA);
-		int primitiveSize = stride * 9;
+		Scale = glm::distance(PointA, PointB);
+		int primitiveSize = stride * VertexCount;
 		/*--------------------------- VERTEX ARRAY OBJECT --------------------------------*/
 		glBindVertexArray(VAO);
 		/*--------------------------- VERTEX BUFFER OBJECT --------------------------------*/
@@ -67,5 +69,7 @@ struct Line
 			stride,
 			(GLvoid*)(3 * sizeof(GLfloat))
 		);
+		glEnableVertexAttribArray(1);
+
 	}
 };

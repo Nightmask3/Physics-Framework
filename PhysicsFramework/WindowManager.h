@@ -8,13 +8,13 @@ class WindowManager : public Observer
 {
 	/*----------MEMBER VARIABLES----------*/
 private:
-	GLFWwindow * pWindow;
+	static GLFWwindow * pWindow;
 
 	/*------------------------------- ENGINE REFERENCE -------------------------------*/
 	Engine const & EngineHandle;
 public:
-	int Width = 1024;
-	int Height = 768;
+	static int Width;
+	static int Height;
 	/*----------MEMBER FUNCTIONS----------*/
 public:
 	WindowManager(Engine const & aEngine) : EngineHandle(aEngine) {}
@@ -27,5 +27,9 @@ public:
 	int InitializeWindow();
 	// Observer functions
 	virtual void OnNotify(Object * object, Event * event) override;
+
+	// Window resize 
+	static void WindowResizeCallback(GLFWwindow * aWindow, int aWidth, int aHeight);
+
 };
 

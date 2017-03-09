@@ -5,6 +5,7 @@ class Object
 {
 public:
 	Object();
+	virtual void ReceiveEvent() {};
 	virtual ~Object();
 };
 

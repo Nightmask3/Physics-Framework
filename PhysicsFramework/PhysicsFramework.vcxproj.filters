@@ -43,12 +43,6 @@
     <Filter Include="Header Files\Archetypes">
       <UniqueIdentifier>{3d9990e3-969d-4896-b10c-1b0b5a03fbcf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Shaders\DebugDrawShader">
-      <UniqueIdentifier>{332159de-98df-44fb-9afc-83bef5471167}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Shaders\DefaultShader">
-      <UniqueIdentifier>{b9168f3c-76a2-4409-a66c-e3840e7945e3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Widgets">
       <UniqueIdentifier>{72beb7ef-532c-4b08-aaf6-fbaaa0710217}</UniqueIdentifier>
     </Filter>
@@ -67,9 +61,6 @@
     <Filter Include="Header Files\Utilities\PhysicsUtilities">
       <UniqueIdentifier>{e699f5b8-8b69-4bd4-95e5-95af3ad5dd3c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Shaders\DebugDrawShader\Lines">
-      <UniqueIdentifier>{e0386d48-6bb0-4809-8465-8491a5094b1f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Utilities\RenderUtilities">
       <UniqueIdentifier>{a51f1cf6-3dd3-43ba-91e8-6b7be8938731}</UniqueIdentifier>
     </Filter>
@@ -79,8 +70,20 @@
     <Filter Include="Source Files\Components\Primitives">
       <UniqueIdentifier>{3d58b6e9-4dca-4694-b8fe-05653801e7ad}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Shaders\DebugDrawShader\Normals">
+    <Filter Include="Source Files\Shaders\DebugShaders">
+      <UniqueIdentifier>{332159de-98df-44fb-9afc-83bef5471167}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders\DebugShaders\Lines">
+      <UniqueIdentifier>{e0386d48-6bb0-4809-8465-8491a5094b1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders\DebugShaders\Normals">
       <UniqueIdentifier>{b4d4998e-1aa9-4a19-9319-8474a3003f62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders\DebugShaders\Quads">
+      <UniqueIdentifier>{6d52e6f0-2770-440d-b4a0-25a3f6fe8d3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders\DefaultShaders">
+      <UniqueIdentifier>{b9168f3c-76a2-4409-a66c-e3840e7945e3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -189,6 +192,9 @@
     <ClInclude Include="Debug.h">
       <Filter>Header Files\Components\Primitives</Filter>
     </ClInclude>
+    <ClInclude Include="Quad.h">
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -261,7 +267,7 @@
       <Filter>Source Files\Components</Filter>
     </ClCompile>
     <ClCompile Include="NormalsVertexShader.glsl">
-      <Filter>Source Files\Shaders\DebugDrawShader\Normals</Filter>
+      <Filter>Source Files\Shaders\DebugShaders\Normals</Filter>
     </ClCompile>
     <ClCompile Include="Debug.cpp">
       <Filter>Source Files\Components\Primitives</Filter>
@@ -278,26 +284,32 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="DefaultFragmentShader.glsl">
-      <Filter>Source Files\Shaders\DefaultShader</Filter>
+      <Filter>Source Files\Shaders\DefaultShaders</Filter>
     </None>
     <None Include="DefaultGeometryShader.glsl">
-      <Filter>Source Files\Shaders\DefaultShader</Filter>
+      <Filter>Source Files\Shaders\DefaultShaders</Filter>
     </None>
     <None Include="DefaultVertexShader.glsl">
-      <Filter>Source Files\Shaders\DefaultShader</Filter>
+      <Filter>Source Files\Shaders\DefaultShaders</Filter>
     </None>
     <None Include="ClassDiagram.cd" />
     <None Include="LineVertexShader.glsl">
-      <Filter>Source Files\Shaders\DebugDrawShader\Lines</Filter>
+      <Filter>Source Files\Shaders\DebugShaders\Lines</Filter>
     </None>
     <None Include="LineFragmentShader.glsl">
-      <Filter>Source Files\Shaders\DebugDrawShader\Lines</Filter>
+      <Filter>Source Files\Shaders\DebugShaders\Lines</Filter>
     </None>
     <None Include="NormalsFragmentShader.glsl">
-      <Filter>Source Files\Shaders\DebugDrawShader\Normals</Filter>
+      <Filter>Source Files\Shaders\DebugShaders\Normals</Filter>
     </None>
     <None Include="NormalsGeometryShader.glsl">
-      <Filter>Source Files\Shaders\DebugDrawShader\Normals</Filter>
+      <Filter>Source Files\Shaders\DebugShaders\Normals</Filter>
+    </None>
+    <None Include="QuadVertexShader.glsl">
+      <Filter>Source Files\Shaders\DebugShaders\Quads</Filter>
+    </None>
+    <None Include="QuadFragmentShader.glsl">
+      <Filter>Source Files\Shaders\DebugShaders\Quads</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

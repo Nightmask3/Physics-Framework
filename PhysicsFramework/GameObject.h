@@ -11,13 +11,13 @@ class GameObject : public Observer
 	/*----------MEMBER VARIABLES----------*/
 private:
 	std::vector<std::unique_ptr<Component>> ComponentList;	
-
+public:
+	std::string Name;
 	/*----------MEMBER FUNCTIONS----------*/
 public:
 	GameObject() {}
 	virtual ~GameObject() {}
 	
-
 	template <typename T> T * GetComponent()
 	{
 		return dynamic_cast<T *>(GetComponent(T::GetComponentID()));
@@ -31,7 +31,7 @@ public:
 	
 	void Update();
 	void AddComponent(Component * aNewComponent);
-	void HandleEvent(Event *);
+
 private:
 	virtual void OnNotify(Object * object, Event * event) override;
 

@@ -22,7 +22,7 @@ private:
 	/*--------------------------- SHADER PROGRAM --------------------------------*/
 	GLuint ShaderProgramID;
 	/*--------------------------- RENDERER REFERENCE --------------------------------*/
-	Renderer const & RendererReference;
+	Renderer & RendererReference;
 
 	/*-----------------MEMBER FUNCTIONS------------------*/
 public:
@@ -35,11 +35,25 @@ public:
 	// Creates, links and validates the Debug - Lines - Shader Program 
 	bool CreateDebugLineShaderProgram();
 
-	ShaderProgram(Renderer const & render) : RendererReference(render) {}
+	// Creates, links and validates the Debug - Quads- Shader Program 
+	bool CreateDebugQuadShaderProgram();
+
+	// Returns status of vertex shader compilation
+	bool CheckVertexShaderCompilationStatus(GLuint aShaderID);
+
+	// Returns status of fragment shader compilation
+	bool CheckFragmentShaderCompilationStatus(GLuint aShaderID);
+
+	// Returns status of geometry shader compilation
+	bool CheckGeometryShaderCompilationStatus(GLuint aShaderID);
+
+	// Returns status of program compilation
+	bool CheckProgramCompilationStatus(GLuint aProgramID);
+
+	ShaderProgram(Renderer & render) : RendererReference(render) {}
 	virtual ~ShaderProgram();
 
-
-    inline Renderer const & GetRenderer() { return RendererReference; };
+    inline Renderer & GetRenderer() { return RendererReference; };
 	
 	GLuint GetShaderProgram() { return ShaderProgramID; }
 	
@@ -60,5 +74,9 @@ private:
 	// Debug lines shader program
 	bool CreateDebugLineVertexShader();
 	bool CreateDebugLineFragmentShader();
+
+	// Debug lines shader program
+	bool CreateDebugQuadVertexShader();
+	bool CreateDebugQuadFragmentShader();
 
 };

@@ -3,9 +3,6 @@
 class Mesh : public Primitive
 {
 	/*----------MEMBER VARIABLES----------*/
-private:
-	PrimitiveType ePrimitiveType;
-	/*----------MEMBER VARIABLES----------*/
 public:
 	Mesh(GLuint aVAO, GLuint aVBO);
 	virtual ~Mesh() {};

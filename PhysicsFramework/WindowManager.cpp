@@ -1,5 +1,10 @@
 #include "WindowManager.h"
 
+// Default initialize width and height
+int WindowManager::Width = 1024;
+int WindowManager::Height = 768;
+GLFWwindow * WindowManager::pWindow = nullptr;
+
 WindowManager::~WindowManager()
 {
 }
@@ -23,6 +28,13 @@ int WindowManager::InitializeWindow()
 	return 0;
 }
 
+void WindowManager::WindowResizeCallback(GLFWwindow * aWindow, int aWidth, int aHeight)
+{
+	Width = aWidth;
+	Height = aHeight;
+	glfwSetWindowSize(pWindow, Width, Height);
+}
+
 void WindowManager::OnNotify(Object * object, Event * event)
 {
 	// Check if this is an Engine event
@@ -40,3 +52,4 @@ void WindowManager::OnNotify(Object * object, Event * event)
 		return;
 	}
 }
+

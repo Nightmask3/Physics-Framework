@@ -67,10 +67,14 @@ void PhysicsManager::DetectCollision()
 				Mesh * mesh2 = physicsObject2->GetOwner()->GetComponent<Mesh>();
 				mesh2->SetVertexColorsUniform(glm::vec3(1.0f, 0.0f, 0.0f));
 
-				glm::vec3 endPoint = newContactData.Position + 2.0f * newContactData.Normal;
+				glm::vec3 endPoint = newContactData.Position + newContactData.PenetrationDepth * newContactData.Normal;
 
 				Line newDebugLine(glm::vec3(newContactData.Position), endPoint);
+				newDebugLine.Scale = newContactData.PenetrationDepth;
 				EngineHandle.GetRenderer().RegisterDebugLine(newDebugLine);
+
+				Quad newQuad(newContactData.Position);
+				EngineHandle.GetRenderer().RegisterDebugQuad(newQuad);
 			}
 			else
 			{
@@ -79,7 +83,6 @@ void PhysicsManager::DetectCollision()
 
 				Mesh * mesh2 = physicsObject2->GetOwner()->GetComponent<Mesh>();
 				mesh2->SetVertexColorsUniform(glm::vec3(0.0f, 1.0f, 0.0f));
-				std::cout << "Not Colliding!\n";
 			}
 		}
 	}

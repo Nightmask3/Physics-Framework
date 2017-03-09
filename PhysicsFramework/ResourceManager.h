@@ -36,10 +36,10 @@ class ResourceManager : public Observer
 private:
 	std::vector<std::unique_ptr<Texture>> TextureList;
 	/*------------------------------- ENGINE REFERENCE -------------------------------*/
-	Engine const & EngineHandle;
+	Engine & EngineHandle;
 
 public:
-	ResourceManager(Engine const & aEngine) :EngineHandle(aEngine) {};
+	ResourceManager(Engine & aEngine) :EngineHandle(aEngine) {};
 	virtual ~ResourceManager() {};
 
 	inline Texture * GetTexture(int aTextureID) const { return TextureList[aTextureID].get(); }

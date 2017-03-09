@@ -16,7 +16,7 @@ GameObject * GameObjectFactory::SpawnGameObjectFromArchetype(const char * aFileN
 	rootComponent->SetScale(glm::vec3(3));
 	// Read archetype data from file
 	TextFileData archetypeData;
-	archetypeData = pEngineReference->GetResourceManager().LoadTextFile(aFileName, READ);
+	archetypeData = pEngineReference.GetResourceManager().LoadTextFile(aFileName, READ);
 
 	char * archetypeContents = archetypeData.pData;
 	char componentName[64];
@@ -96,7 +96,7 @@ GameObject * GameObjectFactory::SpawnGameObjectFromArchetype(const char * aFileN
 	GameObjectList.emplace_back(newGameObject);
 	
 	// Add game object to observer list of engine tick event
-	pEngineReference->GetMainEventList()[EngineEvent::ENGINE_TICK].AddObserver(newGameObject);
+	pEngineReference.GetMainEventList()[EngineEvent::ENGINE_TICK].AddObserver(newGameObject);
 	return newGameObject;
 
 }
@@ -104,6 +104,7 @@ GameObject * GameObjectFactory::SpawnGameObjectFromArchetype(const char * aFileN
 GameObject * GameObjectFactory::SpawnGameObject(Transform & aTransform)
 {
 	GameObject * newGameObject = new GameObject();
+	newGameObject->Name = std::string("Object") + std::to_string(GameObjectList.size() + 1);
 	// Create root component from supplied/default transform
 	Transform * rootComponent = new Transform(aTransform);
 	rootComponent->SetOwner(newGameObject);
@@ -113,7 +114,7 @@ GameObject * GameObjectFactory::SpawnGameObject(Transform & aTransform)
 	GameObjectList.emplace_back(newGameObject);
 
 	// Add game object to observer list of engine tick event
-	pEngineReference->GetMainEventList()[EngineEvent::ENGINE_TICK].AddObserver(newGameObject);
+	pEngineReference.GetMainEventList()[EngineEvent::ENGINE_TICK].AddObserver(newGameObject);
 	
 	return newGameObject;
 }

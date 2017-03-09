@@ -42,13 +42,14 @@ public:
 
 	glm::vec3 FindFarthestPointInDirection(glm::vec3 aDirection);
 private:
-	PrimitiveType ePrimitiveType;
 	int PrimitiveSize;
 	GLuint TBO;
 	GLuint VAO;
 	GLuint VBO;
 	/*----------MEMBER VARIABLES----------*/
 public:
+	PrimitiveType ePrimitiveType;
+
 	Primitive(PrimitiveType aType, GLuint aVAO, GLuint aVBO) : 
 		Component(ComponentType::PRIMITIVE), 
 		ePrimitiveType(aType), 

@@ -26,10 +26,10 @@ class GameObjectFactory : public Observer
 	/*----------MEMBER VARIABLES----------*/
 private:
 	std::vector<std::unique_ptr<GameObject>> GameObjectList;
-	Engine * pEngineReference;
+	Engine & pEngineReference; 
 	/*----------MEMBER FUNCTIONS----------*/
 public:
-	GameObjectFactory(Engine * aEngine) : pEngineReference(aEngine)
+	GameObjectFactory(Engine & aEngine) : pEngineReference(aEngine)
 	{ GameObjectList.reserve(4096); }
 	virtual ~GameObjectFactory() {};
 
@@ -45,32 +45,32 @@ public:
 		}
 		if (typeid(T) == typeid(Debug))
 		{
-			int renderListSize = pEngineReference->GetRenderer().GetRenderListSize();
+			int renderListSize = pEngineReference.GetRenderer().GetRenderListSize();
 			// adding 1 because OpenGL regards VAO and VBO value of 0 to be unset
 			mComponent = new Debug(renderListSize + 1, renderListSize + 1);
-			pEngineReference->GetRenderer().RegisterPrimitive(static_cast<Primitive *>(mComponent));
+			pEngineReference.GetRenderer().RegisterPrimitive(static_cast<Primitive *>(mComponent));
 		}
 		if (typeid(T) == typeid(Sprite))
 		{
-			int renderListSize = pEngineReference->GetRenderer().GetRenderListSize();
+			int renderListSize = pEngineReference.GetRenderer().GetRenderListSize();
 			// adding 1 because OpenGL regards VAO and VBO value of 0 to be unset
 			mComponent = new Sprite(renderListSize + 1, renderListSize + 1);
-			pEngineReference->GetRenderer().RegisterPrimitive(static_cast<Primitive *>(mComponent));
+			pEngineReference.GetRenderer().RegisterPrimitive(static_cast<Primitive *>(mComponent));
 		}
 		else if (typeid(T) == typeid(Mesh))
 		{
-			int renderListSize = pEngineReference->GetRenderer().GetRenderListSize();
+			int renderListSize = pEngineReference.GetRenderer().GetRenderListSize();
 			mComponent = new Mesh(renderListSize + 1, renderListSize + 1);
-			pEngineReference->GetRenderer().RegisterPrimitive(static_cast<Primitive *>(mComponent));
+			pEngineReference.GetRenderer().RegisterPrimitive(static_cast<Primitive *>(mComponent));
 		}
 		else if (typeid(T) == typeid(Physics))
 		{
 			mComponent = new Physics();
-			pEngineReference->GetPhysicsManager().RegisterComponent(static_cast<Physics *>(mComponent));
+			pEngineReference.GetPhysicsManager().RegisterComponent(static_cast<Physics *>(mComponent));
 		}
 		else if (typeid(T) == typeid(Controller))
 		{
-			mComponent = new Controller(pEngineReference->GetInputManager(), pEngineReference->GetFramerateController());
+			mComponent = new Controller(pEngineReference.GetInputManager(), pEngineReference.GetFramerateController());
 		}
 		return static_cast<T *>(mComponent);
 	}

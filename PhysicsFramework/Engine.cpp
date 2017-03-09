@@ -38,7 +38,7 @@ Engine::Engine()
 	pPhysicsManager = std::make_unique<PhysicsManager>(*this);
 
 	// Do the same for game object factory...
-	pGameObjectFactory = std::make_unique<GameObjectFactory>(this); // Requires pointer and not const ref
+	pGameObjectFactory = std::make_unique<GameObjectFactory>(*this); 
 	EngineInitialized.AddObserver(pGameObjectFactory.get());
 
 	// Do the same for the renderer...

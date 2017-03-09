@@ -4,10 +4,6 @@
 class Sprite : public Primitive
 {
 	/*----------MEMBER VARIABLES----------*/
-private:
-	PrimitiveType ePrimitiveType;
-
-	/*----------MEMBER VARIABLES----------*/
 public:
 	Sprite(GLuint VAO, GLuint VBO);
 	virtual ~Sprite() {};

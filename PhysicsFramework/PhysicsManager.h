@@ -24,13 +24,13 @@ class PhysicsManager : public Observer
 private:
 	static int Iterations;
 	/*------------------------------- ENGINE REFERENCE -------------------------------*/
-	Engine const & EngineHandle;
+	Engine & EngineHandle;
 
 public:
 	std::vector<Physics *> PhysicsObjectsList;
 	
 	/*----------MEMBER FUNCTIONS----------*/
-	PhysicsManager(Engine const & aEngine) :EngineHandle(aEngine) {};
+	PhysicsManager(Engine & aEngine) :EngineHandle(aEngine) {};
 	~PhysicsManager() {};
 
 	Engine const & GetEngine() { return EngineHandle; }

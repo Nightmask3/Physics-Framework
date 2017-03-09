@@ -4,5 +4,7 @@
 class ImGuiWidget
 {
 public:
+
+public:
 	virtual bool DrawWidget() = 0;
 };
