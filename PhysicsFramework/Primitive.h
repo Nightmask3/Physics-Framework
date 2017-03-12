@@ -61,7 +61,8 @@ public:
 
 	virtual ~Primitive() {};
 	
-	static ComponentType GetComponentID();
+	static inline ComponentType GetComponentID() { return (ComponentType::PRIMITIVE); }
+	static inline const char * GetComponentName() { return ComponentTypeName[ComponentType::PRIMITIVE]; }
 
 	inline PrimitiveType GetPrimitiveType() { return ePrimitiveType; }
 	inline int GetPrimitiveSize() { return PrimitiveSize; }

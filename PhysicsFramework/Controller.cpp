@@ -2,11 +2,6 @@
 #include "Physics.h"
 #include "GameObject.h"
 
-Component::ComponentType Controller::GetComponentID()
-{
-	return Component::ComponentType::CONTROLLER;
-}
-
 void Controller::Update()
 {
 	if (InputManagerReference.isKeyPressed(GLFW_KEY_UP))

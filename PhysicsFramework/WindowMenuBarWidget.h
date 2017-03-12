@@ -7,4 +7,6 @@ private:
 	void DrawFileMenu();
 public:
 	virtual bool DrawWidget() override;
+	WindowMenuBarWidget(ImGuiManager & aManager) : 
+		ImGuiWidget(aManager) {}
 };

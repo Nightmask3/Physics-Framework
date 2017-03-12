@@ -39,8 +39,9 @@ public:
 	}
 	~Physics() {}
 	
-	static Component::ComponentType GetComponentID();
-	
+	static inline Component::ComponentType GetComponentID() { return (ComponentType::PHYSICS); }
+	static inline const char * GetComponentName() { return ComponentTypeName[ComponentType::PHYSICS]; }
+
 	// GETTERS
 	inline float GetMass() { return Mass; }
 	inline glm::vec3 GetCurrentPosition() { return CurrentPosition; }
@@ -54,10 +55,14 @@ public:
 	void Update() {}
 	virtual void Deserialize(TextFileData aTextFileData) override {};
 	
+	// Used at start of frame to sync physics with transforms (for updates from editor)
+	void SyncPhysicsWithTransform();
+	// Used at end of frame to sync transform to updated physics values
 	void UpdateTransform();
-	void Recalculate();
-	Derivative Evaluate(float t, float dt, const Derivative &);
-	void IntegrateExplicitEuler(float dt);
+
 	void IntegrateRK4(float totalTime, float dt);
+	Derivative Evaluate(float t, float dt, const Derivative &);
+
+	void IntegrateExplicitEuler(float dt);
 	void IntegratePositionVerlet(float dt);
 };

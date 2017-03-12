@@ -9,9 +9,8 @@
 class GameObject : public Observer
 {
 	/*----------MEMBER VARIABLES----------*/
-private:
-	std::vector<std::unique_ptr<Component>> ComponentList;	
 public:
+	std::vector<std::unique_ptr<Component>> ComponentList;	
 	std::string Name;
 	/*----------MEMBER FUNCTIONS----------*/
 public:

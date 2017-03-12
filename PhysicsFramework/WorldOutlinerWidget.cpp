@@ -1,74 +1,143 @@
+#include <glm/gtc/type_ptr.hpp>
+
 #include "WorldOutlinerWidget.h"
+#include "WindowManager.h"
+#include "GameObjectFactory.h"
+#include "InputManager.h"
 
 bool WorldOutlinerWidget::DrawWidget()
 {
-	ImGui::SetNextWindowSize(ImVec2(430, 450), ImGuiSetCond_FirstUseEver);
-	if (!ImGui::Begin("Example: Property editor"))
+	int height = ImGuiManagerReference.EngineHandle.GetWindowManager().Height;
+	int width = ImGuiManagerReference.EngineHandle.GetWindowManager().Width;
+	InputManager & inputManager = ImGuiManagerReference.EngineHandle.GetInputManager();
+	
+	if (!ImGui::Begin("World Outliner"))
 	{
 		ImGui::End();
 		return false;
 	}
 
-	//ShowHelpMarker("This example shows how you may implement a property editor using two columns.\nAll objects/fields data are dummies here.\nRemember that in many simple cases, you can use ImGui::SameLine(xxx) to position\nyour cursor horizontally instead of using the Columns() API.");
 
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
 	ImGui::Columns(2);
 	ImGui::Separator();
 
-	struct funcs
+	ImGui::Text("Object Name");
+	ImGui::NextColumn();
+	ImGui::Text("Object Properties");
+	ImGui::NextColumn();
+
+	// Iterate through all game objects and display their properties
+	std::vector<std::unique_ptr<GameObject>> & gameObjectList = ImGuiManagerReference.EngineHandle.GetGameObjectFactory().GameObjectList;
+	for (int i = 0; i < gameObjectList.size(); ++i)
 	{
-		static void ShowDummyObject(const char* prefix, int uid)
-		{
-			ImGui::PushID(uid);                      // Use object uid as identifier. Most commonly you could also use the object pointer as a base ID.
-			ImGui::AlignFirstTextHeightToWidgets();  // Text and Tree nodes are less high than regular widgets, here we add vertical spacing to make the tree lines equal high.
-			bool node_open = ImGui::TreeNode("Object", "%s_%u", prefix, uid);
-			ImGui::NextColumn();
-			ImGui::AlignFirstTextHeightToWidgets();
-			ImGui::Text("my sailor is rich");
-			ImGui::NextColumn();
-			if (node_open)
-			{
-				static float dummy_members[8] = { 0.0f,0.0f,1.0f,3.1416f,100.0f,999.0f };
-				for (int i = 0; i < 8; i++)
-				{
-					ImGui::PushID(i); // Use field index as identifier.
-					if (i < 2)
-					{
-						ShowDummyObject("Child", 424242);
-					}
-					else
-					{
-						ImGui::AlignFirstTextHeightToWidgets();
-						// Here we use a Selectable (instead of Text) to highlight on hover
-						//ImGui::Text("Field_%d", i);
-						char label[32];
-						sprintf(label, "Field_%d", i);
-						ImGui::Bullet();
-						ImGui::Selectable(label);
-						ImGui::NextColumn();
-						ImGui::PushItemWidth(-1);
-						if (i >= 5)
-							ImGui::InputFloat("##value", &dummy_members[i], 1.0f);
-						else
-							ImGui::DragFloat("##value", &dummy_members[i], 0.01f);
-						ImGui::PopItemWidth();
-						ImGui::NextColumn();
-					}
-					ImGui::PopID();
-				}
-				ImGui::TreePop();
-			}
-			ImGui::PopID();
-		}
-	};
-
-	// Iterate dummy objects with dummy members (all the same data)
-	for (int obj_i = 0; obj_i < 3; obj_i++)
-		funcs::ShowDummyObject("Object", obj_i);
-
+		std::string gameObjectName = gameObjectList[i]->Name;
+		DrawGameObjectProperties(gameObjectName.c_str(), gameObjectList[i].get(), inputManager);
+		ImGui::Spacing();
+		ImGui::Separator();
+	}
 	ImGui::Columns(1);
 	ImGui::Separator();
 	ImGui::PopStyleVar();
 	ImGui::End();
 	return true;
+}
+
+void WorldOutlinerWidget::DrawGameObjectProperties(const char* gameObjectName, GameObject * pGameObject, InputManager & aInputManager)
+{
+	ImGui::PushID(pGameObject);             // Use object uid as identifier. Most commonly you could also use the object pointer as a base ID.
+	ImGui::AlignFirstTextHeightToWidgets();  // Text and Tree nodes are less high than regular widgets, here we add vertical spacing to make the tree lines equal high.
+	bool node_open = ImGui::TreeNode("%s_%u", gameObjectName, pGameObject);
+	if (node_open)
+	{
+		std::vector<std::unique_ptr<Component>> & componentList = pGameObject->ComponentList;
+		ImGui::NextColumn();
+		ImGui::Spacing();
+		ImGui::NextColumn();
+
+		for (int i = 0; i < componentList.size(); ++i)
+		{
+			ImGui::NewLine();
+			// If a transform component
+			Transform * transform = nullptr;
+			transform = dynamic_cast<Transform *>(componentList[i].get());
+			if (transform)
+			{
+				DrawTransformProperties(transform, aInputManager);
+			}
+		}
+
+		ImGui::TreePop();
+	}
+	ImGui::PopID();
+}
+
+void WorldOutlinerWidget::DrawTransformProperties(Transform * aTransform, InputManager & aInputManager)
+{
+	ImGui::PushID(aTransform); // Use pointer as identifier.
+
+	char componentNameLabel[32];
+	sprintf(componentNameLabel, "%s", aTransform->GetComponentName());
+	ImGui::Bullet();
+	ImGui::Selectable(componentNameLabel);
+	ImGui::NextColumn();
+	// Position
+	ImGui::InputFloat3(":Position", glm::value_ptr(aTransform->Position));
+
+	// Rotation
+	// X Rotation Slider
+	ImGui::PushItemWidth(50);
+	if (ImGui::SliderAngle(":X", &xAngle, 0, 360))
+	{
+		PreviousRotation[0] = CurrentRotation[0];
+		CurrentRotation[0] = xAngle;
+
+		if (aInputManager.CurrentMousePosition != aInputManager.PreviousMousePosition)
+		{
+			xAngle = CurrentRotation[0] - PreviousRotation[0];
+			glm::quat xRotation = glm::angleAxis(xAngle, glm::vec3(1, 0, 0));
+			aTransform->Rotate(xRotation);
+		}
+	}
+	ImGui::PopItemWidth();
+	ImGui::SameLine();
+
+	// Y Rotation Slider
+	ImGui::PushItemWidth(50);
+	if (ImGui::SliderAngle(":Y", &yAngle, 0, 360))
+	{
+		PreviousRotation[1] = CurrentRotation[1];
+		CurrentRotation[1] = yAngle;
+
+		if (aInputManager.CurrentMousePosition != aInputManager.PreviousMousePosition)
+		{
+			yAngle = CurrentRotation[1] - PreviousRotation[1];
+			glm::quat yRotation = glm::angleAxis(yAngle, glm::vec3(0, 1, 0));
+			aTransform->Rotate(yRotation);
+		}
+	}
+	ImGui::PopItemWidth();
+	ImGui::SameLine();
+
+	// Z Rotation Slider
+	ImGui::PushItemWidth(50);
+	if (ImGui::SliderAngle(":Z", &zAngle, 0, 360))
+	{
+		PreviousRotation[2] = CurrentRotation[2];
+		CurrentRotation[2] = zAngle;
+
+		if (aInputManager.CurrentMousePosition != aInputManager.PreviousMousePosition)
+		{
+			float zAngle = CurrentRotation[2] - PreviousRotation[2];
+			glm::quat zRotation = glm::angleAxis(zAngle, glm::vec3(0, 0, 1));
+			aTransform->Rotate(zRotation);
+		}
+	}
+	ImGui::PopItemWidth();
+
+	// Scale 
+	ImGui::InputFloat3(":Scale", glm::value_ptr(aTransform->Scale));
+	ImGui::NextColumn();
+
+	ImGui::PopID();
 }

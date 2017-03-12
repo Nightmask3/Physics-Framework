@@ -469,6 +469,8 @@ void PhysicsManager::Simulation()
 		for (auto iterator = PhysicsObjectsList.begin(); iterator != PhysicsObjectsList.end(); ++iterator)
 		{
 			pSimulation1 = static_cast<Physics *>(*iterator);
+			// Updates physics component with current transform values
+			pSimulation1->SyncPhysicsWithTransform();
 
 			if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_1))
 			{

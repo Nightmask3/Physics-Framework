@@ -19,10 +19,6 @@ glm::vec3 Primitive::FindFarthestPointInDirection(glm::vec3 aDirection)
 	return Vertices[index].Position;
 }
 
-inline Component::ComponentType Primitive::GetComponentID()
-{
-	return (ComponentType::PRIMITIVE);
-}
 
 void Primitive::SetVertexColorsUniform(glm::vec3 aNewColor)
 {

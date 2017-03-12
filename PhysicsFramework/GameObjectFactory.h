@@ -24,7 +24,7 @@
 class GameObjectFactory : public Observer
 {
 	/*----------MEMBER VARIABLES----------*/
-private:
+public:
 	std::vector<std::unique_ptr<GameObject>> GameObjectList;
 	Engine & pEngineReference; 
 	/*----------MEMBER FUNCTIONS----------*/

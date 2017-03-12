@@ -41,11 +41,11 @@ void ImGuiManager::DrawWidgets()
 		WidgetList[i]->DrawWidget();
 
 	//// 2. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
-	//if (show_test_window)
-	//{
-	//	ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-	//	ImGui::ShowTestWindow(&show_test_window);
-	//}
+	if (show_test_window)
+	{
+		ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+		ImGui::ShowTestWindow(&show_test_window);
+	}
 
 }
 
@@ -62,8 +62,8 @@ void ImGuiManager::OnNotify(Object * object, Event * event)
 			ImGui_ImplGlfwGL3_Init(EngineHandle.GetWindowManager().GetWindow(), true);
 
 			// Add widgets
-			WidgetList.push_back(new WindowMenuBarWidget());
-			WidgetList.push_back(new WorldOutlinerWidget());
+			WidgetList.push_back(new WindowMenuBarWidget(*this));
+			WidgetList.push_back(new WorldOutlinerWidget(*this));
 		}
 		else if (engineEvent->EventID == EngineEvent::EventList::ENGINE_TICK)
 		{

@@ -3,9 +3,12 @@
 #include "GameObject.h"
 #include "Controller.h"
 
-Component::ComponentType Physics::GetComponentID()
+
+void Physics::SyncPhysicsWithTransform()
 {
-	return (ComponentType::PHYSICS);
+	Transform * transform = this->GetOwner()->GetComponent<Transform>();
+	CurrentPosition = transform->Position;
+
 }
 
 void Physics::UpdateTransform()
@@ -17,7 +20,7 @@ void Physics::UpdateTransform()
 		return;
 
 	Transform * transform = this->GetOwner()->GetComponent<Transform>();
-	transform->SetPosition(CurrentPosition);
+	transform->Position = CurrentPosition;
 }
 
 Physics::Derivative Physics::Evaluate(float t, float dt, const Derivative & d)

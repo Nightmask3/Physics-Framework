@@ -22,7 +22,10 @@ public:
 public:
 	Controller(InputManager const & in, FramerateController const & frame) : InputManagerReference(in), FrameRateControllerReference(frame), Component(Component::CONTROLLER) {}
 	virtual ~Controller() {};
-	static ComponentType GetComponentID();
+
+	static inline ComponentType GetComponentID() { return Component::ComponentType::CONTROLLER; }
+	static inline const char * GetComponentName() { return ComponentTypeName[ComponentType::CONTROLLER]; }
+
 	virtual void Deserialize(TextFileData aTextData) override {};
 	void Update();
 };

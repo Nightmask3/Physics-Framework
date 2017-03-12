@@ -16,8 +16,8 @@ class ImGuiManager : public Observer
 private:
 	std::vector<ImGuiWidget *> WidgetList;
 	/*------------------------------- ENGINE REFERENCE -------------------------------*/
+public:
 	Engine & EngineHandle;
-
 	/*----------MEMBER FUNCTIONS----------*/
 private:
 	void DrawWidgets();

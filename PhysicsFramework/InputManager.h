@@ -9,7 +9,7 @@ class InputManager : public Observer
 private:
 	bool keyboardStatePrev[GLFW_KEY_LAST];	// Holds the state of all the keyboard keys in the previous frame
 	bool keyboardStateCurr[GLFW_KEY_LAST];	// Holds the state of all the keyboard keys in the current frame
-
+public:
 	glm::vec2 CurrentMousePosition;
 	glm::vec2 PreviousMousePosition;
 	glm::vec2 MouseDelta;

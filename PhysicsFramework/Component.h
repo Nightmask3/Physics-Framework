@@ -21,19 +21,19 @@ public:
 		CONTROLLER,
 		TypeCount
 	};
+	static const char * ComponentTypeName[ComponentType::TypeCount];
 private:
 	GameObject * pOwner;
 	ComponentType eComponentType;
-
+	char * pComponentName;
 	/*----------MEMBER FUNCTIONS----------*/
 private:
 	virtual void Deserialize(TextFileData aTextData) = 0;
 	virtual void HandleEvent(Event *pEvent) {}
-protected:	// Made protected because we don't want objects of this class to be instantiated directly, but derived classes can access it
+protected:	// Made protected because we don't want external visibility of constructor, but derived classes can access it
 	Component(ComponentType type) : eComponentType(type) {}
 public:
 	virtual ~Component() {}
-	static inline ComponentType GetComponentID() { return ComponentType::TypeCount; };
 
 	inline ComponentType GetComponentType() { return eComponentType; }
 	inline GameObject * GetOwner() { return pOwner; }

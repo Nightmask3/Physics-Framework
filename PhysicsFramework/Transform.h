@@ -38,7 +38,8 @@ public:
 	}
 	virtual ~Transform() {};
 
-	static Component::ComponentType GetComponentID();
+	static inline Component::ComponentType GetComponentID() { return (ComponentType::TRANSFORM); }
+	static inline const char * GetComponentName() { return ComponentTypeName[ComponentType::TRANSFORM]; }
 
 	inline glm::vec3 GetPosition() { return Position; }
 	inline glm::quat GetRotation() { return Rotation; }
