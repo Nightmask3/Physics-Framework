@@ -6,6 +6,7 @@
 #include "WindowManager.h"
 #include "InputManager.h"
 #include "GameObjectFactory.h"
+#include "EngineStateManager.h"
 #include "FrameRateController.h"
 #include "PhysicsManager.h"
 #include "Sprite.h"
@@ -15,38 +16,27 @@
 
 Engine::Engine()
 {
+	/*-------------- MANAGER CREATION --------------*/
+	pFrameRateController = std::make_unique<FramerateController>(*this);
+	pEngineStateManager = std::make_unique<EngineStateManager>(*this);
 	pResourceManager = std::make_unique<ResourceManager>(*this);
-	
+	pWindowManager = std::make_unique<WindowManager>(*this);
+	pInputManager = std::make_unique<InputManager>(*this);
+	pPhysicsManager = std::make_unique<PhysicsManager>(*this);
+	pGameObjectFactory = std::make_unique<GameObjectFactory>(*this);
+	pRenderer = std::make_unique<Renderer>(*this);
+	pImGuiManager = std::make_unique<ImGuiManager>(*this);
+
 	/*-------------- ENGINE INIT EVENT REGISTRATION --------------*/
 	Subject EngineInitialized;
 	
-	// Create the frame rate controller
-	pFrameRateController = std::make_unique<FramerateController>(*this);
-	// Register it with engine init event list
+	// Register Managers as observers to engine initialization event
 	EngineInitialized.AddObserver(pFrameRateController.get());
-
-	// Do the same for window manager
-	pWindowManager = std::make_unique<WindowManager>(*this);
-	// Register window manager
+	EngineInitialized.AddObserver(pEngineStateManager.get());
 	EngineInitialized.AddObserver(pWindowManager.get());
-
-	// Do the same for input manager...
-	pInputManager = std::make_unique<InputManager>(*this);
 	EngineInitialized.AddObserver(pInputManager.get());
-
-	// Physics manager doesn't need init events
-	pPhysicsManager = std::make_unique<PhysicsManager>(*this);
-
-	// Do the same for game object factory...
-	pGameObjectFactory = std::make_unique<GameObjectFactory>(*this); 
 	EngineInitialized.AddObserver(pGameObjectFactory.get());
-
-	// Do the same for the renderer...
-	pRenderer = std::make_unique<Renderer>(*this);
 	EngineInitialized.AddObserver(pRenderer.get());
-
-	// Do the same for ImGui manager
-	pImGuiManager = std::make_unique<ImGuiManager>(*this);
 	EngineInitialized.AddObserver(pImGuiManager.get());
 
 	// Adds the engine initialized subject to the main event list (must be done after adding all observers as emplace uses a copy in a map)
@@ -62,24 +52,20 @@ Engine::Engine()
 
 	/*-------------- ENGINE TICK EVENT REGISTRATION --------------*/
 	Subject EngineTick;
-	// Register input manager to update on the event tick
-	EngineTick.AddObserver(pInputManager.get());
-	// Do the same for frame rate controller...
-	EngineTick.AddObserver(pFrameRateController.get());
-	// Do the same for the renderer...
-	EngineTick.AddObserver(pRenderer.get());
-	// Do the same for the physics manager...
-	EngineTick.AddObserver(pPhysicsManager.get());
-	// Do the same for the ImGui Manager...
-	EngineTick.AddObserver(pImGuiManager.get());
 
+	EngineTick.AddObserver(pFrameRateController.get());
+	EngineTick.AddObserver(pEngineStateManager.get());
+	EngineTick.AddObserver(pInputManager.get());
+	EngineTick.AddObserver(pRenderer.get());
+	EngineTick.AddObserver(pPhysicsManager.get());
+
+	EngineTick.AddObserver(pImGuiManager.get());
 	MainEventList.emplace(std::make_pair(EngineEvent::ENGINE_TICK, EngineTick));
 	
 	/*-------------- ENGINE EXIT EVENT REGISTRATION --------------*/
 	Subject EngineExit;
-	// Register window manager to get an exit event
+
 	EngineExit.AddObserver(pWindowManager.get());
-	// Do the same for ImGuiManager...
 	EngineExit.AddObserver(pImGuiManager.get());
 
 	MainEventList.emplace(std::make_pair(EngineEvent::ENGINE_EXIT, EngineExit));

@@ -3,24 +3,25 @@
 #include <glm/gtx/rotate_vector.hpp>
 
 #include "Renderer.h"
+#include "EngineStateManager.h"
 #include "GameObjectFactory.h"
 #include "GameObject.h"
 #include "UtilityFunctions.h"
 
 void Renderer::RegisterPrimitive(Primitive * aNewPrimitive)
 {
-	*DefaultVAOList[RenderList.size()] = *DefaultVBOList[RenderList.size()] = (GLuint)(RenderList.size() + 1);
+	*StaticVAOList[RenderList.size()] = *StaticVBOList[RenderList.size()] = (GLuint)(RenderList.size() + 1);
 	RenderList.push_back(aNewPrimitive);
 	aNewPrimitive->TextureRequest.AddObserver(this);
 }
 
-void Renderer::CreateDebugLinePrimitive()
+void Renderer::CreateDebugArrowPrimitive()
 {
-	DebugLinePrimitive = EngineHandle.GetGameObjectFactory().SpawnComponent<Debug>();
-	Line newLine(glm::vec3(0), glm::vec3(1));
-	newLine.VAO = DebugLinePrimitive->GetVAO();
-	newLine.VBO = DebugLinePrimitive->GetVBO();
-	newLine.BindVertexData();
+	DebugArrowPrimitive = EngineHandle.GetGameObjectFactory().SpawnComponent<Debug>();
+	Arrow newArrow(glm::vec3(0), glm::vec3(1));
+	newArrow.VAO = DebugArrowPrimitive->GetVAO();
+	newArrow.VBO = DebugArrowPrimitive->GetVBO();
+	newArrow.BindVertexData();
 }
 
 void Renderer::CreateDebugQuadPrimitive()
@@ -32,9 +33,30 @@ void Renderer::CreateDebugQuadPrimitive()
 	newQuad.BindVertexData();
 }
 
-void Renderer::RegisterDebugLine(Line & aLine)
+void Renderer::RegisterDebugQuad(Quad & aQuad)
 {
-	DebugLinesStack.push_back(aLine);
+	DebugQuadsStack.push_back(aQuad);
+}
+
+void Renderer::RegisterDebugArrow(Arrow & aArrow)
+{
+	DebugArrowsStack.push_back(aArrow);
+}
+
+void Renderer::RegisterDebugLineLoop(LineLoop & aLineLoop)
+{
+	for (int i = 0; i < MAXIMUM_DYNAMIC_RENDER_OBJECTS; ++i)
+	{
+		// Allocate using first free slot
+		if (DynamicObjectRegistry[i] == false)
+		{
+			aLineLoop.VAO = *DynamicVAOList[i];
+			aLineLoop.VBO = *DynamicVBOList[i];
+			break;
+		}
+	}
+	aLineLoop.BindVertexData();
+	DebugLineLoopsStack.push_back(aLineLoop);
 }
 
 void Renderer::InititalizeRenderer()
@@ -53,17 +75,26 @@ void Renderer::InititalizeRenderer()
 	std::cout << "Renderer: " << renderer << std::endl;
 	std::cout << "OpenGL version:" << version << std::endl;
 	/*---------- BUFFER ALLOCATION ----------*/
-	for (int i = 0; i < MAXIMUM_RENDER_OBJECTS; i++)
+	// Allocates the vertex arrays and  vertex buffers for static objects, as well as element and texture buffers
+	for (int i = 0; i < MAXIMUM_STATIC_RENDER_OBJECTS; i++)
 	{
-		// Allocates the vertex data objects
-		DefaultVAOList[i] = new GLuint;
-		glGenVertexArrays(1, DefaultVAOList[i]);
-		DefaultVBOList[i] = new GLuint;
-		glGenBuffers(1, DefaultVBOList[i]);
+		StaticVAOList[i] = new GLuint;
+		glGenVertexArrays(1, StaticVAOList[i]);
+		StaticVBOList[i] = new GLuint;
+		glGenBuffers(1, StaticVBOList[i]);
 		EABList[i] = new GLuint;
 		glGenBuffers(1, EABList[i]);
 		TBOList[i] = new GLuint;
 		glGenTextures(1, TBOList[i]);
+	}
+
+	// Allocates the vertex arrays and  vertex buffers for dynamic objects
+	for (int i = 0; i < MAXIMUM_DYNAMIC_RENDER_OBJECTS; i++)
+	{
+		DynamicVAOList[i] = new GLuint;
+		glGenVertexArrays(1, DynamicVAOList[i]);
+		DynamicVBOList[i] = new GLuint;
+		glGenBuffers(1, DynamicVBOList[i]);
 	}
 
 	/*---------- OPEN GL SETTINGS ----------*/
@@ -78,15 +109,58 @@ void Renderer::InititalizeRenderer()
 	DefaultShader.Use();
 	// Create debug normals shader program, reserve for later
 	DebugNormalsShader.CreateDebugNormalsShaderProgram();
-	// Create debug lines shader program, reserve for later
-	DebugLinesShader.CreateDebugLineShaderProgram();
+	// Create debug mesh shader program, reserve for later
+	DebugMeshShader.CreateDebugMeshShaderProgram();
 	// Create debug quads shader program, reserve for later
-	DebugQuadsShader.CreateDebugQuadShaderProgram();
+	BillboardingQuadsShader.CreateBillboardingQuadShaderProgram();
 
 	/*---------- PRIMITIVE CREATION ----------*/
-	CreateDebugLinePrimitive();
+	CreateDebugArrowPrimitive();
 	CreateDebugQuadPrimitive();
 }
+
+void Renderer::OnNotify(Object * object, Event * event)
+{
+	// Check if this is an Engine event
+	EngineEvent * engineEvent = nullptr;
+	engineEvent = dynamic_cast<EngineEvent *>(event);
+
+	if (engineEvent)
+	{
+		if (engineEvent->EventID == EngineEvent::EventList::ENGINE_INIT)
+		{
+			InititalizeRenderer();
+
+			/*---------- MINKOWSKI DIFFERENCE INIT ----------*/
+			MinkowskiDifference = EngineHandle.GetGameObjectFactory().SpawnGameObject();
+			std::vector<Vertex> MinkowskiDifferenceVertices;
+			Mesh * minkowskiMesh = EngineHandle.GetGameObjectFactory().SpawnComponent<Mesh>();
+			minkowskiMesh->SetOwner(MinkowskiDifference);
+			MinkowskiDifference->AddComponent(minkowskiMesh);
+
+		}
+		else if (engineEvent->EventID == EngineEvent::EventList::ENGINE_TICK)
+		{
+			Render();
+		}
+		return;
+	}
+
+	PrimitiveEvent * primitiveEvent = nullptr;
+	primitiveEvent = dynamic_cast<PrimitiveEvent *>(event);
+
+	if (primitiveEvent)
+	{
+		if (engineEvent->EventID == PrimitiveEvent::EventList::TEXTURE_REQUEST)
+		{
+			// Already bound textures are not rebound
+			if (primitiveEvent->TextureID >= TextureCount)
+				BindTexture(static_cast<Primitive *>(object), primitiveEvent->TextureID);
+		}
+		return;
+	}
+}
+
 
 void Renderer::Render()
 {
@@ -118,12 +192,11 @@ void Renderer::Render()
 	// Clear color and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Draw all gameobjects
+	// Draw all game objects
 	MainRenderPass();
 
-	if(EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_TAB))
-		// Draw wireframes, face & vertex normals, debug lines
-		DebugRenderPass();
+	// Draw all debug objects
+	DebugRenderPass();
 }
 
 void Renderer::MainRenderPass()
@@ -132,10 +205,16 @@ void Renderer::MainRenderPass()
 	DefaultShader.Use();
 
 	// Get the MVP Matrix id
-	GLint glModelViewProjection = glGetUniformLocation(DefaultShader.GetShaderProgram(), "ModelViewProjectionMatrix");
-	if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_CAPS_LOCK))
+	GLint glMVPAttributeIndex = glGetUniformLocation(DefaultShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+
+	// Wireframe draw check
+	if (EngineHandle.GetEngineStateManager().bRenderModeWireframe)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
 	//// Render Minkowski Difference
@@ -166,12 +245,12 @@ void Renderer::MainRenderPass()
 		mvp = Projection * View * model;
 		glEnableClientState(GL_VERTEX_ARRAY);
 		// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
-		glUniformMatrix4fv(glModelViewProjection, 1, GL_FALSE, &mvp[0][0]);
+		glUniformMatrix4fv(glMVPAttributeIndex, 1, GL_FALSE, &mvp[0][0]);
 		check_gl_error_render();
 		// Bind TBO
 		glBindTexture(GL_TEXTURE_2D, primitive->GetTBO());
 		// Bind VAO
-		glBindVertexArray(*DefaultVAOList[i]);
+		glBindVertexArray(*StaticVAOList[i]);
 		check_gl_error_render();
 		glDrawArrays(GL_TRIANGLES, 0, primitive->GetPrimitiveSize()/sizeof(Vertex));
 		check_gl_error_render();
@@ -181,40 +260,46 @@ void Renderer::MainRenderPass()
 		glDisableClientState(GL_VERTEX_ARRAY);
 	}
 	DefaultShader.Unuse();
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	// Render debug lines
-	DebugLinesShader.Use();
-	glModelViewProjection = glGetUniformLocation(DebugLinesShader.GetShaderProgram(), "ModelViewProjectionMatrix");
-	RenderDebugLines(glModelViewProjection);
-	DebugLinesShader.Unuse();
-
-	// Render debug quads
-	DebugQuadsShader.Use();
+	// Render billboarding quads
+	BillboardingQuadsShader.Use();
 	GLint glModelMatrixAttributeIndex, glViewMatrixAttributeIndex, glProjectionMatrixAttributeIndex, glBillboardModeAttributeIndex;
-	glModelMatrixAttributeIndex = glGetUniformLocation(DebugQuadsShader.GetShaderProgram(), "ModelMatrix");
-	glViewMatrixAttributeIndex = glGetUniformLocation(DebugQuadsShader.GetShaderProgram(), "ViewMatrix");
-	glProjectionMatrixAttributeIndex = glGetUniformLocation(DebugQuadsShader.GetShaderProgram(), "ProjectionMatrix");
-	glBillboardModeAttributeIndex = glGetUniformLocation(DebugQuadsShader.GetShaderProgram(), "BillboardMode");
-	RenderDebugQuads(glModelMatrixAttributeIndex, glViewMatrixAttributeIndex, glProjectionMatrixAttributeIndex, glBillboardModeAttributeIndex);
-	DebugQuadsShader.Unuse();
+	glModelMatrixAttributeIndex = glGetUniformLocation(BillboardingQuadsShader.GetShaderProgram(), "ModelMatrix");
+	glViewMatrixAttributeIndex = glGetUniformLocation(BillboardingQuadsShader.GetShaderProgram(), "ViewMatrix");
+	glProjectionMatrixAttributeIndex = glGetUniformLocation(BillboardingQuadsShader.GetShaderProgram(), "ProjectionMatrix");
+	glBillboardModeAttributeIndex = glGetUniformLocation(BillboardingQuadsShader.GetShaderProgram(), "BillboardMode");
+	RenderBillboardingQuads(glModelMatrixAttributeIndex, glViewMatrixAttributeIndex, glProjectionMatrixAttributeIndex, glBillboardModeAttributeIndex);
+	BillboardingQuadsShader.Unuse();
 }
 
 void Renderer::DebugRenderPass()
 {
-	GLint glModelViewProjectionAttribute;
+	GLint glMVPAttributeIndex;
 	/*-------------------------------- DEBUG MESH RENDER-------------------------------*/
-	// Render wireframes
-	DefaultShader.Use();
-	glModelViewProjectionAttribute = glGetUniformLocation(DefaultShader.GetShaderProgram(), "ModelViewProjectionMatrix");
-	RenderDebugWireframes(glModelViewProjectionAttribute);
-	DefaultShader.Unuse();
+	if (EngineHandle.GetEngineStateManager().bShouldRenderCollidersAndNormals)
+	{	
+		// Render wireframes
+		DefaultShader.Use();
+		glMVPAttributeIndex = glGetUniformLocation(DefaultShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+		RenderDebugWireframes(glMVPAttributeIndex);
+		DefaultShader.Unuse();
 
-	// Render normals
-	DebugNormalsShader.Use();
-	glModelViewProjectionAttribute = glGetUniformLocation(DebugNormalsShader.GetShaderProgram(), "ModelViewProjectionMatrix");
-	RenderDebugNormals(glModelViewProjectionAttribute);
-	DebugNormalsShader.Unuse();
+		// Render normals
+		DebugNormalsShader.Use();
+		glMVPAttributeIndex = glGetUniformLocation(DebugNormalsShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+		RenderDebugNormals(glMVPAttributeIndex);
+		DebugNormalsShader.Unuse();
+	}
+
+	// Render debug arrows
+	DebugMeshShader.Use();
+	glMVPAttributeIndex = glGetUniformLocation(DebugMeshShader.GetShaderProgram(), "ModelViewProjectionMatrix");
+	RenderDebugArrows(glMVPAttributeIndex);
+
+	// Render debug line loops
+	RenderDebugLineLoops(glMVPAttributeIndex);
+	DebugMeshShader.Unuse();
+
 }
 
 void Renderer::RenderDebugWireframes(GLint aMVPAttributeIndex)
@@ -242,8 +327,9 @@ void Renderer::RenderDebugWireframes(GLint aMVPAttributeIndex)
 			// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
 			glUniformMatrix4fv(aMVPAttributeIndex, 1, GL_FALSE, &mvp[0][0]);
 			check_gl_error_render();
+			glLineWidth(4);
 			// Bind VAO
-			glBindVertexArray(*DefaultVAOList[i]);
+			glBindVertexArray(*StaticVAOList[i]);
 			check_gl_error_render();
 			glDrawArrays(GL_TRIANGLES, 0, primitive->GetPrimitiveSize() / sizeof(Vertex));
 			check_gl_error_render();
@@ -280,8 +366,9 @@ void Renderer::RenderDebugNormals(GLint aMVPAttributeIndex)
 			// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
 			glUniformMatrix4fv(aMVPAttributeIndex, 1, GL_FALSE, &mvp[0][0]);
 			check_gl_error_render();
+			glLineWidth(1);
 			// Bind VAO
-			glBindVertexArray(*DefaultVAOList[i]);
+			glBindVertexArray(*StaticVAOList[i]);
 			check_gl_error_render();
 			glDrawArrays(GL_TRIANGLES, 0, primitive->GetPrimitiveSize() / sizeof(Vertex));
 			check_gl_error_render();
@@ -293,37 +380,62 @@ void Renderer::RenderDebugNormals(GLint aMVPAttributeIndex)
 	}
 }
 
-void Renderer::RenderDebugLines(GLint aMVPAttributeIndex)
+void Renderer::RenderDebugArrows(GLint aMVPAttributeIndex)
 {
 	glm::mat4 projectionView = Projection * View;
 
-	// Draw all Lines that have been registered 
-	for (int i = 0; i < DebugLinesStack.size(); ++i)
+	// Draw all arrows that have been registered 
+	for (int i = 0; i < DebugArrowsStack.size(); ++i)
 	{
+		Arrow & debugArrow = DebugArrowsStack[i];
 		glm::mat4 model;
-		glm::mat4 translate = glm::translate(DebugLinesStack[i].PointA);
-		// Create rotation matrix using the direction the line points in
-		glm::vec3 normal = DebugLinesStack[i].PointA - DebugLinesStack[i].PointB;
+		glm::mat4 translate = glm::translate(debugArrow.PointA);
+		// Create rotation matrix using the direction the arrow points in
+		glm::vec3 normal = debugArrow.PointA - debugArrow.PointB;
 		normal = glm::normalize(normal);
 		glm::mat4 rotate = glm::orientation(normal, glm::vec3(1, 0, 0));
-		glm::mat4 scale = glm::scale(glm::vec3(DebugLinesStack[i].Scale));
+		glm::mat4 scale = glm::scale(glm::vec3(debugArrow.Scale));
 		model = translate * rotate * scale;
 		projectionView = projectionView * model;
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glUniformMatrix4fv(aMVPAttributeIndex, 1, GL_FALSE, &projectionView[0][0]);
 		check_gl_error_render();
-		glBindVertexArray(DebugLinePrimitive->GetVAO());
+		glBindVertexArray(DebugArrowPrimitive->GetVAO());
 		check_gl_error_render();
-		glDrawArrays(GL_TRIANGLES, 0, DebugLinesStack[i].VertexCount);
+		glDrawArrays(GL_TRIANGLES, 0, debugArrow.VertexCount);
 		check_gl_error_render();
 		glBindVertexArray(0);
 		glDisableClientState(GL_VERTEX_ARRAY);
 
 	}
-	DebugLinesStack.clear();
+	DebugArrowsStack.clear();
 }
 
-void Renderer::RenderDebugQuads(GLint aModelAttributeIndex, GLint aViewAttributeIndex, GLint aProjectionAttributeIndex, GLint aBillboardModeAttributeIndex)
+void Renderer::RenderDebugLineLoops(GLint aMVPAttributeIndex)
+{
+	// Dont need model matrix as all points are in world space already
+	glm::mat4 projectionView = Projection * View;
+
+	// Draw all Line Loops that have been registered 
+	for (int i = 0; i < DebugLineLoopsStack.size(); ++i)
+	{
+		LineLoop & lineLoop = DebugLineLoopsStack[i];
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glUniformMatrix4fv(aMVPAttributeIndex, 1, GL_FALSE, &projectionView[0][0]);
+		check_gl_error_render();
+		glBindVertexArray(lineLoop.VAO);
+		check_gl_error_render();
+		glLineWidth(6);
+		glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)DebugLineLoopsStack[i].LineLoopVertices.size());
+		check_gl_error_render();
+		glBindVertexArray(0);
+		glDisableClientState(GL_VERTEX_ARRAY);
+
+	}
+	DebugLineLoopsStack.clear();
+}
+
+void Renderer::RenderBillboardingQuads(GLint aModelAttributeIndex, GLint aViewAttributeIndex, GLint aProjectionAttributeIndex, GLint aBillboardModeAttributeIndex)
 {
 	// Set projection and view matrices
 	glUniformMatrix4fv(aProjectionAttributeIndex, 1, GL_FALSE, &Projection[0][0]);
@@ -349,53 +461,6 @@ void Renderer::RenderDebugQuads(GLint aModelAttributeIndex, GLint aViewAttribute
 		glDisableClientState(GL_VERTEX_ARRAY);
 	}
 	DebugQuadsStack.clear();
-}
-
-void Renderer::OnNotify(Object * object, Event * event)
-{
-	// Check if this is an Engine event
-	EngineEvent * engineEvent = nullptr;
-	engineEvent = dynamic_cast<EngineEvent *>(event);
-	
-	if (engineEvent)
-	{
-		if(engineEvent->EventID == EngineEvent::EventList::ENGINE_INIT)
-		{
-			InititalizeRenderer();
-			
-			/*---------- MINKOWSKI DIFFERENCE INIT ----------*/
-			MinkowskiDifference = EngineHandle.GetGameObjectFactory().SpawnGameObject();
-			std::vector<Vertex> MinkowskiDifferenceVertices;
-			Mesh * minkowskiMesh = EngineHandle.GetGameObjectFactory().SpawnComponent<Mesh>();
-			minkowskiMesh->SetOwner(MinkowskiDifference);
-			MinkowskiDifference->AddComponent(minkowskiMesh);
-
-		}
-		else if (engineEvent->EventID == EngineEvent::EventList::ENGINE_TICK)		
-		{
-			Render();
-		}
-		return;
-	}
-
-	PrimitiveEvent * primitiveEvent = nullptr;
-	primitiveEvent = dynamic_cast<PrimitiveEvent *>(event);
-
-	if(primitiveEvent)
-	{
-		if (engineEvent->EventID == PrimitiveEvent::EventList::TEXTURE_REQUEST)
-		{
-			// Already bound textures are not rebound
-			if (primitiveEvent->TextureID >= TextureCount)
-				BindTexture(static_cast<Primitive *>(object), primitiveEvent->TextureID);
-		}
-		return;
-	}
-}
-
-void Renderer::RegisterDebugQuad(Quad & aQuad)
-{
-	DebugQuadsStack.push_back(aQuad);
 }
 
 // aPrimitive : Primitive the texture is being assigned to

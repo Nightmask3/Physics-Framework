@@ -59,5 +59,7 @@ struct Quad
 		);
 		glEnableVertexAttribArray(1);
 
+		// Unbind VAO
+		glBindVertexArray(0);
 	}
 };

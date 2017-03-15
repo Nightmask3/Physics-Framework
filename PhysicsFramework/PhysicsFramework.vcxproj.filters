@@ -177,9 +177,6 @@
     <ClInclude Include="Controller.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Line.h">
-      <Filter>Header Files\Utilities\RenderUtilities</Filter>
-    </ClInclude>
     <ClInclude Include="Primitive.h">
       <Filter>Header Files\Components\Primitives</Filter>
     </ClInclude>
@@ -193,6 +190,21 @@
       <Filter>Header Files\Components\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Quad.h">
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="LineLoop.h">
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugSettingsWidget.h">
+      <Filter>Header Files\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineStateManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugVertex.h">
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Arrow.h">
       <Filter>Header Files\Utilities\RenderUtilities</Filter>
     </ClInclude>
   </ItemGroup>
@@ -283,6 +295,15 @@
     </ClCompile>
     <ClCompile Include="Component.cpp">
       <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugSettingsWidget.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineStateManager.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Arrow.cpp">
+      <Filter>Source Files\Utilities\RenderUtilities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

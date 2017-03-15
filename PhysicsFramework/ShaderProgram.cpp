@@ -185,11 +185,11 @@ bool ShaderProgram::CreateDebugNormalsGeometryShader()
 /*--------------------------- DEBUG LINE SHADERS --------------------------------*/
 
 /*--------------------------- SHADER CREATION - LINES --------------------------------*/
-bool ShaderProgram::CreateDebugLineShaderProgram()
+bool ShaderProgram::CreateDebugMeshShaderProgram()
 {
 	/*--------------------------- SHADER CREATION --------------------------------*/
-	CreateDebugLineVertexShader();
-	CreateDebugLineFragmentShader();
+	CreateDebugMeshVertexShader();
+	CreateDebugMeshFragmentShader();
 	ShaderProgramID = glCreateProgram();
 	// SHADER ATTACHMENT
 	glAttachShader(ShaderProgramID, VertexShader);
@@ -204,7 +204,7 @@ bool ShaderProgram::CreateDebugLineShaderProgram()
 	return CheckProgramCompilationStatus(ShaderProgramID);
 }
 
-bool ShaderProgram::CreateDebugLineVertexShader()
+bool ShaderProgram::CreateDebugMeshVertexShader()
 {
 	std::cout << "/*--------------------------- DEBUG LINE SHADERS --------------------------------*/";
 	Engine & engineRef = GetRenderer().GetEngine();
@@ -219,7 +219,7 @@ bool ShaderProgram::CreateDebugLineVertexShader()
 	return CheckVertexShaderCompilationStatus(VertexShader);
 }
 
-bool ShaderProgram::CreateDebugLineFragmentShader()
+bool ShaderProgram::CreateDebugMeshFragmentShader()
 {
 	Engine & engineRef = GetRenderer().GetEngine();
 	/*--------------------------- FRAGMENT SHADER --------------------------------*/
@@ -233,14 +233,14 @@ bool ShaderProgram::CreateDebugLineFragmentShader()
 	return CheckFragmentShaderCompilationStatus(FragmentShader);
 }
 
-/*--------------------------- DEBUG QUAD SHADERS --------------------------------*/
+/*--------------------------- BILLBOARDING QUAD SHADERS --------------------------------*/
 
-/*--------------------------- SHADER CREATION - QUADS --------------------------------*/
-bool ShaderProgram::CreateDebugQuadShaderProgram()
+/*--------------------------- SHADER CREATION - BILLBOARDING QUADS --------------------------------*/
+bool ShaderProgram::CreateBillboardingQuadShaderProgram()
 {
 	/*--------------------------- SHADER CREATION --------------------------------*/
-	CreateDebugQuadVertexShader();
-	CreateDebugQuadFragmentShader();
+	CreateBillboardingQuadVertexShader();
+	CreateBillboardingQuadFragmentShader();
 	ShaderProgramID = glCreateProgram();
 	// SHADER ATTACHMENT
 	glAttachShader(ShaderProgramID, VertexShader);
@@ -255,9 +255,9 @@ bool ShaderProgram::CreateDebugQuadShaderProgram()
 	return CheckProgramCompilationStatus(ShaderProgramID);
 }
 
-bool ShaderProgram::CreateDebugQuadVertexShader()
+bool ShaderProgram::CreateBillboardingQuadVertexShader()
 {
-	std::cout << "/*--------------------------- DEBUG QUAD SHADERS --------------------------------*/";
+	std::cout << "/*--------------------------- BILLBOARDING QUAD SHADERS --------------------------------*/";
 	Engine & engineRef = GetRenderer().GetEngine();
 	/*--------------------------- VERTEX SHADER --------------------------------*/
 	// Reads the content of vertex shader code into a string
@@ -269,7 +269,7 @@ bool ShaderProgram::CreateDebugQuadVertexShader()
 	// Debug vertex shader
 	return CheckVertexShaderCompilationStatus(VertexShader);
 }
-bool ShaderProgram::CreateDebugQuadFragmentShader()
+bool ShaderProgram::CreateBillboardingQuadFragmentShader()
 {
 	Engine & engineRef = GetRenderer().GetEngine();
 	/*--------------------------- FRAGMENT SHADER --------------------------------*/

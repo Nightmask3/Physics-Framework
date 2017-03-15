@@ -4,6 +4,7 @@
 #include "Renderer.h"
 #include "InputManager.h"
 #include "FrameRateController.h"
+#include "EngineStateManager.h"
 
 #include "GameObject.h"
 #include "Transform.h"
@@ -14,11 +15,6 @@ int PhysicsManager::Iterations = 10;
 
 void PhysicsManager::Update()
 {
-	if (EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_KP_ADD) && Iterations <= 200)
-		std::cout<<"New Iteration Count:" << ++Iterations << std::endl;
-	else if(EngineHandle.GetInputManager().isKeyPressed(GLFW_KEY_KP_SUBTRACT) && Iterations >= 1)
-		std::cout << "New Iteration Count:" << --Iterations << std::endl;
-
 	// Three Stages
 	// Simulation : Update the physics variables of all objects that have physics components (Apply gravity, velocity, forces etc.)
 	Simulation();
@@ -69,10 +65,11 @@ void PhysicsManager::DetectCollision()
 
 				glm::vec3 endPoint = newContactData.Position + newContactData.PenetrationDepth * newContactData.Normal;
 
-				Line newDebugLine(glm::vec3(newContactData.Position), endPoint);
-				newDebugLine.Scale = newContactData.PenetrationDepth;
-				EngineHandle.GetRenderer().RegisterDebugLine(newDebugLine);
-
+				// Render contact normal
+				Arrow newDebugArrow(glm::vec3(newContactData.Position), endPoint);
+				newDebugArrow.Scale = newContactData.PenetrationDepth;
+				EngineHandle.GetRenderer().RegisterDebugArrow(newDebugArrow);
+				// Render contact point
 				Quad newQuad(newContactData.Position);
 				EngineHandle.GetRenderer().RegisterDebugQuad(newQuad);
 			}
@@ -123,6 +120,16 @@ bool PhysicsManager::GJKCollisionHandler(Physics * aPhysicsObject1, Physics * aP
 		}
 		else
 		{
+			// Render simplex
+			if (EngineHandle.GetEngineStateManager().bShouldRenderSimplex)
+			{
+				LineLoop simplexDebug;
+				simplexDebug.AddVertex(simplex.Vertices[0].MinkowskiHullVertex);
+				simplexDebug.AddVertex(simplex.Vertices[1].MinkowskiHullVertex);
+				simplexDebug.AddVertex(simplex.Vertices[2].MinkowskiHullVertex);
+				simplexDebug.AddVertex(simplex.Vertices[3].MinkowskiHullVertex);
+				EngineHandle.GetRenderer().RegisterDebugLineLoop(simplexDebug);
+			}
 			// If the new point IS past the origin, check if the simplex contains the origin
 			if (CheckIfSimplexContainsOrigin(simplex, searchDirection))
 			{

@@ -32,7 +32,7 @@ void Primitive::SetVertexColorsUniform(glm::vec3 aNewColor)
 
 void Primitive::BindVertexData(std::vector<Vertex>& aVertexData)
 {
-	int primitiveSize = sizeof(Vertex) * aVertexData.size();
+	int primitiveSize = sizeof(Vertex) * (int)aVertexData.size();
 	SetPrimitiveSize(primitiveSize);
 	/*--------------------------- VERTEX ARRAY OBJECT --------------------------------*/
 	glBindVertexArray(VAO);

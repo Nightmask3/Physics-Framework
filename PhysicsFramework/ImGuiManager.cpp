@@ -1,8 +1,10 @@
 #include "ImGuiManager.h"
 #include "WindowManager.h"
 
+// Widgets
 #include "WindowMenuBarWidget.h"
 #include "WorldOutlinerWidget.h"
+#include "DebugSettingsWidget.h"
 // Included here to actually have the implementation for the linker
 #include "imgui.cpp"
 #include "imgui_draw.cpp"
@@ -22,30 +24,18 @@ void ImGuiManager::ImGuiNewFrame()
 
 void ImGuiManager::ImGuiRender()
 {
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Makes sure any render modes in the renderer don't affect the ImGui widgets
 	ImGui::Render();
 }
 
 void ImGuiManager::DrawWidgets()
 {
-	bool show_test_window = true;
-	// 1. Show a simple window
-	// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
-	{
-		static float f = 0.0f;
-		ImGui::Text("Use WASD & QE to move the camera. \nTAB activates debug draw");
-		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-	}
-
 	for (int i = 0; i < WidgetList.size(); ++i)
 		WidgetList[i]->DrawWidget();
 
-	//// 2. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
-	if (show_test_window)
-	{
-		ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-		ImGui::ShowTestWindow(&show_test_window);
-	}
+	// 2. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
+	//ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+	//ImGui::ShowTestWindow(&show_test_window);
 
 }
 
@@ -64,6 +54,7 @@ void ImGuiManager::OnNotify(Object * object, Event * event)
 			// Add widgets
 			WidgetList.push_back(new WindowMenuBarWidget(*this));
 			WidgetList.push_back(new WorldOutlinerWidget(*this));
+			WidgetList.push_back(new DebugSettingsWidget(*this));
 		}
 		else if (engineEvent->EventID == EngineEvent::EventList::ENGINE_TICK)
 		{

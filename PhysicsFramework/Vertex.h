@@ -3,6 +3,7 @@
 #include "glm/vec3.hpp"
 #include "glm/vec2.hpp"
 
+// Vertex layout used for regular meshes
 struct Vertex
 {
 	glm::vec3 Position;

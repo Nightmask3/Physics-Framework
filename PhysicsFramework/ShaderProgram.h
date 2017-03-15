@@ -32,11 +32,11 @@ public:
 	// Creates, links and validates the Debug - Wireframes, normals - Shader Program 
 	bool CreateDebugNormalsShaderProgram();
 
-	// Creates, links and validates the Debug - Lines - Shader Program 
-	bool CreateDebugLineShaderProgram();
+	// Creates, links and validates the Debug - Mesh - Shader Program 
+	bool CreateDebugMeshShaderProgram();
 
-	// Creates, links and validates the Debug - Quads- Shader Program 
-	bool CreateDebugQuadShaderProgram();
+	// Creates, links and validates the Billboarding Quads  Shader Program 
+	bool CreateBillboardingQuadShaderProgram();
 
 	// Returns status of vertex shader compilation
 	bool CheckVertexShaderCompilationStatus(GLuint aShaderID);
@@ -71,12 +71,12 @@ private:
 	bool CreateDebugNormalsFragmentShader();
 	bool CreateDebugNormalsGeometryShader();
 
-	// Debug lines shader program
-	bool CreateDebugLineVertexShader();
-	bool CreateDebugLineFragmentShader();
+	// Debug mesh shader program
+	bool CreateDebugMeshVertexShader();
+	bool CreateDebugMeshFragmentShader();
 
-	// Debug lines shader program
-	bool CreateDebugQuadVertexShader();
-	bool CreateDebugQuadFragmentShader();
+	// Billboarding quads shader program
+	bool CreateBillboardingQuadVertexShader();
+	bool CreateBillboardingQuadFragmentShader();
 
 };

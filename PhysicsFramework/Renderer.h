@@ -8,7 +8,6 @@
 #include "glm/mat3x3.hpp"
 // Manager header file
 #include "WindowManager.h"
-#include "InputManager.h"
 #include "ResourceManager.h"
 // Entity classes
 #include "GameObject.h"
@@ -20,7 +19,8 @@
 #include "Primitive.h"
 // Render utilities
 #include "ShaderProgram.h"
-#include "Line.h"
+#include "Arrow.h"
+#include "LineLoop.h"
 #include "Quad.h"
 
 class Renderer : public Observer
@@ -28,20 +28,26 @@ class Renderer : public Observer
 	/*----------MEMBER VARIABLES----------*/
 private:
 	/*--------------------------- CONSTANTS --------------------------------*/
-	const static int MAXIMUM_RENDER_OBJECTS = 4096;
+	const static int MAXIMUM_STATIC_RENDER_OBJECTS = 4096;
+	const static int MAXIMUM_DYNAMIC_RENDER_OBJECTS = 1024;
 	/*--------------------------- SHADER PROGRAMS --------------------------------*/
 	ShaderProgram DefaultShader;
 	ShaderProgram DebugNormalsShader;
-	ShaderProgram DebugLinesShader;
-	ShaderProgram DebugQuadsShader;
+	ShaderProgram DebugMeshShader;
+	ShaderProgram BillboardingQuadsShader;
 	/*--------------------------- VERTEX ARRAY OBJECTS --------------------------------*/
-	GLuint * DefaultVAOList[MAXIMUM_RENDER_OBJECTS];
+	GLuint * StaticVAOList[MAXIMUM_STATIC_RENDER_OBJECTS];
+	GLuint * DynamicVAOList[MAXIMUM_DYNAMIC_RENDER_OBJECTS];
 	/*--------------------------- VERTEX BUFFER OBJECTS --------------------------------*/
-	GLuint * DefaultVBOList[MAXIMUM_RENDER_OBJECTS];
+	GLuint * StaticVBOList[MAXIMUM_STATIC_RENDER_OBJECTS];
+	GLuint * DynamicVBOList[MAXIMUM_DYNAMIC_RENDER_OBJECTS];
 	/*--------------------------- ELEMENT BUFFER OBJECTS --------------------------------*/
-	GLuint * EABList[MAXIMUM_RENDER_OBJECTS];
+	GLuint * EABList[MAXIMUM_STATIC_RENDER_OBJECTS];
 	/*--------------------------- TEXTURE BUFFER OBJECTS --------------------------------*/
-	GLuint * TBOList[MAXIMUM_RENDER_OBJECTS];
+	GLuint * TBOList[MAXIMUM_STATIC_RENDER_OBJECTS];
+	/*--------------------------- REGISTRIES --------------------------------*/
+	// Holds the list of slots available for dynamic objects to bind VAO and VBOs - false is 'empty', true is 'currently in use'
+	bool DynamicObjectRegistry[MAXIMUM_DYNAMIC_RENDER_OBJECTS];
 	/*------------------------------- ENGINE REFERENCE -------------------------------*/
 	Engine & EngineHandle;
 	/*--------------------------- MATRICES --------------------------------*/
@@ -52,10 +58,12 @@ private:
 	float FieldOfView = 45.0f;
 
 	GameObject * MinkowskiDifference;
-	std::vector<Line> DebugLinesStack;
+	std::vector<Arrow> DebugArrowsStack;
 	std::vector<Quad> DebugQuadsStack;
-	Primitive * DebugLinePrimitive;
+	std::vector<LineLoop> DebugLineLoopsStack;
+	Primitive * DebugArrowPrimitive;
 	Primitive * DebugQuadPrimitive;
+
 public:
 	// List of render components
 	std::vector<Primitive *> RenderList;
@@ -70,22 +78,22 @@ public:
 	Renderer(Engine & aEngine) :EngineHandle(aEngine),
 		DefaultShader(*this), 
 		DebugNormalsShader(*this),
-		DebugLinesShader(*this),
-		DebugQuadsShader(*this),
+		DebugMeshShader(*this),
+		BillboardingQuadsShader(*this),
 		TextureCount(0)
 	{}
 
 	virtual ~Renderer()
 	{
-		for (int i = 0; i < MAXIMUM_RENDER_OBJECTS; i++)
+		for (int i = 0; i < MAXIMUM_STATIC_RENDER_OBJECTS; i++)
 		{
 			// BUFFER DELETION
-			glDeleteBuffers(1, DefaultVBOList[i]);
+			glDeleteBuffers(1, StaticVBOList[i]);
 			glDeleteBuffers(1, EABList[i]);
 			// TEXTURE DELETION
 			glDeleteTextures(1, TBOList[i]);
 			// VERTEX ARRAY DELETION
-			glDeleteVertexArrays(1, DefaultVAOList[i]);
+			glDeleteVertexArrays(1, StaticVAOList[i]);
 		}
 	}
 
@@ -102,12 +110,14 @@ public:
 	void InititalizeRenderer();
 	// Gives a primitive a VAO, VBO to use, adds to list of render objects
 	void RegisterPrimitive(Primitive * aNewPrimitive);
-	// Create the debug line primitive and save it for later
-	void CreateDebugLinePrimitive();
+	// Create the debug arrow primitive and save it for later
+	void CreateDebugArrowPrimitive();
 	// Create the debug quad primitive and save it for later
 	void CreateDebugQuadPrimitive();
-	// Pushes debug line onto a stack of lines to be drawn
-	void RegisterDebugLine(Line & aLine);
+	// Pushes debug line onto a stack of arrows to be drawn
+	void RegisterDebugArrow(Arrow & aLine);
+	// Pushes debug line loop onto a stack of line loops to be drawn
+	void RegisterDebugLineLoop(LineLoop &aLineLoop);
 	// Pushes debug quad onto a stack of quads to be drawn
 	void RegisterDebugQuad(Quad & aQuad);
 
@@ -121,8 +131,9 @@ public:
 	void DebugRenderPass();
 	void RenderDebugWireframes(GLint aMVPAttributeIndex);
 	void RenderDebugNormals(GLint aMVPAttributeIndex);
-	void RenderDebugLines(GLint aMVPAttributeIndex);
-	void RenderDebugQuads(GLint aModelAttributeIndex, GLint aViewAttributeIndex, GLint aProjectionAttributeIndex, GLint aBillboardModeAttributeIndex);
+	void RenderDebugArrows(GLint aMVPAttributeIndex);
+	void RenderDebugLineLoops(GLint aMVPAttributeIndex);
+	void RenderBillboardingQuads(GLint aModelAttributeIndex, GLint aViewAttributeIndex, GLint aProjectionAttributeIndex, GLint aBillboardModeAttributeIndex);
 	
 	static void check_gl_error_render()
 	{

@@ -13,7 +13,7 @@ public:
 		PrimitiveEventCount
 	};
 	EventList EventID;
-	int TextureID;
+	unsigned int TextureID;
 
 	PrimitiveEvent() {};
 	~PrimitiveEvent() {};

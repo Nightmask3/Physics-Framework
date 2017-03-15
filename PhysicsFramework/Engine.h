@@ -21,6 +21,7 @@ class ResourceManager;
 class Renderer;
 class PhysicsManager;
 class ImGuiManager;
+class EngineStateManager;
 
 // The main engine events that have Subjects created from the start
 class EngineEvent : public Event
@@ -51,6 +52,7 @@ private:
 	std::unique_ptr<Renderer> pRenderer;
 	std::unique_ptr<PhysicsManager> pPhysicsManager;
 	std::unique_ptr<ImGuiManager> pImGuiManager;
+	std::unique_ptr<EngineStateManager> pEngineStateManager;
 	// A map of the main engine events
 	std::map<EngineEvent::EventList, Subject> MainEventList;
 
@@ -73,6 +75,7 @@ public:
 	inline Renderer & GetRenderer() { return *pRenderer; }
 	inline PhysicsManager & GetPhysicsManager() { return *pPhysicsManager; }
 	inline ImGuiManager & GetImGuiManager() { return *pImGuiManager; }
+	inline EngineStateManager & GetEngineStateManager() { return *pEngineStateManager; }
 
 };
 

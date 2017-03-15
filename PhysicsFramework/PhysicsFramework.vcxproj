@@ -135,15 +135,19 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="DebugSettingsWidget.h" />
+    <ClInclude Include="DebugVertex.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="FrameRateController.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObjectFactory.h" />
+    <ClInclude Include="EngineStateManager.h" />
     <ClInclude Include="ImGuiManager.h" />
     <ClInclude Include="ImGuiWidget.h" />
     <ClInclude Include="InputManager.h" />
-    <ClInclude Include="Line.h" />
+    <ClInclude Include="Arrow.h" />
+    <ClInclude Include="LineLoop.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Observer.h" />
@@ -169,11 +173,14 @@
     <ClInclude Include="WorldOutlinerWidget.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Arrow.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="DebugSettingsWidget.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="EngineStateManager.cpp" />
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="FrameRateController.cpp" />
     <ClCompile Include="GameObject.cpp" />

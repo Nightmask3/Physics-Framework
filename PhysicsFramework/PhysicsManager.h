@@ -21,12 +21,11 @@ class InputManager;
 class PhysicsManager : public Observer
 {
 	/*----------MEMBER VARIABLES----------*/
-private:
+public:
 	static int Iterations;
-	/*------------------------------- ENGINE REFERENCE -------------------------------*/
+	/*---ENGINE REFERENCE ---*/
 	Engine & EngineHandle;
 
-public:
 	std::vector<Physics *> PhysicsObjectsList;
 	
 	/*----------MEMBER FUNCTIONS----------*/
@@ -47,4 +46,5 @@ public:
 	bool CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 & aSearchDirection);
 
 	virtual void OnNotify(Object * object, Event * event) override;
+
 };
