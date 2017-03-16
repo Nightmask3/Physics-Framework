@@ -349,8 +349,10 @@ bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Primitive * aShape1
 	polytopeFaces.emplace_back(aSimplex.b, aSimplex.d, aSimplex.c);
 	while (true)
 	{
-		if (iterationCount++ >= iterationLimit) return false;
-
+		if (iterationCount++ >= iterationLimit)
+		{
+			return false;
+		}
 		// Find the closest face to origin (i.e. projection of any vertex along its face normal with the least value)
 		float minimumDistance = FLT_MAX;
 		std::list<PolytopeFace>::iterator closestFace = polytopeFaces.begin();
@@ -368,8 +370,30 @@ bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Primitive * aShape1
 
 		// If this new point is within a tolerable limit of the origin, 
 		// assume we have found the closest triangle on the Minkowski Hull to the origin
-		if (glm::dot(closestFace->FaceNormal, closestFace->Points[0].MinkowskiHullVertex) - minimumDistance < exitThreshold)
+		if (glm::dot(closestFace->FaceNormal, newPolytopePoint.MinkowskiHullVertex) - minimumDistance < exitThreshold)
 		{
+			LineLoop closestFaceObjectA;
+			closestFaceObjectA.Color = glm::vec4(1, 1, 0, 1);
+			closestFaceObjectA.AddVertex(closestFace->Points[0].World_SupportPointA);
+			closestFaceObjectA.AddVertex(closestFace->Points[1].World_SupportPointA);
+			closestFaceObjectA.AddVertex(closestFace->Points[2].World_SupportPointA);
+
+			LineLoop closestFaceObjectB;
+			closestFaceObjectB.Color = glm::vec4(0, 1, 1, 1);
+			closestFaceObjectB.AddVertex(closestFace->Points[0].World_SupportPointB);
+			closestFaceObjectB.AddVertex(closestFace->Points[1].World_SupportPointB);
+			closestFaceObjectB.AddVertex(closestFace->Points[2].World_SupportPointB);
+
+			LineLoop closestPolytopeFace;
+			closestPolytopeFace.Color = glm::vec4(1, 0, 1, 1);
+			closestPolytopeFace.AddVertex(closestFace->Points[0].MinkowskiHullVertex);
+			closestPolytopeFace.AddVertex(closestFace->Points[1].MinkowskiHullVertex);
+			closestPolytopeFace.AddVertex(closestFace->Points[2].MinkowskiHullVertex);
+
+			EngineHandle.GetRenderer().RegisterDebugLineLoop(closestFaceObjectA);
+			EngineHandle.GetRenderer().RegisterDebugLineLoop(closestFaceObjectB);
+			EngineHandle.GetRenderer().RegisterDebugLineLoop(closestPolytopeFace);
+
 			return ExtrapolateContactInformation(&(*closestFace), aContactData);
 		}
 
@@ -421,9 +445,9 @@ bool PhysicsManager::ExtrapolateContactInformation(PolytopeFace * aClosestFace, 
 	if (fabs(bary_u) > 1.0f || fabs(bary_v) > 1.0f || fabs(bary_w) > 1.0f)
 		return false;
 
-	glm::vec3 supportWorld1 = glm::vec3(glm::vec4(aClosestFace->Points[0].Local_SupportPointA, 1) * aContactData.LocalToWorldMatrixA);
-	glm::vec3 supportWorld2 = glm::vec3(glm::vec4(aClosestFace->Points[1].Local_SupportPointA, 1) * aContactData.LocalToWorldMatrixA);
-	glm::vec3 supportWorld3 = glm::vec3(glm::vec4(aClosestFace->Points[2].Local_SupportPointA, 1) * aContactData.LocalToWorldMatrixA);
+	glm::vec3 supportWorld1 = aClosestFace->Points[0].World_SupportPointA;
+	glm::vec3 supportWorld2 = aClosestFace->Points[1].World_SupportPointA;
+	glm::vec3 supportWorld3 = aClosestFace->Points[2].World_SupportPointA;
 
 	// Contact point on object A in local space
 	aContactData.Position = (bary_u * supportWorld1) + (bary_v * supportWorld2) + (bary_w * supportWorld3);

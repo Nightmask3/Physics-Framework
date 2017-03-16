@@ -11,6 +11,8 @@ public:
 	glm::vec4 Color = glm::vec4(1, 0, 0, 1);
 	GLuint VAO;
 	GLuint VBO;
+	// Index of slot this primitive occupies in renderer dynamic registry 
+	int DynamicRegistryID;
 	inline void AddVertex(glm::vec3 &aPosition)
 	{
 		// Don't add degenerate values

@@ -11,6 +11,7 @@ public:
 	// Renderer variables
 	bool bShouldRenderCollidersAndNormals;
 	bool bRenderModeWireframe;
+	bool bShouldRenderMinkowskiDifference;
 	// Physics variables
 	int NumberofIterations;
 	bool bShouldRenderSimplex;

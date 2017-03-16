@@ -8,10 +8,14 @@
 #include "GameObject.h"
 #include "UtilityFunctions.h"
 
+int Renderer::WireframeThickness = 4;
+int Renderer::LineLoopThickness = 6;
+
 void Renderer::RegisterPrimitive(Primitive * aNewPrimitive)
 {
 	*StaticVAOList[RenderList.size()] = *StaticVBOList[RenderList.size()] = (GLuint)(RenderList.size() + 1);
 	RenderList.push_back(aNewPrimitive);
+	aNewPrimitive->bIsBound = true;
 	aNewPrimitive->TextureRequest.AddObserver(this);
 }
 
@@ -50,8 +54,11 @@ void Renderer::RegisterDebugLineLoop(LineLoop & aLineLoop)
 		// Allocate using first free slot
 		if (DynamicObjectRegistry[i] == false)
 		{
+			// If slot is found, use its VAO and VBO and unfree it
 			aLineLoop.VAO = *DynamicVAOList[i];
 			aLineLoop.VBO = *DynamicVBOList[i];
+			aLineLoop.DynamicRegistryID = i;
+			DynamicObjectRegistry[i] = true;
 			break;
 		}
 	}
@@ -95,6 +102,7 @@ void Renderer::InititalizeRenderer()
 		glGenVertexArrays(1, DynamicVAOList[i]);
 		DynamicVBOList[i] = new GLuint;
 		glGenBuffers(1, DynamicVBOList[i]);
+		DynamicObjectRegistry[i] = false;
 	}
 
 	/*---------- OPEN GL SETTINGS ----------*/
@@ -210,6 +218,7 @@ void Renderer::MainRenderPass()
 	// Wireframe draw check
 	if (EngineHandle.GetEngineStateManager().bRenderModeWireframe)
 	{
+		glLineWidth(WireframeThickness);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 	else
@@ -217,20 +226,27 @@ void Renderer::MainRenderPass()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-	//// Render Minkowski Difference
-	//Mesh * shape1 = static_cast<Mesh *>(RenderList[3]);
-	//Mesh * shape2 = static_cast<Mesh *>(RenderList[4]);
-	//std::vector<Vertex> MinkowskiDifferenceVertices;
-	//Utility::CalculateMinkowskiDifference(MinkowskiDifferenceVertices, shape1, shape2);
-	//MinkowskiDifference->GetComponent<Mesh>()->BindVertexData(MinkowskiDifferenceVertices);
+	// Render Minkowski Difference
+	if (EngineHandle.GetEngineStateManager().bShouldRenderMinkowskiDifference)
+	{
+		Mesh * shape1 = static_cast<Mesh *>(RenderList[4]);
+		Mesh * shape2 = static_cast<Mesh *>(RenderList[5]);
+		std::vector<Vertex> MinkowskiDifferenceVertices;
+		Utility::CalculateMinkowskiDifference(MinkowskiDifferenceVertices, shape1, shape2);
+		MinkowskiDifference->GetComponent<Mesh>()->BindVertexData(MinkowskiDifferenceVertices);
+	}
+	else
+	{
+		MinkowskiDifference->GetComponent<Mesh>()->Debuffer();
+	}
 
 	for (int i = 0; i < RenderList.size(); ++i)
 	{
 		Transform * transform = nullptr;
 		Primitive * primitive = RenderList[i];
 
-		// Skip any debug objects
-		if (primitive->GetPrimitiveType() == Primitive::DEBUG)
+		// Skip any debug objects or unbound primitives
+		if (primitive->GetPrimitiveType() == Primitive::DEBUG || !primitive->bIsBound)
 			continue;
 
 		GameObject const * renderObject = primitive->GetConstOwner(); 
@@ -311,6 +327,8 @@ void Renderer::RenderDebugWireframes(GLint aMVPAttributeIndex)
 		Transform * transform = nullptr;
 		Primitive * primitive = RenderList[i];
 
+		if (!primitive->bIsBound)
+			continue;
 		if (primitive->RenderDebug)
 		{
 			GameObject const * renderObject = primitive->GetConstOwner();
@@ -327,7 +345,7 @@ void Renderer::RenderDebugWireframes(GLint aMVPAttributeIndex)
 			// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
 			glUniformMatrix4fv(aMVPAttributeIndex, 1, GL_FALSE, &mvp[0][0]);
 			check_gl_error_render();
-			glLineWidth(4);
+			glLineWidth(WireframeThickness);
 			// Bind VAO
 			glBindVertexArray(*StaticVAOList[i]);
 			check_gl_error_render();
@@ -350,6 +368,8 @@ void Renderer::RenderDebugNormals(GLint aMVPAttributeIndex)
 		Transform * transform = nullptr;
 		Primitive * primitive = RenderList[i];
 
+		if (!primitive->bIsBound)
+			continue;
 		if (primitive->RenderDebug)
 		{
 			GameObject const * renderObject = primitive->GetConstOwner();
@@ -383,6 +403,7 @@ void Renderer::RenderDebugNormals(GLint aMVPAttributeIndex)
 void Renderer::RenderDebugArrows(GLint aMVPAttributeIndex)
 {
 	glm::mat4 projectionView = Projection * View;
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// Draw all arrows that have been registered 
 	for (int i = 0; i < DebugArrowsStack.size(); ++i)
@@ -425,18 +446,20 @@ void Renderer::RenderDebugLineLoops(GLint aMVPAttributeIndex)
 		check_gl_error_render();
 		glBindVertexArray(lineLoop.VAO);
 		check_gl_error_render();
-		glLineWidth(6);
+		glLineWidth(LineLoopThickness);
 		glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)DebugLineLoopsStack[i].LineLoopVertices.size());
 		check_gl_error_render();
 		glBindVertexArray(0);
 		glDisableClientState(GL_VERTEX_ARRAY);
-
+		// Free the slot in the dynamic registry
+		DynamicObjectRegistry[lineLoop.DynamicRegistryID] = false;
 	}
 	DebugLineLoopsStack.clear();
 }
 
 void Renderer::RenderBillboardingQuads(GLint aModelAttributeIndex, GLint aViewAttributeIndex, GLint aProjectionAttributeIndex, GLint aBillboardModeAttributeIndex)
 {
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	// Set projection and view matrices
 	glUniformMatrix4fv(aProjectionAttributeIndex, 1, GL_FALSE, &Projection[0][0]);
 	glUniformMatrix4fv(aViewAttributeIndex, 1, GL_FALSE, &View[0][0]);

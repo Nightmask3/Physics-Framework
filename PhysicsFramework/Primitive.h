@@ -23,6 +23,8 @@ class Primitive : public Component
 {
 	/*----------MEMBER VARIABLES----------*/
 public:
+	bool bIsBound;
+
 	enum PrimitiveType
 	{
 		DEBUG,
@@ -83,5 +85,6 @@ public:
 
 	void Deserialize(TextFileData aTextData) {};
 	void Update();
-
+	// Unbuffers the vertex data
+	void Debuffer();
 };

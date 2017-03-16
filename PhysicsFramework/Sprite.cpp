@@ -79,6 +79,9 @@ void Sprite::BindVertexData(std::vector<Vertex> & aVertexData)
 		(GLvoid*)(6 * sizeof(GLfloat))
 	);
 	glEnableVertexAttribArray(2);
+
+	bIsBound = true;
+
 	// Unbind VAO
 	glBindVertexArray(0);
 	

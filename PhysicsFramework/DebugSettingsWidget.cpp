@@ -1,6 +1,7 @@
 #include "DebugSettingsWidget.h"
 #include "EngineStateManager.h"
 #include "PhysicsManager.h"
+#include "Renderer.h"
 
 bool DebugSettingsWidget::DrawWidget()
 {
@@ -18,10 +19,20 @@ bool DebugSettingsWidget::DrawWidget()
 	
 		ImGui::Checkbox("Wireframe Mode (F1)", &engineStateManager.bRenderModeWireframe);
 
+		ImGui::PushItemWidth(150);
+		ImGui::SliderInt("Wireframe Thickness: ", &Renderer::WireframeThickness, 1, 5);
+		ImGui::PopItemWidth();
+
+		ImGui::PushItemWidth(150);
+		ImGui::SliderInt("Line Loop Thickness: ", &Renderer::LineLoopThickness, 1, 6);
+		ImGui::PopItemWidth();
+
 		ImGui::Checkbox("Render Colliders and Normals (F2)", &engineStateManager.bShouldRenderCollidersAndNormals);
 
 		ImGui::Checkbox("Render Simplex ", &engineStateManager.bShouldRenderSimplex);
 
+		ImGui::Checkbox("Render Minkowski Difference ", &engineStateManager.bShouldRenderMinkowskiDifference);
+	
 		ImGui::PushItemWidth(150);
 		ImGui::SliderInt("Integrator Iterations: ", &PhysicsManager::Iterations, 1, 100);
 		ImGui::PopItemWidth();

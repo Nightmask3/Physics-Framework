@@ -11,8 +11,6 @@ public:
 
 	PrimitiveType GetPrimitiveType() { return ePrimitiveType; }
 
-	virtual void BindVertexData(std::vector<Vertex> & aVertexData);
-
 	void Deserialize(TextFileData aTextData);
 	void Update() {};
 };

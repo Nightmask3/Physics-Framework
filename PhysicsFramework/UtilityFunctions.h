@@ -45,7 +45,7 @@ namespace Utility
 	// "The trick is that if two triangles that are removed share an edge then that edge is gone for good, 
 	// but if an edge is used by only one removed triangle then it will form part of the hole."
 
-	inline  void AddEdge(std::list<PolytopeEdge> aEdgeList, const SupportPoint & a, const SupportPoint & b)
+	inline  void AddEdge(std::list<PolytopeEdge> & aEdgeList, const SupportPoint & a, const SupportPoint & b)
 	{
 		for (auto iterator = aEdgeList.begin(); iterator != aEdgeList.end(); ++iterator)
 		{

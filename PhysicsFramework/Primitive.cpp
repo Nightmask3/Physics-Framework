@@ -83,7 +83,7 @@ void Primitive::BindVertexData(std::vector<Vertex>& aVertexData)
 		sizeof(Vertex),
 		(GLvoid*)(10 * sizeof(GLfloat))
 	);
-
+	bIsBound = true;
 	// Unbind VAO
 	glBindVertexArray(0);
 }
@@ -98,4 +98,15 @@ void Primitive::ApplyTexture(unsigned int aTextureID)
 
 void Primitive::Update()
 {
+}
+
+void Primitive::Debuffer()
+{
+	glBindVertexArray(VAO);
+	/*--------------------------- VERTEX BUFFER OBJECT --------------------------------*/
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
+	bIsBound = false;
 }

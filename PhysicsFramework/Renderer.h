@@ -69,7 +69,10 @@ public:
 	std::vector<Primitive *> RenderList;
 	// Holds the number of currently active/bound textures
 	GLuint TextureCount;
-
+	// The thickness of debug wireframe lines
+	static int WireframeThickness;
+	// The thickness of debug line loops
+	static int LineLoopThickness;
 	// Later on use an array of unique ptrs to cameras owned by renderer, 
 	// active camera at any time is pointed to by this pointer
 	Camera * pActiveCamera;
@@ -94,6 +97,14 @@ public:
 			glDeleteTextures(1, TBOList[i]);
 			// VERTEX ARRAY DELETION
 			glDeleteVertexArrays(1, StaticVAOList[i]);
+		}
+
+		for (int i = 0; i < MAXIMUM_DYNAMIC_RENDER_OBJECTS; i++)
+		{
+			// BUFFER DELETION
+			glDeleteBuffers(1,DynamicVBOList[i]);
+			// VERTEX ARRAY DELETION
+			glDeleteVertexArrays(1, DynamicVAOList[i]);
 		}
 	}
 
