@@ -5,7 +5,7 @@ The core of the engine is built around the Observer pattern. See link below for 
 
 http://gameprogrammingpatterns.com/observer.html
 
-[![Capture.png](https://s29.postimg.org/y40sescpz/Capture.png)](https://postimg.org/image/rqbpbj7tv/)
+[![Capture.png](https://s29.postimg.org/y40sescpz/Capture.png)]
 
 Seen above, two cubes colliding with collision detection returning contact point and penetration normal.
 Also there is the Minkowski difference being rendered, along with the simplex being used in EPA and the closest faces on the two cubes. 
