@@ -1,23 +1,4 @@
-﻿  Controller.cpp
-  Generating Code...
-  Compiling...
-  WorldOutlinerWidget.cpp
-  Generating Code...
-  Skipping... (no relevant changes detected)
-  UtilityFunctions.cpp
-  Transform.cpp
-  Sprite.cpp
-  ShaderProgram.cpp
-  ResourceManager.cpp
-  Renderer.cpp
-  Primitive.cpp
-  PhysicsManager.cpp
-  Physics.cpp
-  Mesh.cpp
-  GameObjectFactory.cpp
-  GameObject.cpp
-  Engine.cpp
-  DebugSettingsWidget.cpp
-  DebugFactory.cpp
+﻿  Engine.cpp
+c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\grid.h(26): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
   PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.exe
   PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.pdb (Partial PDB)
