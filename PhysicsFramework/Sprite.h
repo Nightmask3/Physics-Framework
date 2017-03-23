@@ -5,7 +5,7 @@ class Sprite : public Primitive
 {
 	/*----------MEMBER VARIABLES----------*/
 public:
-	Sprite(GLuint VAO, GLuint VBO);
+	Sprite();
 	virtual ~Sprite() {};
 
 	static ComponentType GetComponentID();

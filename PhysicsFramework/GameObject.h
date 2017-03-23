@@ -32,7 +32,7 @@ public:
 	void AddComponent(Component * aNewComponent);
 
 private:
-	virtual void OnNotify(Object * object, Event * event) override;
+	virtual void OnNotify(Event * aEvent) override;
 
 	Component * GetComponent(Component::ComponentType);
 	Component * GetComponent(Component::ComponentType) const;

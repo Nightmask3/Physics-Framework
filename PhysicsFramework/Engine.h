@@ -16,12 +16,13 @@
 class WindowManager;
 class InputManager;
 class FramerateController;
-class GameObjectFactory;
 class ResourceManager;
 class Renderer;
 class PhysicsManager;
 class ImGuiManager;
 class EngineStateManager;
+class DebugFactory;
+class GameObjectFactory;
 
 // The main engine events that have Subjects created from the start
 class EngineEvent : public Event
@@ -47,12 +48,14 @@ private:
 	std::unique_ptr<WindowManager> pWindowManager;
 	std::unique_ptr<InputManager> pInputManager;
 	std::unique_ptr<FramerateController> pFrameRateController;
-	std::unique_ptr<GameObjectFactory> pGameObjectFactory;
 	std::unique_ptr<ResourceManager> pResourceManager;
 	std::unique_ptr<Renderer> pRenderer;
 	std::unique_ptr<PhysicsManager> pPhysicsManager;
 	std::unique_ptr<ImGuiManager> pImGuiManager;
 	std::unique_ptr<EngineStateManager> pEngineStateManager;
+	std::unique_ptr<GameObjectFactory> pGameObjectFactory;
+	std::unique_ptr<DebugFactory> pDebugFactory;
+
 	// A map of the main engine events
 	std::map<EngineEvent::EventList, Subject> MainEventList;
 
@@ -70,12 +73,13 @@ public:
 	inline WindowManager & GetWindowManager() { return *pWindowManager; }
 	inline InputManager & GetInputManager() { return *pInputManager; }
 	inline FramerateController & GetFramerateController() { return *pFrameRateController; }
-	inline GameObjectFactory & GetGameObjectFactory() { return *pGameObjectFactory; }
 	inline ResourceManager & GetResourceManager() { return *pResourceManager; }
 	inline Renderer & GetRenderer() { return *pRenderer; }
 	inline PhysicsManager & GetPhysicsManager() { return *pPhysicsManager; }
 	inline ImGuiManager & GetImGuiManager() { return *pImGuiManager; }
 	inline EngineStateManager & GetEngineStateManager() { return *pEngineStateManager; }
+	inline GameObjectFactory & GetGameObjectFactory() { return *pGameObjectFactory; }
+	inline DebugFactory & GetDebugFactory() { return *pDebugFactory; }
 
 };
 

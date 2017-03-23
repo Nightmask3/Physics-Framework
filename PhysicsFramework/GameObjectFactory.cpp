@@ -16,7 +16,7 @@ GameObject * GameObjectFactory::SpawnGameObjectFromArchetype(const char * aFileN
 	rootComponent->SetScale(glm::vec3(3));
 	// Read archetype data from file
 	TextFileData archetypeData;
-	archetypeData = pEngineReference.GetResourceManager().LoadTextFile(aFileName, READ);
+	archetypeData = EngineHandle.GetResourceManager().LoadTextFile(aFileName, READ);
 
 	char * archetypeContents = archetypeData.pData;
 	char componentName[64];
@@ -96,7 +96,7 @@ GameObject * GameObjectFactory::SpawnGameObjectFromArchetype(const char * aFileN
 	GameObjectList.emplace_back(newGameObject);
 	
 	// Add game object to observer list of engine tick event
-	pEngineReference.GetMainEventList()[EngineEvent::ENGINE_TICK].AddObserver(newGameObject);
+	EngineHandle.GetMainEventList()[EngineEvent::ENGINE_TICK].AddObserver(newGameObject);
 	return newGameObject;
 
 }
@@ -114,15 +114,15 @@ GameObject * GameObjectFactory::SpawnGameObject(Transform & aTransform)
 	GameObjectList.emplace_back(newGameObject);
 
 	// Add game object to observer list of engine tick event
-	pEngineReference.GetMainEventList()[EngineEvent::ENGINE_TICK].AddObserver(newGameObject);
+	EngineHandle.GetMainEventList()[EngineEvent::ENGINE_TICK].AddObserver(newGameObject);
 	
 	return newGameObject;
 }
 
-void GameObjectFactory::OnNotify(Object * object, Event * event)
+void GameObjectFactory::OnNotify(Event * aEvent)
 {
 	// Check if this is an Engine event
-	EngineEvent * engineEvent = static_cast<EngineEvent *>(event);
+	EngineEvent * engineEvent = static_cast<EngineEvent *>(aEvent);
 	if (engineEvent)
 	{
 		switch (engineEvent->EventID)

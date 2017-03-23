@@ -1,9 +1,23 @@
-﻿  PhysicsManager.cpp
-c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\physicsmanager.cpp(333): warning C4715: 'PhysicsManager::CheckIfSimplexContainsOrigin': not all control paths return a value
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-SOIL.lib(image_DXT.obj) : warning LNK4099: PDB 'SOIL.pdb' was not found with 'SOIL.lib(image_DXT.obj)' or at 'C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\SOIL.pdb'; linking object as if no debug info
-SOIL.lib(image_helper.obj) : warning LNK4099: PDB 'SOIL.pdb' was not found with 'SOIL.lib(image_helper.obj)' or at 'C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\SOIL.pdb'; linking object as if no debug info
-SOIL.lib(SOIL.obj) : warning LNK4099: PDB 'SOIL.pdb' was not found with 'SOIL.lib(SOIL.obj)' or at 'C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\SOIL.pdb'; linking object as if no debug info
-SOIL.lib(stb_image_aug.obj) : warning LNK4099: PDB 'SOIL.pdb' was not found with 'SOIL.lib(stb_image_aug.obj)' or at 'C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\SOIL.pdb'; linking object as if no debug info
+﻿  Controller.cpp
+  Generating Code...
+  Compiling...
+  WorldOutlinerWidget.cpp
+  Generating Code...
+  Skipping... (no relevant changes detected)
+  UtilityFunctions.cpp
+  Transform.cpp
+  Sprite.cpp
+  ShaderProgram.cpp
+  ResourceManager.cpp
+  Renderer.cpp
+  Primitive.cpp
+  PhysicsManager.cpp
+  Physics.cpp
+  Mesh.cpp
+  GameObjectFactory.cpp
+  GameObject.cpp
+  Engine.cpp
+  DebugSettingsWidget.cpp
+  DebugFactory.cpp
   PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.exe
   PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.pdb (Partial PDB)

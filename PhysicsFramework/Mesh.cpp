@@ -3,7 +3,7 @@
 #include "Mesh.h"
 #include "ResourceManager.h"
 
-Mesh::Mesh(GLuint aVAO, GLuint aVBO) : Primitive(Primitive::MESH, aVAO, aVBO)
+Mesh::Mesh() : Primitive(Primitive::MESH)
 {
 	
 }

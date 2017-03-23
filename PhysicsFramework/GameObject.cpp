@@ -4,7 +4,7 @@
 #include "Transform.h"
 #include "Controller.h"
 
-void GameObject::OnNotify(Object * aObject, Event * aEvent)
+void GameObject::OnNotify(Event * aEvent)
 {
 	// Check if this is an Engine event
 	EngineEvent * engineEvent = static_cast<EngineEvent *>(aEvent);

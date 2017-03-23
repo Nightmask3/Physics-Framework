@@ -85,6 +85,12 @@
     <Filter Include="Source Files\Shaders\DefaultShaders">
       <UniqueIdentifier>{b9168f3c-76a2-4409-a66c-e3840e7945e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Factories">
+      <UniqueIdentifier>{739f690e-c20b-41d4-9dbd-b4347ad3534c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Factories">
+      <UniqueIdentifier>{2ebe9759-8db0-4c24-b357-0b757726532f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -122,9 +128,6 @@
     </ClInclude>
     <ClInclude Include="Transform.h">
       <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObjectFactory.h">
-      <Filter>Header Files\Managers</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
       <Filter>Header Files\Utilities\RenderUtilities</Filter>
@@ -186,13 +189,7 @@
     <ClInclude Include="Mesh.h">
       <Filter>Header Files\Components\Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="Debug.h">
-      <Filter>Header Files\Components\Primitives</Filter>
-    </ClInclude>
     <ClInclude Include="Quad.h">
-      <Filter>Header Files\Utilities\RenderUtilities</Filter>
-    </ClInclude>
-    <ClInclude Include="LineLoop.h">
       <Filter>Header Files\Utilities\RenderUtilities</Filter>
     </ClInclude>
     <ClInclude Include="DebugSettingsWidget.h">
@@ -204,7 +201,19 @@
     <ClInclude Include="DebugVertex.h">
       <Filter>Header Files\Utilities\RenderUtilities</Filter>
     </ClInclude>
+    <ClInclude Include="GameObjectFactory.h">
+      <Filter>Header Files\Factories</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugFactory.h">
+      <Filter>Header Files\Factories</Filter>
+    </ClInclude>
+    <ClInclude Include="LineLoop.h">
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
+    </ClInclude>
     <ClInclude Include="Arrow.h">
+      <Filter>Header Files\Utilities\RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid.h">
       <Filter>Header Files\Utilities\RenderUtilities</Filter>
     </ClInclude>
   </ItemGroup>
@@ -238,9 +247,6 @@
     </ClCompile>
     <ClCompile Include="GameObject.cpp">
       <Filter>Source Files\Entities</Filter>
-    </ClCompile>
-    <ClCompile Include="GameObjectFactory.cpp">
-      <Filter>Source Files\Managers</Filter>
     </ClCompile>
     <ClCompile Include="ShaderProgram.cpp">
       <Filter>Source Files\Utilities\RenderUtilities</Filter>
@@ -281,9 +287,6 @@
     <ClCompile Include="NormalsVertexShader.glsl">
       <Filter>Source Files\Shaders\DebugShaders\Normals</Filter>
     </ClCompile>
-    <ClCompile Include="Debug.cpp">
-      <Filter>Source Files\Components\Primitives</Filter>
-    </ClCompile>
     <ClCompile Include="Primitive.cpp">
       <Filter>Source Files\Components\Primitives</Filter>
     </ClCompile>
@@ -304,6 +307,12 @@
     </ClCompile>
     <ClCompile Include="Arrow.cpp">
       <Filter>Source Files\Utilities\RenderUtilities</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjectFactory.cpp">
+      <Filter>Source Files\Factories</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugFactory.cpp">
+      <Filter>Source Files\Factories</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

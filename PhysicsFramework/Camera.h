@@ -55,5 +55,5 @@ public:
 	void Update();
 
 private:
-	virtual void OnNotify(Object * object, Event * event) override;
+	virtual void OnNotify(Event * aEvent) override;
 };

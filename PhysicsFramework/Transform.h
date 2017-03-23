@@ -49,7 +49,9 @@ public:
 	inline void SetRotation(glm::quat newRotation) { Rotation = newRotation; }
 	inline void SetScale(glm::vec3 newScale) { Scale = newScale; }
 	// Rotates this transform using the provided quaternion
-	inline void Rotate(glm::quat aQuat) { Rotation = Rotation * aQuat; }
+	inline void Rotate(glm::quat aQuat) { 
+		Rotation = Rotation * aQuat; 
+	}
 
 	virtual void Deserialize(TextFileData aTextFileData) override;
 	void Update();

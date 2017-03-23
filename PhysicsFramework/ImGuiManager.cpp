@@ -39,10 +39,10 @@ void ImGuiManager::DrawWidgets()
 
 }
 
-void ImGuiManager::OnNotify(Object * object, Event * event)
+void ImGuiManager::OnNotify(Event * aEvent)
 {
 	EngineEvent * engineEvent = nullptr;
-	engineEvent = dynamic_cast<EngineEvent *>(event);
+	engineEvent = dynamic_cast<EngineEvent *>(aEvent);
 
 	if (engineEvent)
 	{
@@ -64,6 +64,18 @@ void ImGuiManager::OnNotify(Object * object, Event * event)
 		{
 			// Cleanup
 			ImGui_ImplGlfwGL3_Shutdown();
+		}
+		return;
+	}
+
+	WindowEvent * windowEvent = nullptr;
+	windowEvent = dynamic_cast<WindowEvent *>(aEvent);
+
+	if (windowEvent)
+	{
+		if (windowEvent->EventID == WindowEvent::WINDOW_RESIZE)
+		{
+			
 		}
 		return;
 	}

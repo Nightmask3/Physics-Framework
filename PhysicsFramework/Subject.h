@@ -15,7 +15,7 @@ public:
 
 	// An "observer" is an active listener to any events that an object might be performing
 	// Notifies all observers
-	void Notify(Object * aEventOrigin, Event * aEvent);
+	void NotifyAllObservers(Event * aEvent);
 	// Notifies specified observer
 	void NotifyScoped(Object * aEventOrigin, Event * aEvent, Observer * aObserver);
 	void AddObserver(Observer* aObserver);

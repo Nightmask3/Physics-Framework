@@ -28,6 +28,6 @@ private:
 	void Update();
 
 	// Observer functions
-	virtual void OnNotify(Object * object, Event * event) override;
+	virtual void OnNotify(Event * aEvent) override;
 
 };

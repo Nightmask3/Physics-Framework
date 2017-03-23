@@ -7,7 +7,7 @@ public:
 	FramerateController(Engine const & aEngine) : EngineHandle(aEngine) {}
 	~FramerateController();
 
-	virtual void OnNotify(Object * object, Event * event);
+	virtual void OnNotify(Event * aEvent);
 	Engine const & GetEngine() { return EngineHandle; }
 
 private:

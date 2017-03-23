@@ -3,6 +3,22 @@
 
 #include "Engine.h"
 #include "Observer.h"
+#include "Subject.h"
+#include "Event.h"
+
+class WindowEvent : public Event
+{
+public:
+	enum EventList
+	{
+		WINDOW_RESIZE,
+		WindowEventCount
+	};
+	EventList EventID;
+
+	WindowEvent() {};
+	~WindowEvent() {};
+};
 
 class WindowManager : public Observer
 {
@@ -11,13 +27,13 @@ private:
 	static GLFWwindow * pWindow;
 
 	/*------------------------------- ENGINE REFERENCE -------------------------------*/
-	Engine const & EngineHandle;
+	Engine & EngineHandle;
 public:
 	static int Width;
 	static int Height;
 	/*----------MEMBER FUNCTIONS----------*/
 public:
-	WindowManager(Engine const & aEngine) : EngineHandle(aEngine) {}
+	WindowManager(Engine & aEngine) : EngineHandle(aEngine) {}
 	~WindowManager();
 
 	inline GLFWwindow * GetWindow() const { return pWindow; }
@@ -26,10 +42,11 @@ public:
 	// Window manager functions
 	int InitializeWindow();
 	// Observer functions
-	virtual void OnNotify(Object * object, Event * event) override;
+	virtual void OnNotify(Event * aEvent) override;
 
 	// Window resize 
 	static void WindowResizeCallback(GLFWwindow * aWindow, int aWidth, int aHeight);
-
+	// Event thrown when window is resized
+	static Subject WindowResize;
 };
 

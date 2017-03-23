@@ -19,7 +19,7 @@ void check_gl_error_render()
 		err = glGetError();
 	}
 }
-Sprite::Sprite(GLuint VAO, GLuint VBO) : Primitive(PrimitiveType::SPRITE, VAO, VBO)
+Sprite::Sprite() : Primitive(PrimitiveType::SPRITE)
 {
 	
 }

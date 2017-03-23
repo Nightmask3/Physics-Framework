@@ -1,11 +1,11 @@
 #include "EngineStateManager.h"
 #include "InputManager.h"
 
-void EngineStateManager::OnNotify(Object * object, Event * event)
+void EngineStateManager::OnNotify(Event * aEvent)
 {
 	// Check if this is an Engine event
 	EngineEvent * engineEvent = nullptr;
-	engineEvent = dynamic_cast<EngineEvent *>(event);
+	engineEvent = dynamic_cast<EngineEvent *>(aEvent);
 
 	if (engineEvent)
 	{

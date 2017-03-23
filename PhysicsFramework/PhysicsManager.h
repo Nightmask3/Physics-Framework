@@ -45,6 +45,6 @@ public:
 	bool ExtrapolateContactInformation(PolytopeFace * aClosestFace, ContactData & aContactData);
 	bool CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 & aSearchDirection);
 
-	virtual void OnNotify(Object * object, Event * event) override;
+	virtual void OnNotify(Event * aEvent) override;
 
 };

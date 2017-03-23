@@ -13,6 +13,8 @@
 #include "Camera.h"
 #include "Controller.h"
 #include "ImGuiManager.h"
+#include "DebugFactory.h"
+#include "Grid.h"
 
 Engine::Engine()
 {
@@ -23,9 +25,12 @@ Engine::Engine()
 	pWindowManager = std::make_unique<WindowManager>(*this);
 	pInputManager = std::make_unique<InputManager>(*this);
 	pPhysicsManager = std::make_unique<PhysicsManager>(*this);
-	pGameObjectFactory = std::make_unique<GameObjectFactory>(*this);
 	pRenderer = std::make_unique<Renderer>(*this);
 	pImGuiManager = std::make_unique<ImGuiManager>(*this);
+
+	/*-------------- FACTORY CREATION --------------*/
+	pGameObjectFactory = std::make_unique<GameObjectFactory>(*this);
+	pDebugFactory = std::make_unique<DebugFactory>(*this);
 
 	/*-------------- ENGINE INIT EVENT REGISTRATION --------------*/
 	Subject EngineInitialized;
@@ -35,9 +40,10 @@ Engine::Engine()
 	EngineInitialized.AddObserver(pEngineStateManager.get());
 	EngineInitialized.AddObserver(pWindowManager.get());
 	EngineInitialized.AddObserver(pInputManager.get());
-	EngineInitialized.AddObserver(pGameObjectFactory.get());
 	EngineInitialized.AddObserver(pRenderer.get());
 	EngineInitialized.AddObserver(pImGuiManager.get());
+	EngineInitialized.AddObserver(pGameObjectFactory.get());
+	EngineInitialized.AddObserver(pDebugFactory.get());
 
 	// Adds the engine initialized subject to the main event list (must be done after adding all observers as emplace uses a copy in a map)
 	MainEventList.emplace(std::make_pair(EngineEvent::ENGINE_INIT, EngineInitialized));
@@ -77,7 +83,7 @@ void Engine::Init()
 	EngineEvent InitEvent;
 	InitEvent.EventID = EngineEvent::ENGINE_INIT;
 	// Notify all listeners to engine init
-	MainEventList[EngineEvent::ENGINE_INIT].Notify(this, &InitEvent);
+	MainEventList[EngineEvent::ENGINE_INIT].NotifyAllObservers(&InitEvent);
 	
 	// Create camera and add it to the tick notification list
 	Camera * mainCamera = new Camera(*pInputManager, *pFrameRateController);
@@ -111,6 +117,14 @@ void Engine::Init()
 	
 	Controller * controller = pGameObjectFactory->SpawnComponent<Controller>();
 	cube2->AddComponent(controller);
+
+	GameObject * grid = pGameObjectFactory->SpawnGameObject();
+	Primitive * gridMesh = pGameObjectFactory->SpawnComponent<Primitive>();
+	grid->AddComponent(gridMesh);
+	gridMesh->ePrimitiveDataType = Renderer::DYNAMIC;
+	pRenderer->RegisterPrimitive(gridMesh);
+	Grid testGrid(10, 10, 10, 10);
+	gridMesh->BindVertexData(testGrid.GridVertices);
 	return;
 }
 
@@ -119,7 +133,7 @@ void Engine::Load()
 	EngineEvent LoadEvent;
 	LoadEvent.EventID = EngineEvent::ENGINE_LOAD;
 	// Notify all listeners to engine load
-	MainEventList[EngineEvent::ENGINE_LOAD].Notify(this, &LoadEvent);
+	MainEventList[EngineEvent::ENGINE_LOAD].NotifyAllObservers(&LoadEvent);
 
 	return;
 }
@@ -129,7 +143,7 @@ void Engine::Exit()
 	EngineEvent ExitEvent;
 	ExitEvent.EventID = EngineEvent::ENGINE_EXIT;
 	// Notify all listeners to engine exit
-	MainEventList[EngineEvent::ENGINE_EXIT].Notify(this, &ExitEvent);
+	MainEventList[EngineEvent::ENGINE_EXIT].NotifyAllObservers(&ExitEvent);
 
 	return;
 }
@@ -148,7 +162,7 @@ void Engine::Tick()
 		EngineEvent TickEvent;
 		TickEvent.EventID = EngineEvent::ENGINE_TICK;
 		// Notify all listeners to engine tick 
-		MainEventList[EngineEvent::ENGINE_TICK].Notify(this, &TickEvent);
+		MainEventList[EngineEvent::ENGINE_TICK].NotifyAllObservers(&TickEvent);
 
 		// Draws GUI widgets on top of everything else
 		ImGuiManager::ImGuiRender();

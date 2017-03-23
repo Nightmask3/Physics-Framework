@@ -134,7 +134,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Controller.h" />
-    <ClInclude Include="Debug.h" />
+    <ClInclude Include="DebugFactory.h" />
     <ClInclude Include="DebugSettingsWidget.h" />
     <ClInclude Include="DebugVertex.h" />
     <ClInclude Include="Engine.h" />
@@ -143,6 +143,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObjectFactory.h" />
     <ClInclude Include="EngineStateManager.h" />
+    <ClInclude Include="Grid.h" />
     <ClInclude Include="ImGuiManager.h" />
     <ClInclude Include="ImGuiWidget.h" />
     <ClInclude Include="InputManager.h" />
@@ -177,7 +178,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="Controller.cpp" />
-    <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="DebugFactory.cpp" />
     <ClCompile Include="DebugSettingsWidget.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="EngineStateManager.cpp" />

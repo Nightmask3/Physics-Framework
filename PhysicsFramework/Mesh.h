@@ -4,7 +4,7 @@ class Mesh : public Primitive
 {
 	/*----------MEMBER VARIABLES----------*/
 public:
-	Mesh(GLuint aVAO, GLuint aVBO);
+	Mesh();
 	virtual ~Mesh() {};
 
 	static ComponentType GetComponentID();

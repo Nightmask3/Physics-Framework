@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-void Camera::OnNotify(Object * aObject, Event * aEvent)
+void Camera::OnNotify(Event * aEvent)
 {
 	// Check if this is an Engine event
 	EngineEvent * engineEvent = static_cast<EngineEvent *>(aEvent);

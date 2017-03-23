@@ -158,10 +158,10 @@ Mesh * ResourceManager::ImportMesh(std::string & aFilename)
 
 }
 
-void ResourceManager::OnNotify(Object * object, Event * event)
+void ResourceManager::OnNotify(Event * aEvent)
 {
 	// Check if this is an Engine event
-	EngineEvent * engineEvent = static_cast<EngineEvent *>(event);
+	EngineEvent * engineEvent = static_cast<EngineEvent *>(aEvent);
 	if (engineEvent)
 	{
 		if (engineEvent->EventID == EngineEvent::EventList::ENGINE_LOAD)

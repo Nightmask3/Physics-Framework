@@ -25,10 +25,10 @@ FramerateController::~FramerateController()
 {
 }
 
-void FramerateController::OnNotify(Object * object, Event * event)
+void FramerateController::OnNotify(Event * aEvent)
 {
 	// Check if this is an Engine event
-	EngineEvent * engineEvent = static_cast<EngineEvent *>(event);
+	EngineEvent * engineEvent = static_cast<EngineEvent *>(aEvent);
 	if (engineEvent)
 	{
 		switch (engineEvent->EventID)

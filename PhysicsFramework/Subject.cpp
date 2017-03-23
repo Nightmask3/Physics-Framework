@@ -1,10 +1,10 @@
 #include "Subject.h"
 
-void Subject::Notify(Object * aEventOrigin, Event * aEvent)
+void Subject::NotifyAllObservers(Event * aEvent)
 {
 	for (int i = 0; i < ObserverList.size(); ++i)
 	{
-		ObserverList[i]->OnNotify(aEventOrigin, aEvent);
+		ObserverList[i]->OnNotify(aEvent);
 	}
 }
 

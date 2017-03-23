@@ -29,7 +29,7 @@ public:
 	Engine const & GetEngine() const { return EngineHandle; }
 
 	// Observer functions
-	virtual void OnNotify(Object * object, Event * event) override;
+	virtual void OnNotify(Event * aEvent) override;
 	
 	void Tick();
 	/*------------------- KEYBOARD FUNCTIONS ------------------- */

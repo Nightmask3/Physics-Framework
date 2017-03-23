@@ -5,23 +5,117 @@
 #include "Renderer.h"
 #include "EngineStateManager.h"
 #include "GameObjectFactory.h"
+#include "DebugFactory.h"
 #include "GameObject.h"
+#include "Primitive.h"
+
 #include "UtilityFunctions.h"
+// Render Utilities
+#include "Arrow.h"
+#include "LineLoop.h"
+#include "Quad.h"
 
 int Renderer::WireframeThickness = 4;
 int Renderer::LineLoopThickness = 6;
 
+void Renderer::ConvertStaticToDynamic(Primitive * aPrimitive)
+{
+	// Remove object from static list and add it to dynamic list
+	if (aPrimitive->ePrimitiveDataType == PrimitiveDataType::STATIC)
+	{
+		DeregisterStaticPrimitive(aPrimitive);
+		RegisterDynamicPrimitive(aPrimitive);
+	}
+}
+
 void Renderer::RegisterPrimitive(Primitive * aNewPrimitive)
 {
-	*StaticVAOList[RenderList.size()] = *StaticVBOList[RenderList.size()] = (GLuint)(RenderList.size() + 1);
+	// Assign new primitive a VAO and VBO, Static and Dynamic VAOs/VBOs are stored in different arrays (hence they are assigned separately)
+	if (aNewPrimitive->ePrimitiveDataType == PrimitiveDataType::STATIC)
+	{
+		RegisterStaticPrimitive(aNewPrimitive);
+	}
+	else if (aNewPrimitive->ePrimitiveDataType == PrimitiveDataType::DYNAMIC)
+	{
+		RegisterDynamicPrimitive(aNewPrimitive);
+	}
 	RenderList.push_back(aNewPrimitive);
 	aNewPrimitive->bIsBound = true;
 	aNewPrimitive->TextureRequest.AddObserver(this);
 }
 
+void Renderer::RegisterStaticPrimitive(Primitive * aNewPrimitive)
+{
+	for (int i = 0; i < MAXIMUM_STATIC_RENDER_OBJECTS; ++i)
+	{
+		// Allocate using first free slot
+		if (StaticObjectRegistry[i] == false)
+		{
+			// If a free slot is found, assign its VAO and VBO to the primitive and mark slot as filled
+			aNewPrimitive->VAO = *StaticVAOList[i];
+			aNewPrimitive->VBO = *StaticVBOList[i];
+			aNewPrimitive->SlotID = i;
+			StaticObjectRegistry[i] = true;
+			return;
+		}
+	}
+}
+
+void Renderer::RegisterDynamicPrimitive(Primitive * aNewPrimitive)
+{
+	for (int i = 0; i < MAXIMUM_DYNAMIC_RENDER_OBJECTS; ++i)
+	{
+		// Allocate using first free slot
+		if (DynamicObjectRegistry[i] == false)
+		{
+			// If a free slot is found, assign its VAO and VBO to the primitive and mark slot as filled
+			aNewPrimitive->VAO = *DynamicVAOList[i];
+			aNewPrimitive->VBO = *DynamicVBOList[i];
+			aNewPrimitive->SlotID = i;
+			DynamicObjectRegistry[i] = true;
+			return;
+		}
+	}
+}
+
+void Renderer::DeregisterPrimitive(Primitive * aOldPrimitive)
+{
+	std::vector<Primitive *>::iterator oldPrimitiveLocation = std::find(RenderList.begin(), RenderList.end(), aOldPrimitive);
+	// If primitive exists in render list
+	if (oldPrimitiveLocation != RenderList.end())
+	{
+		if (aOldPrimitive->ePrimitiveDataType == PrimitiveDataType::STATIC)
+		{
+			DeregisterStaticPrimitive(aOldPrimitive);
+		}
+		else if (aOldPrimitive->ePrimitiveDataType == PrimitiveDataType::DYNAMIC)
+		{
+			DeregisterDynamicPrimitive(aOldPrimitive);
+		}
+		// Swaps the old primitive with end of list and pops it
+		std::swap(*oldPrimitiveLocation, RenderList.back());
+		RenderList.pop_back();
+	}
+}
+
+void Renderer::DeregisterStaticPrimitive(Primitive * aOldPrimitive)
+{
+	// Free slot in static object registry
+	StaticObjectRegistry[aOldPrimitive->SlotID] = false;
+}
+
+void Renderer::DeregisterDynamicPrimitive(Primitive * aOldPrimitive)
+{
+	// Free slot in dynamic object registry
+	DynamicObjectRegistry[aOldPrimitive->SlotID] = false;
+}
+
 void Renderer::CreateDebugArrowPrimitive()
 {
-	DebugArrowPrimitive = EngineHandle.GetGameObjectFactory().SpawnComponent<Debug>();
+	DebugArrowPrimitive = EngineHandle.GetGameObjectFactory().SpawnComponent<Primitive>();
+	// Registered as a static primitive
+	RegisterPrimitive(DebugArrowPrimitive);
+	DebugArrowPrimitive->bIsDebug = true;
 	Arrow newArrow(glm::vec3(0), glm::vec3(1));
 	newArrow.VAO = DebugArrowPrimitive->GetVAO();
 	newArrow.VBO = DebugArrowPrimitive->GetVBO();
@@ -30,41 +124,16 @@ void Renderer::CreateDebugArrowPrimitive()
 
 void Renderer::CreateDebugQuadPrimitive()
 {
-	DebugQuadPrimitive = EngineHandle.GetGameObjectFactory().SpawnComponent<Debug>();
+	DebugQuadPrimitive = EngineHandle.GetGameObjectFactory().SpawnComponent<Primitive>();
+	// Registered as a static primitive
+	RegisterPrimitive(DebugQuadPrimitive);
+	DebugQuadPrimitive->bIsDebug = true;
 	Quad newQuad(glm::vec3(0));
 	newQuad.VAO = DebugQuadPrimitive->GetVAO();
 	newQuad.VBO = DebugQuadPrimitive->GetVBO();
 	newQuad.BindVertexData();
 }
 
-void Renderer::RegisterDebugQuad(Quad & aQuad)
-{
-	DebugQuadsStack.push_back(aQuad);
-}
-
-void Renderer::RegisterDebugArrow(Arrow & aArrow)
-{
-	DebugArrowsStack.push_back(aArrow);
-}
-
-void Renderer::RegisterDebugLineLoop(LineLoop & aLineLoop)
-{
-	for (int i = 0; i < MAXIMUM_DYNAMIC_RENDER_OBJECTS; ++i)
-	{
-		// Allocate using first free slot
-		if (DynamicObjectRegistry[i] == false)
-		{
-			// If slot is found, use its VAO and VBO and unfree it
-			aLineLoop.VAO = *DynamicVAOList[i];
-			aLineLoop.VBO = *DynamicVBOList[i];
-			aLineLoop.DynamicRegistryID = i;
-			DynamicObjectRegistry[i] = true;
-			break;
-		}
-	}
-	aLineLoop.BindVertexData();
-	DebugLineLoopsStack.push_back(aLineLoop);
-}
 
 void Renderer::InititalizeRenderer()
 {
@@ -127,25 +196,17 @@ void Renderer::InititalizeRenderer()
 	CreateDebugQuadPrimitive();
 }
 
-void Renderer::OnNotify(Object * object, Event * event)
+void Renderer::OnNotify(Event * aEvent)
 {
 	// Check if this is an Engine event
 	EngineEvent * engineEvent = nullptr;
-	engineEvent = dynamic_cast<EngineEvent *>(event);
+	engineEvent = dynamic_cast<EngineEvent *>(aEvent);
 
 	if (engineEvent)
 	{
 		if (engineEvent->EventID == EngineEvent::EventList::ENGINE_INIT)
 		{
 			InititalizeRenderer();
-
-			/*---------- MINKOWSKI DIFFERENCE INIT ----------*/
-			MinkowskiDifference = EngineHandle.GetGameObjectFactory().SpawnGameObject();
-			std::vector<Vertex> MinkowskiDifferenceVertices;
-			Mesh * minkowskiMesh = EngineHandle.GetGameObjectFactory().SpawnComponent<Mesh>();
-			minkowskiMesh->SetOwner(MinkowskiDifference);
-			MinkowskiDifference->AddComponent(minkowskiMesh);
-
 		}
 		else if (engineEvent->EventID == EngineEvent::EventList::ENGINE_TICK)
 		{
@@ -155,7 +216,7 @@ void Renderer::OnNotify(Object * object, Event * event)
 	}
 
 	PrimitiveEvent * primitiveEvent = nullptr;
-	primitiveEvent = dynamic_cast<PrimitiveEvent *>(event);
+	primitiveEvent = dynamic_cast<PrimitiveEvent *>(aEvent);
 
 	if (primitiveEvent)
 	{
@@ -163,9 +224,19 @@ void Renderer::OnNotify(Object * object, Event * event)
 		{
 			// Already bound textures are not rebound
 			if (primitiveEvent->TextureID >= TextureCount)
-				BindTexture(static_cast<Primitive *>(object), primitiveEvent->TextureID);
+				BindTexture(primitiveEvent->EventOrigin, primitiveEvent->TextureID);
 		}
 		return;
+	}
+
+	WindowEvent * windowEvent = nullptr;
+	windowEvent = dynamic_cast<WindowEvent *>(aEvent);
+	if (windowEvent)
+	{
+		if (windowEvent->EventID == WindowEvent::EventList::WINDOW_RESIZE)
+		{
+
+		}
 	}
 }
 
@@ -186,17 +257,16 @@ void Renderer::Render()
 
 	// Update field of view before constructing projection matrix
 	FieldOfView += InputManager::GetScrollDelta().y * pActiveCamera->GetSensitivity();
-
 	/*-------------------------------- PROJECTION MATRIX -------------------------------*/
 	Projection = glm::perspective(
 		FieldOfView, // The horizontal Field of View, in degrees : the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
-		4.0f / 3.0f, // Aspect Ratio. Depends on the size of your window. Notice that 4/3 == 800/600 == 1280/960, sounds familiar ?
+		4.f/3, // Aspect Ratio. Depends on the size of your window. Notice that 4/3 == 800/600 == 1280/960, sounds familiar ?
 		0.1f,        // Near clipping plane. Keep as big as possible, or you'll get precision issues.
 		100.0f       // Far clipping plane. Keep as little as possible.
 	);
 
 	// Sets background color
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	// Clear color and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -226,27 +296,18 @@ void Renderer::MainRenderPass()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-	// Render Minkowski Difference
-	if (EngineHandle.GetEngineStateManager().bShouldRenderMinkowskiDifference)
-	{
-		Mesh * shape1 = static_cast<Mesh *>(RenderList[4]);
-		Mesh * shape2 = static_cast<Mesh *>(RenderList[5]);
-		std::vector<Vertex> MinkowskiDifferenceVertices;
-		Utility::CalculateMinkowskiDifference(MinkowskiDifferenceVertices, shape1, shape2);
-		MinkowskiDifference->GetComponent<Mesh>()->BindVertexData(MinkowskiDifferenceVertices);
-	}
-	else
-	{
-		MinkowskiDifference->GetComponent<Mesh>()->Debuffer();
-	}
 
+	/*-------- STATIC MESH RENDER ----------*/
 	for (int i = 0; i < RenderList.size(); ++i)
 	{
 		Transform * transform = nullptr;
 		Primitive * primitive = RenderList[i];
 
-		// Skip any debug objects or unbound primitives
-		if (primitive->GetPrimitiveType() == Primitive::DEBUG || !primitive->bIsBound)
+		// Skip any unbound primitives or debug primitives in main render pass
+		if (!primitive->bIsBound || primitive->bIsDebug)
+			continue;
+		// Skip any non-static meshes
+		if(primitive->ePrimitiveDataType != STATIC)
 			continue;
 
 		GameObject const * renderObject = primitive->GetConstOwner(); 
@@ -266,7 +327,7 @@ void Renderer::MainRenderPass()
 		// Bind TBO
 		glBindTexture(GL_TEXTURE_2D, primitive->GetTBO());
 		// Bind VAO
-		glBindVertexArray(*StaticVAOList[i]);
+		glBindVertexArray(*StaticVAOList[primitive->SlotID]);
 		check_gl_error_render();
 		glDrawArrays(GL_TRIANGLES, 0, primitive->GetPrimitiveSize()/sizeof(Vertex));
 		check_gl_error_render();
@@ -275,6 +336,60 @@ void Renderer::MainRenderPass()
 		glBindVertexArray(0);
 		glDisableClientState(GL_VERTEX_ARRAY);
 	}
+
+	/*-------- DYNAMIC MESH RENDER ----------*/
+	// Render Minkowski Difference
+	if (EngineHandle.GetEngineStateManager().bShouldRenderMinkowskiDifference)
+	{
+		Mesh * shape1 = static_cast<Mesh *>(RenderList[4]);
+		Mesh * shape2 = static_cast<Mesh *>(RenderList[5]);
+		std::vector<Vertex> MinkowskiDifferenceVertices;
+		Utility::CalculateMinkowskiDifference(MinkowskiDifferenceVertices, shape1, shape2);
+		EngineHandle.GetDebugFactory().MinkowskiDifference->GetComponent<Primitive>()->BindVertexData(MinkowskiDifferenceVertices);
+	}
+	else
+	{
+		EngineHandle.GetDebugFactory().MinkowskiDifference->GetComponent<Primitive>()->Debuffer();
+	}
+	for (int i = 0; i < RenderList.size(); ++i)
+	{
+		Transform * transform = nullptr;
+		Primitive * primitive = RenderList[i];
+
+		// Skip any unbound primitives or debug primitives in main render pass
+		if (!primitive->bIsBound || primitive->bIsDebug)
+			continue;
+		// Skip any non-dynamic meshes
+		if (primitive->ePrimitiveDataType != DYNAMIC)
+			continue;
+
+		GameObject const * renderObject = primitive->GetConstOwner();
+		transform = renderObject->GetComponent<Transform>();
+		// Calculate the MVP matrix and set the matrix uniform
+		glm::mat4 mvp;
+		glm::mat4 model;
+		glm::mat4 translate = glm::translate(transform->GetPosition());
+		glm::mat4 rotate = glm::mat4_cast(transform->GetRotation());
+		glm::mat4 scale = glm::scale(transform->GetScale());
+		model = translate * rotate * scale;
+		mvp = Projection * View * model;
+		glEnableClientState(GL_VERTEX_ARRAY);
+		// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
+		glUniformMatrix4fv(glMVPAttributeIndex, 1, GL_FALSE, &mvp[0][0]);
+		check_gl_error_render();
+		// Bind TBO
+		glBindTexture(GL_TEXTURE_2D, primitive->GetTBO());
+		// Bind VAO
+		glBindVertexArray(*DynamicVAOList[primitive->SlotID]);
+		check_gl_error_render();
+		glDrawArrays(GL_TRIANGLES, 0, primitive->GetPrimitiveSize() / sizeof(Vertex));
+		check_gl_error_render();
+		assert(glGetError() == GL_NO_ERROR);
+		// Unbind VAO when done
+		glBindVertexArray(0);
+		glDisableClientState(GL_VERTEX_ARRAY);
+	}
+
 	DefaultShader.Unuse();
 
 	// Render billboarding quads
@@ -405,10 +520,11 @@ void Renderer::RenderDebugArrows(GLint aMVPAttributeIndex)
 	glm::mat4 projectionView = Projection * View;
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+	DebugFactory & debugFactory = EngineHandle.GetDebugFactory();
 	// Draw all arrows that have been registered 
-	for (int i = 0; i < DebugArrowsStack.size(); ++i)
+	for (int i = 0; i < debugFactory.DebugArrowsStack.size(); ++i)
 	{
-		Arrow & debugArrow = DebugArrowsStack[i];
+		Arrow & debugArrow = debugFactory.DebugArrowsStack[i];
 		glm::mat4 model;
 		glm::mat4 translate = glm::translate(debugArrow.PointA);
 		// Create rotation matrix using the direction the arrow points in
@@ -429,32 +545,36 @@ void Renderer::RenderDebugArrows(GLint aMVPAttributeIndex)
 		glDisableClientState(GL_VERTEX_ARRAY);
 
 	}
-	DebugArrowsStack.clear();
+	debugFactory.DebugArrowsStack.clear();
 }
 
 void Renderer::RenderDebugLineLoops(GLint aMVPAttributeIndex)
 {
-	// Dont need model matrix as all points are in world space already
+	// Don't need model matrix as all points are in world space already
 	glm::mat4 projectionView = Projection * View;
 
+	DebugFactory & debugFactory = EngineHandle.GetDebugFactory();
 	// Draw all Line Loops that have been registered 
-	for (int i = 0; i < DebugLineLoopsStack.size(); ++i)
+	for (int i = 0; i < debugFactory.DebugLineLoopsStack.size(); ++i)
 	{
-		LineLoop & lineLoop = DebugLineLoopsStack[i];
+		LineLoop & lineLoop = debugFactory.DebugLineLoopsStack[i];
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glUniformMatrix4fv(aMVPAttributeIndex, 1, GL_FALSE, &projectionView[0][0]);
 		check_gl_error_render();
 		glBindVertexArray(lineLoop.VAO);
 		check_gl_error_render();
 		glLineWidth(LineLoopThickness);
-		glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)DebugLineLoopsStack[i].LineLoopVertices.size());
+		glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)debugFactory.DebugLineLoopsStack[i].LineLoopVertices.size());
 		check_gl_error_render();
+		// Unbuffer the data 
+		glBindBuffer(GL_ARRAY_BUFFER, lineLoop.VBO);
+		glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STATIC_DRAW);
 		glBindVertexArray(0);
 		glDisableClientState(GL_VERTEX_ARRAY);
-		// Free the slot in the dynamic registry
-		DynamicObjectRegistry[lineLoop.DynamicRegistryID] = false;
+		// Free the slot in the static registry
+		StaticObjectRegistry[lineLoop.RegistryID] = false;
 	}
-	DebugLineLoopsStack.clear();
+	debugFactory.DebugLineLoopsStack.clear();
 }
 
 void Renderer::RenderBillboardingQuads(GLint aModelAttributeIndex, GLint aViewAttributeIndex, GLint aProjectionAttributeIndex, GLint aBillboardModeAttributeIndex)
@@ -466,24 +586,25 @@ void Renderer::RenderBillboardingQuads(GLint aModelAttributeIndex, GLint aViewAt
 	// Use cylindrical billboarding
 	glUniform1i(aBillboardModeAttributeIndex, 0);
 
+	DebugFactory & debugFactory = EngineHandle.GetDebugFactory();
 	// Draw all Quads that have been registered 
-	for (int i = 0; i < DebugQuadsStack.size(); ++i)
+	for (int i = 0; i < debugFactory.DebugQuadsStack.size(); ++i)
 	{
 		glm::mat4 model;
-		glm::mat4 translate = glm::translate(DebugQuadsStack[i].WorldPosition);
-		glm::mat4 scale = glm::scale(glm::vec3(DebugQuadsStack[i].Scale));
+		glm::mat4 translate = glm::translate(debugFactory.DebugQuadsStack[i].WorldPosition);
+		glm::mat4 scale = glm::scale(glm::vec3(debugFactory.DebugQuadsStack[i].Scale));
 		model = translate * scale;
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glUniformMatrix4fv(aModelAttributeIndex, 1, GL_FALSE, &model[0][0]);
 		check_gl_error_render();
 		glBindVertexArray(DebugQuadPrimitive->GetVAO());
 		check_gl_error_render();
-		glDrawArrays(GL_TRIANGLES, 0, DebugQuadsStack[i].VertexCount);
+		glDrawArrays(GL_TRIANGLES, 0, debugFactory.DebugQuadsStack[i].VertexCount);
 		check_gl_error_render();
 		glBindVertexArray(0);
 		glDisableClientState(GL_VERTEX_ARRAY);
 	}
-	DebugQuadsStack.clear();
+	debugFactory.DebugQuadsStack.clear();
 }
 
 // aPrimitive : Primitive the texture is being assigned to

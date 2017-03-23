@@ -64,10 +64,10 @@ InputManager::~InputManager()
 {
 }
 
-void InputManager::OnNotify(Object * object, Event * event)
+void InputManager::OnNotify(Event * aEvent)
 {
 	// Check if this is an Engine event
-	EngineEvent * engineEvent = static_cast<EngineEvent *>(event);
+	EngineEvent * engineEvent = static_cast<EngineEvent *>(aEvent);
 	if (engineEvent)
 	{
 		switch (engineEvent->EventID)

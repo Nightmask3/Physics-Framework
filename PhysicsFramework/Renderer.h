@@ -16,17 +16,23 @@
 //Component Files
 #include "Component.h"
 #include "Transform.h"
-#include "Primitive.h"
 // Render utilities
 #include "ShaderProgram.h"
-#include "Arrow.h"
-#include "LineLoop.h"
-#include "Quad.h"
+
+class Primitive;
 
 class Renderer : public Observer
 {
 	/*----------MEMBER VARIABLES----------*/
-private:
+public:
+
+	enum PrimitiveDataType
+	{
+		STATIC,  // Vertex data is immutable for lifespan of primitive
+		DYNAMIC, // Vertex data can change over lifespan of primitive
+		DataTypeCount
+	};
+
 	/*--------------------------- CONSTANTS --------------------------------*/
 	const static int MAXIMUM_STATIC_RENDER_OBJECTS = 4096;
 	const static int MAXIMUM_DYNAMIC_RENDER_OBJECTS = 1024;
@@ -46,6 +52,8 @@ private:
 	/*--------------------------- TEXTURE BUFFER OBJECTS --------------------------------*/
 	GLuint * TBOList[MAXIMUM_STATIC_RENDER_OBJECTS];
 	/*--------------------------- REGISTRIES --------------------------------*/
+	// Holds the list of slots available for static objects to bind VAO and VBOs - false is 'empty', true is 'currently in use'
+	bool StaticObjectRegistry[MAXIMUM_STATIC_RENDER_OBJECTS];
 	// Holds the list of slots available for dynamic objects to bind VAO and VBOs - false is 'empty', true is 'currently in use'
 	bool DynamicObjectRegistry[MAXIMUM_DYNAMIC_RENDER_OBJECTS];
 	/*------------------------------- ENGINE REFERENCE -------------------------------*/
@@ -57,14 +65,10 @@ private:
 	// The horizontal Field of View, in degrees : the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
 	float FieldOfView = 45.0f;
 
-	GameObject * MinkowskiDifference;
-	std::vector<Arrow> DebugArrowsStack;
-	std::vector<Quad> DebugQuadsStack;
-	std::vector<LineLoop> DebugLineLoopsStack;
+	// Debug Primitives
 	Primitive * DebugArrowPrimitive;
 	Primitive * DebugQuadPrimitive;
 
-public:
 	// List of render components
 	std::vector<Primitive *> RenderList;
 	// Holds the number of currently active/bound textures
@@ -73,9 +77,10 @@ public:
 	static int WireframeThickness;
 	// The thickness of debug line loops
 	static int LineLoopThickness;
-	// Later on use an array of unique ptrs to cameras owned by renderer, 
-	// active camera at any time is pointed to by this pointer
+	// TODO [@Sai] : Later on use an array of unique ptrs to cameras owned by renderer, 
+	// Active camera at any time is pointed to by this pointer
 	Camera * pActiveCamera;
+
 	/*----------MEMBER FUNCTIONS----------*/
 public:
 	Renderer(Engine & aEngine) :EngineHandle(aEngine),
@@ -119,19 +124,27 @@ public:
 	inline void SetActiveCamera(Camera * aCameraPtr) { pActiveCamera = aCameraPtr; }
 
 	void InititalizeRenderer();
-	// Gives a primitive a VAO, VBO to use, adds to list of render objects
+	
+	// Converts static primitive to dynamic primitive
+	void ConvertStaticToDynamic(Primitive * aPrimitive);
+	// Gives a primitive a VAO & VBO to use, adds to list of render objects
 	void RegisterPrimitive(Primitive * aNewPrimitive);
+	// Called by RegisterPrimitive()
+	void RegisterStaticPrimitive(Primitive * aNewPrimitive);
+	void RegisterDynamicPrimitive(Primitive * aNewPrimitive);
+
+	// Removes a primitive from Dynamic/Static list
+	void DeregisterPrimitive(Primitive * aOldPrimitive);
+	// Called by DeregisterPrimitive()
+	void DeregisterStaticPrimitive(Primitive * aOldPrimitive);
+	void DeregisterDynamicPrimitive(Primitive * aOldPrimitive);
+
 	// Create the debug arrow primitive and save it for later
 	void CreateDebugArrowPrimitive();
 	// Create the debug quad primitive and save it for later
 	void CreateDebugQuadPrimitive();
-	// Pushes debug line onto a stack of arrows to be drawn
-	void RegisterDebugArrow(Arrow & aLine);
-	// Pushes debug line loop onto a stack of line loops to be drawn
-	void RegisterDebugLineLoop(LineLoop &aLineLoop);
-	// Pushes debug quad onto a stack of quads to be drawn
-	void RegisterDebugQuad(Quad & aQuad);
-
+	
+	// Binds texture at requested ID to primitive
 	bool BindTexture(Primitive * aPrimitive, int aTextureID);
 	
 	void Render();
@@ -166,5 +179,6 @@ public:
 		}
 	}
 
-	virtual void OnNotify(Object * object, Event * event) override;
+	virtual void OnNotify(Event * aEvent) override;
+	
 };

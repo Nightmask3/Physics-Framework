@@ -4,6 +4,7 @@
 #include "Renderer.h"
 #include "InputManager.h"
 #include "FrameRateController.h"
+#include "DebugFactory.h"
 #include "EngineStateManager.h"
 
 #include "GameObject.h"
@@ -68,10 +69,10 @@ void PhysicsManager::DetectCollision()
 				// Render contact normal
 				Arrow newDebugArrow(glm::vec3(newContactData.Position), endPoint);
 				newDebugArrow.Scale = newContactData.PenetrationDepth;
-				EngineHandle.GetRenderer().RegisterDebugArrow(newDebugArrow);
+				EngineHandle.GetDebugFactory().RegisterDebugArrow(newDebugArrow);
 				// Render contact point
 				Quad newQuad(newContactData.Position);
-				EngineHandle.GetRenderer().RegisterDebugQuad(newQuad);
+				EngineHandle.GetDebugFactory().RegisterDebugQuad(newQuad);
 			}
 			else
 			{
@@ -128,7 +129,7 @@ bool PhysicsManager::GJKCollisionHandler(Physics * aPhysicsObject1, Physics * aP
 				simplexDebug.AddVertex(simplex.Vertices[1].MinkowskiHullVertex);
 				simplexDebug.AddVertex(simplex.Vertices[2].MinkowskiHullVertex);
 				simplexDebug.AddVertex(simplex.Vertices[3].MinkowskiHullVertex);
-				EngineHandle.GetRenderer().RegisterDebugLineLoop(simplexDebug);
+				EngineHandle.GetDebugFactory().RegisterDebugLineLoop(simplexDebug);
 			}
 			// If the new point IS past the origin, check if the simplex contains the origin
 			if (CheckIfSimplexContainsOrigin(simplex, searchDirection))
@@ -390,9 +391,9 @@ bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Primitive * aShape1
 			closestPolytopeFace.AddVertex(closestFace->Points[1].MinkowskiHullVertex);
 			closestPolytopeFace.AddVertex(closestFace->Points[2].MinkowskiHullVertex);
 
-			EngineHandle.GetRenderer().RegisterDebugLineLoop(closestFaceObjectA);
-			EngineHandle.GetRenderer().RegisterDebugLineLoop(closestFaceObjectB);
-			EngineHandle.GetRenderer().RegisterDebugLineLoop(closestPolytopeFace);
+			EngineHandle.GetDebugFactory().RegisterDebugLineLoop(closestFaceObjectA);
+			EngineHandle.GetDebugFactory().RegisterDebugLineLoop(closestFaceObjectB);
+			EngineHandle.GetDebugFactory().RegisterDebugLineLoop(closestPolytopeFace);
 
 			return ExtrapolateContactInformation(&(*closestFace), aContactData);
 		}
@@ -461,11 +462,11 @@ bool PhysicsManager::ExtrapolateContactInformation(PolytopeFace * aClosestFace, 
 
 
 
-void PhysicsManager::OnNotify(Object * object, Event * event)
+void PhysicsManager::OnNotify(Event * aEvent)
 {
 	// Check if this is an Engine event
 	EngineEvent * engineEvent = nullptr;
-	engineEvent = dynamic_cast<EngineEvent *>(event);
+	engineEvent = dynamic_cast<EngineEvent *>(aEvent);
 
 	if (engineEvent)
 	{

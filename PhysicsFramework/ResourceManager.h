@@ -52,5 +52,5 @@ public:
 	// Uses Assimp importer to read mesh data from file and returns it
 	Mesh * ImportMesh(std::string & aFilename);
 
-	virtual void OnNotify(Object * object, Event * event) override;
+	virtual void OnNotify(Event * aEvent) override;
 };
