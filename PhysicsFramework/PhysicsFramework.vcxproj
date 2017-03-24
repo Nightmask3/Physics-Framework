@@ -131,6 +131,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="WaveSolver.h" />
+    <ClInclude Include="Script.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Controller.h" />
@@ -159,6 +161,7 @@
     <ClInclude Include="Quad.h" />
     <ClInclude Include="RawLumpHandler.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="ScriptBehavior.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="ResourceManager.h" />

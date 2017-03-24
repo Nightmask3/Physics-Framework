@@ -15,6 +15,8 @@
 #include "ImGuiManager.h"
 #include "DebugFactory.h"
 #include "Grid.h"
+#include "Script.h"
+#include "WaveSolver.h"
 
 Engine::Engine()
 {
@@ -123,8 +125,12 @@ void Engine::Init()
 	grid->AddComponent(gridMesh);
 	gridMesh->ePrimitiveDataType = Renderer::DYNAMIC;
 	pRenderer->RegisterPrimitive(gridMesh);
-	Grid testGrid(10, 10, 10, 10);
+	Grid testGrid(100, 100, 10, 10);
 	gridMesh->BindVertexData(testGrid.GridVertices);
+	Script * gridScript = pGameObjectFactory->SpawnComponent<Script>();
+	WaveSolver *  waveSolverBehavior = new WaveSolver();
+	grid->AddComponent(gridScript);
+	gridScript->SetBehavior(waveSolverBehavior);
 	return;
 }
 

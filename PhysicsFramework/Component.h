@@ -13,16 +13,19 @@ class Component : public Object	// Pure virtual class
 {
 	/*----------MEMBER VARIABLES----------*/
 public:
+	// NOTE: When adding a new component type, don't forget to add it to list of component type names in Component.cpp!
 	enum ComponentType
 	{
 		TRANSFORM,
 		PRIMITIVE,
 		PHYSICS,
 		CONTROLLER,
+		SCRIPT,
 		TypeCount
 	};
+	// List of the component type names
 	static const char * ComponentTypeName[ComponentType::TypeCount];
-private:
+
 	GameObject * pOwner;
 	ComponentType eComponentType;
 	char * pComponentName;

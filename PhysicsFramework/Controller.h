@@ -27,5 +27,5 @@ public:
 	static inline const char * GetComponentName() { return ComponentTypeName[ComponentType::CONTROLLER]; }
 
 	virtual void Deserialize(TextFileData aTextData) override {};
-	void Update();
+	virtual void Update() override;
 };

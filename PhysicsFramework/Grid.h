@@ -17,6 +17,10 @@ struct Grid
 	GLuint VAO;
 	GLuint VBO;
 
+	/* Argument 1 - Sections X
+	 Argument 2 - Sections Y
+	 Argument 3 - Size X
+	 Argument 4 - Size Y */
 	Grid(int aSectionsX, int aSectionsY, int aSizeX, int aSizeY)
 		:
 		SectionsX(aSectionsX),
@@ -40,9 +44,8 @@ struct Grid
 		{
 			for (int j = 0; j < SectionsY; ++j)
 			{
-				// TODO : [@Sai] - Another loop which constructs quads "within a larger quad space", uses SizeX/SectionsX as size
-				float intervalX = SectionsX / SizeX;
-				float intervalY = SectionsY / SizeY;
+				float intervalX = SizeX / SectionsX;
+				float intervalY = SizeY / SectionsY;
 				int index = i * SectionsY + j;
 				Vertex newGridVertex;
 				newGridVertex.Color = glm::vec4(Color, 1);
@@ -51,21 +54,21 @@ struct Grid
 				newGridVertex.Position = glm::vec3(i * intervalX, HeightValues[index], j * intervalY);
 				GridVertices.push_back(newGridVertex);
 				// Add grid vertex to vertex array
-				newGridVertex.Position = glm::vec3(i + 1 * intervalX, HeightValues[index], j * intervalY);
+				newGridVertex.Position = glm::vec3((i + 1) * intervalX, HeightValues[index], j * intervalY);
 				GridVertices.push_back(newGridVertex);
 				// Add grid vertex to vertex array
-				newGridVertex.Position = glm::vec3(i * intervalX, HeightValues[index], j + 1 * intervalY);
+				newGridVertex.Position = glm::vec3(i * intervalX, HeightValues[index], (j + 1) * intervalY);
 				GridVertices.push_back(newGridVertex);
 
 				// Triangle 2
 				// Add grid vertex to vertex array
-				newGridVertex.Position = glm::vec3(i + 1 * intervalX, HeightValues[index], j + 1 * intervalY);
+				newGridVertex.Position = glm::vec3((i + 1) * intervalX, HeightValues[index], (j + 1) * intervalY);
 				GridVertices.push_back(newGridVertex);
 				// Add grid vertex to vertex array
-				newGridVertex.Position = glm::vec3(i + 1 * intervalX, HeightValues[index], j * intervalY);
+				newGridVertex.Position = glm::vec3((i + 1) * intervalX, HeightValues[index], j * intervalY);
 				GridVertices.push_back(newGridVertex);
 				// Add grid vertex to vertex array
-				newGridVertex.Position = glm::vec3(i * intervalX, HeightValues[index], j + 1 * intervalY);
+				newGridVertex.Position = glm::vec3(i * intervalX, HeightValues[index], (j + 1) * intervalY);
 				GridVertices.push_back(newGridVertex);
 			}
 		}

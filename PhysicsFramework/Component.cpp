@@ -1,9 +1,10 @@
 #include "Component.h"
 
-const char * Component::ComponentTypeName[4] =
+const char * Component::ComponentTypeName[Component::ComponentType::TypeCount] =
 {
 	"Transform",
 	"Primitive",
 	"Physics",
 	"Controller",
+	"Script"
 };

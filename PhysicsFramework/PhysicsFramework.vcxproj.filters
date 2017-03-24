@@ -91,6 +91,9 @@
     <Filter Include="Source Files\Factories">
       <UniqueIdentifier>{2ebe9759-8db0-4c24-b357-0b757726532f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\ScriptBehaviors">
+      <UniqueIdentifier>{4d44c922-3c59-4d74-80a3-1af2f862f9a2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -215,6 +218,15 @@
     </ClInclude>
     <ClInclude Include="Grid.h">
       <Filter>Header Files\Utilities\RenderUtilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Script.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptBehavior.h">
+      <Filter>Header Files\ScriptBehaviors</Filter>
+    </ClInclude>
+    <ClInclude Include="WaveSolver.h">
+      <Filter>Header Files\ScriptBehaviors</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

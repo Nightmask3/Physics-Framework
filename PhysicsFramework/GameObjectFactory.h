@@ -19,6 +19,7 @@
 #include "Sprite.h"
 #include "Mesh.h"
 #include "Controller.h"
+#include "Script.h"
 
 class GameObjectFactory : public Observer
 {
@@ -43,11 +44,11 @@ public:
 			mComponent = new Transform();
 		}
 		// Primitive components must have their registration handled by the caller
-		if (typeid(T) == typeid(Primitive))
+		else if (typeid(T) == typeid(Primitive))
 		{
 			mComponent = new Primitive();
 		}
-		if (typeid(T) == typeid(Sprite))
+		else if (typeid(T) == typeid(Sprite))
 		{
 			mComponent = new Sprite();
 			EngineHandle.GetRenderer().RegisterPrimitive(static_cast<Primitive *>(mComponent));
@@ -65,6 +66,10 @@ public:
 		else if (typeid(T) == typeid(Controller))
 		{
 			mComponent = new Controller(EngineHandle.GetInputManager(), EngineHandle.GetFramerateController());
+		}
+		else if (typeid(T) == typeid(Script))
+		{
+			mComponent = new Script();
 		}
 		return static_cast<T *>(mComponent);
 	}
