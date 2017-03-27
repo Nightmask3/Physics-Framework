@@ -113,8 +113,13 @@ GameObject * GameObjectFactory::SpawnGameObject(Transform & aTransform)
 	// Add game object pointer to list
 	GameObjectList.emplace_back(newGameObject);
 
+	// Add game object to observer list of engine load event
+	EngineHandle.GetMainEventList()[EngineEvent::ENGINE_LOAD].AddObserver(newGameObject);
 	// Add game object to observer list of engine tick event
 	EngineHandle.GetMainEventList()[EngineEvent::ENGINE_TICK].AddObserver(newGameObject);
+	// Add game object to observer list of engine exit event
+	EngineHandle.GetMainEventList()[EngineEvent::ENGINE_EXIT].AddObserver(newGameObject);
+
 	
 	return newGameObject;
 }

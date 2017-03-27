@@ -18,18 +18,38 @@ public:
 
 	virtual void Deserialize(TextFileData aTextData) override {};
 	
+	// Binds a chosen ScriptBehavior to this Script
 	inline void SetBehavior(ScriptBehavior * aScriptBehavior) {
 		pScriptBehavior = aScriptBehavior;
+		aScriptBehavior->pOwningScript = this;
 	}
 
-	// Calling the script is just a wrapper around the behavior
 	inline void CallScript() {
 		if (pScriptBehavior != nullptr)
-			pScriptBehavior->Behavior(this);
+			pScriptBehavior->Behavior();
 		else
 		{
 			std::cout << "CallScript() : Script Belonging to: " << pOwner->Name << " does not have any behavior bound to it!";
 		}
 	}
-	virtual void Update() override { CallScript(); };
+	// Script update calls the bound ScriptBehavior
+	inline virtual void Update() override { 
+		CallScript(); 
+	};
+	// Call Initialize() of bound ScriptBehavior
+	virtual void Initialize() override {
+		if (pScriptBehavior != nullptr)
+			pScriptBehavior->Initialize();
+		else
+		{
+			std::cout << "CallScript() : Script Belonging to: " << pOwner->Name << " does not have any behavior bound to it!";
+		}
+	};
+
+	// Call Destroy() of bound ScriptBehavior
+	virtual void Destroy() override {
+		if (pScriptBehavior != nullptr) {
+			pScriptBehavior->Destroy();
+		}
+	}
 };

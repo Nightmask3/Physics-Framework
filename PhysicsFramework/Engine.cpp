@@ -84,53 +84,17 @@ void Engine::Init()
 {
 	EngineEvent InitEvent;
 	InitEvent.EventID = EngineEvent::ENGINE_INIT;
-	// Notify all listeners to engine init
+	// Notify all listeners to engine init (called to initialize managers and factories)
 	MainEventList[EngineEvent::ENGINE_INIT].NotifyAllObservers(&InitEvent);
-	
+
 	// Create camera and add it to the tick notification list
 	Camera * mainCamera = new Camera(*pInputManager, *pFrameRateController);
+	mainCamera->SetCameraPosition(glm::vec3(0, 20, -80));
+	mainCamera->SetCameraLookDirection(glm::vec3(0, -1, 1));
 	MainEventList[EngineEvent::ENGINE_TICK].AddObserver(mainCamera);
 	// Set the renderer camera reference
 	pRenderer->SetActiveCamera(mainCamera);
 
-	/*-----------------GAMEOBJECT INITIALIZTION--------------------*/
-	// Initialize pivot and other game objects
-	GameObject * pivot = pGameObjectFactory->SpawnGameObject();
-	Mesh * pivotMesh = pResourceManager->ImportMesh(std::string("Pivot.fbx"));
-	pivot->GetComponent<Transform>()->SetScale(glm::vec3(0.1f, -0.1f,-0.1f));
-	pivot->AddComponent(pivotMesh);
-	pivotMesh->RenderDebug = false;
-
-	GameObject * cube1 = pGameObjectFactory->SpawnGameObject();
-	cube1->GetComponent<Transform>()->SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
-	Mesh * cube1Mesh = pResourceManager->ImportMesh(std::string("Cube.fbx"));
-	cube1->AddComponent(cube1Mesh);
-
-	Physics * physics1 = pGameObjectFactory->SpawnComponent<Physics>();
-	cube1->AddComponent(physics1);
-
-	GameObject * cube2 = pGameObjectFactory->SpawnGameObject();
-	cube2->GetComponent<Transform>()->SetPosition(glm::vec3(0.0f, -4.0f, 3.0f));
-	Mesh * cube2Mesh = pResourceManager->ImportMesh(std::string("Cube.fbx"));
-	cube2->AddComponent(cube2Mesh);
-
-	Physics * physics2 = pGameObjectFactory->SpawnComponent<Physics>();
-	cube2->AddComponent(physics2);
-	
-	Controller * controller = pGameObjectFactory->SpawnComponent<Controller>();
-	cube2->AddComponent(controller);
-
-	GameObject * grid = pGameObjectFactory->SpawnGameObject();
-	Primitive * gridMesh = pGameObjectFactory->SpawnComponent<Primitive>();
-	grid->AddComponent(gridMesh);
-	gridMesh->ePrimitiveDataType = Renderer::DYNAMIC;
-	pRenderer->RegisterPrimitive(gridMesh);
-	Grid testGrid(100, 100, 10, 10);
-	gridMesh->BindVertexData(testGrid.GridVertices);
-	Script * gridScript = pGameObjectFactory->SpawnComponent<Script>();
-	WaveSolver *  waveSolverBehavior = new WaveSolver();
-	grid->AddComponent(gridScript);
-	gridScript->SetBehavior(waveSolverBehavior);
 	return;
 }
 
@@ -138,6 +102,44 @@ void Engine::Load()
 {
 	EngineEvent LoadEvent;
 	LoadEvent.EventID = EngineEvent::ENGINE_LOAD;
+
+	/*-----------------GAMEOBJECT INITIALIZTION--------------------*/
+	// Initialize pivot and other game objects
+	//GameObject * pivot = pGameObjectFactory->SpawnGameObject();
+	//Mesh * pivotMesh = pResourceManager->ImportMesh(std::string("Pivot.fbx"));
+	//pivot->GetComponent<Transform>()->SetScale(glm::vec3(0.1f, -0.1f, -0.1f));
+	//pivot->AddComponent(pivotMesh);
+	//pivotMesh->RenderDebug = false;
+
+	//GameObject * cube1 = pGameObjectFactory->SpawnGameObject();
+	//cube1->GetComponent<Transform>()->SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
+	//Mesh * cube1Mesh = pResourceManager->ImportMesh(std::string("Cube.fbx"));
+	//cube1->AddComponent(cube1Mesh);
+
+	//Physics * physics1 = pGameObjectFactory->SpawnComponent<Physics>();
+	//cube1->AddComponent(physics1);
+
+	//GameObject * cube2 = pGameObjectFactory->SpawnGameObject();
+	//cube2->GetComponent<Transform>()->SetPosition(glm::vec3(0.0f, -4.0f, 3.0f));
+	//Mesh * cube2Mesh = pResourceManager->ImportMesh(std::string("Cube.fbx"));
+	//cube2->AddComponent(cube2Mesh);
+
+	//Physics * physics2 = pGameObjectFactory->SpawnComponent<Physics>();
+	//cube2->AddComponent(physics2);
+
+	//Controller * controller = pGameObjectFactory->SpawnComponent<Controller>();
+	//cube2->AddComponent(controller);
+
+	GameObject * grid = pGameObjectFactory->SpawnGameObject();
+	Primitive * gridMesh = pGameObjectFactory->SpawnComponent<Primitive>();
+	grid->AddComponent(gridMesh);
+	gridMesh->ePrimitiveDataType = Renderer::DYNAMIC;
+	pRenderer->RegisterPrimitive(gridMesh);
+	Script * gridScript = pGameObjectFactory->SpawnComponent<Script>();
+	WaveSolver * waveSolverBehavior = new WaveSolver();
+	grid->AddComponent(gridScript);
+	gridScript->SetBehavior(waveSolverBehavior);
+
 	// Notify all listeners to engine load
 	MainEventList[EngineEvent::ENGINE_LOAD].NotifyAllObservers(&LoadEvent);
 

@@ -9,15 +9,15 @@ public:
 	// Engine Reference
 	Engine & EngineHandle;
 	// Renderer variables
-	bool bShouldRenderCollidersAndNormals;
-	bool bRenderModeWireframe;
-	bool bShouldRenderMinkowskiDifference;
+	bool bShouldRenderCollidersAndNormals = false;
+	bool bRenderModeWireframe = false;
+	bool bShouldRenderMinkowskiDifference = true;
 	// Physics variables
 	int NumberofIterations;
-	bool bShouldRenderSimplex;
-	bool bUseEulerIntegration;
-	bool bUseVerletIntegration;
-	bool bUseRK4Integration;
+	bool bShouldRenderSimplex = true;
+	bool bUseEulerIntegration = true;
+	bool bUseVerletIntegration = false;
+	bool bUseRK4Integration = false;
 	/*----------MEMBER FUNCTIONS----------*/
 public:
 	EngineStateManager(Engine & aEngine) : EngineHandle(aEngine) {}

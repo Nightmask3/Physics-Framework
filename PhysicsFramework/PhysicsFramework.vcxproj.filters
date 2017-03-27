@@ -94,6 +94,9 @@
     <Filter Include="Header Files\ScriptBehaviors">
       <UniqueIdentifier>{4d44c922-3c59-4d74-80a3-1af2f862f9a2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\ScriptBehaviors">
+      <UniqueIdentifier>{4dec3941-8001-4e34-bebb-f4d02e5fdeb7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -222,11 +225,11 @@
     <ClInclude Include="Script.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="ScriptBehavior.h">
-      <Filter>Header Files\ScriptBehaviors</Filter>
-    </ClInclude>
     <ClInclude Include="WaveSolver.h">
       <Filter>Header Files\ScriptBehaviors</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptBehavior.h">
+      <Filter>Header Files\Interfaces</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -296,9 +299,6 @@
     <ClCompile Include="Controller.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="NormalsVertexShader.glsl">
-      <Filter>Source Files\Shaders\DebugShaders\Normals</Filter>
-    </ClCompile>
     <ClCompile Include="Primitive.cpp">
       <Filter>Source Files\Components\Primitives</Filter>
     </ClCompile>
@@ -307,9 +307,6 @@
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Source Files\Components\Primitives</Filter>
-    </ClCompile>
-    <ClCompile Include="Component.cpp">
-      <Filter>Source Files\Components</Filter>
     </ClCompile>
     <ClCompile Include="DebugSettingsWidget.cpp">
       <Filter>Source Files\Widgets</Filter>
@@ -325,6 +322,12 @@
     </ClCompile>
     <ClCompile Include="DebugFactory.cpp">
       <Filter>Source Files\Factories</Filter>
+    </ClCompile>
+    <ClCompile Include="WaveSolver.cpp">
+      <Filter>Source Files\ScriptBehaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>Source Files\Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -355,6 +358,9 @@
     </None>
     <None Include="QuadFragmentShader.glsl">
       <Filter>Source Files\Shaders\DebugShaders\Quads</Filter>
+    </None>
+    <None Include="NormalsVertexShader.glsl">
+      <Filter>Source Files\Shaders\DebugShaders\Normals</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -10,13 +10,31 @@ void GameObject::OnNotify(Event * aEvent)
 	EngineEvent * engineEvent = static_cast<EngineEvent *>(aEvent);
 	if (engineEvent)
 	{
-		switch (engineEvent->EventID)
+		if (engineEvent->EventID == EngineEvent::EventList::ENGINE_LOAD)
 		{
-			case EngineEvent::EventList::ENGINE_TICK:
-			{
-				Update();
-			}
+			Initialize();
 		}
+		else if(engineEvent->EventID == EngineEvent::EventList::ENGINE_TICK)
+		{
+			Update();
+		}
+		return;
+	}
+}
+
+void GameObject::Initialize()
+{
+	for (int i = 0; i < ComponentList.size(); ++i)
+	{
+		ComponentList[i]->Initialize();
+	}
+}
+
+void GameObject::Destroy()
+{
+	for (int i = 0; i < ComponentList.size(); ++i)
+	{
+		ComponentList[i]->Destroy();
 	}
 }
 
@@ -36,18 +54,6 @@ Component * GameObject::GetComponent(Component::ComponentType aType)
 			return (ComponentList[i].get());
 	}
 	
-	//std::cout << "Component of that type does not exist in GameObject:" << std::endl;
-	return nullptr;
-}
-
-Component * GameObject::GetComponent(Component::ComponentType aType) const
-{
-	for (int i = 0; i < ComponentList.size(); ++i)
-	{
-		if (ComponentList[i]->GetComponentType() == aType)
-			return (ComponentList[i].get());
-	}
-
 	//std::cout << "Component of that type does not exist in GameObject:" << std::endl;
 	return nullptr;
 }

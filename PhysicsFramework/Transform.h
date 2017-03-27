@@ -34,6 +34,7 @@ public:
 	Transform(Transform const & CopyTransform) : Component(ComponentType::TRANSFORM) 
 	{ 
 		Position = CopyTransform.Position;
+		Rotation = CopyTransform.Rotation;
 		Scale = CopyTransform.Scale;
 	}
 	virtual ~Transform() {};
@@ -54,6 +55,7 @@ public:
 	}
 
 	virtual void Deserialize(TextFileData aTextFileData) override;
-	void Update();
+	virtual void Update() override;
+
 };
 

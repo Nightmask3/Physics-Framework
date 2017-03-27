@@ -62,7 +62,9 @@ private:
 	/*----------MEMBER FUNCTIONS----------*/
 public:
 	Engine();
+	// Initialize all managers, factories and high level systems
 	void Init();
+	// Initialize all gameobjects, components, widgets and low level systems
 	void Load();
 	int Unload();
 	void Exit();

@@ -8,8 +8,12 @@ struct ScriptBehavior
 public:
 	// A list of what component types are necessary in order to run this script behavior
 	std::vector<Component::ComponentType> ComponentPrerequisites;
+	Script * pOwningScript;
 	~ScriptBehavior() {}
 	/*-----------MEMBER FUNCTIONS-----------*/
 public:
-	virtual void Behavior(Script * aOwningScript) = 0 { std::cout << "Base Behavior!\n"; }
+	virtual void Initialize() {}
+	virtual void Destroy() {}
+	virtual void Behavior() = 0 { std::cout << "ScriptBehavior has not implemented a Behavior function!\n"; }
+	
 };

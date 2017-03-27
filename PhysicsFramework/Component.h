@@ -25,7 +25,6 @@ public:
 	};
 	// List of the component type names
 	static const char * ComponentTypeName[ComponentType::TypeCount];
-
 	GameObject * pOwner;
 	ComponentType eComponentType;
 	char * pComponentName;
@@ -40,8 +39,9 @@ public:
 
 	inline ComponentType GetComponentType() { return eComponentType; }
 	inline GameObject * GetOwner() { return pOwner; }
-	inline GameObject const * GetConstOwner() { return pOwner; }
 	inline void SetOwner(GameObject * aOwner) { pOwner = aOwner; }
 
+	virtual void Initialize() {};
+	virtual void Destroy() {};
 	virtual void Update() = 0;
 };

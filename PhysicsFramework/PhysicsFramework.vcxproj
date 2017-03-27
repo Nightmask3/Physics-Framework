@@ -78,8 +78,8 @@
     <LibraryPath>$(ProjectDir)\..\Dependencies\glew-2.0.0\lib\Release\x64;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;$(ProjectDir)\..\Dependencies\SOIL\lib;$(ProjectDir)\..\Dependencies\assimp\lib64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\SOIL\src;C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\glm;C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\glew-2.0.0\include;C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\glfw-3.2.1.bin.WIN64\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\SOIL\lib;C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\glew-2.0.0\lib\Release\x64;C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)\..\Dependencies\assimp\include;$(ProjectDir)\..\Dependencies\SOIL\src;$(ProjectDir)\..\Dependencies\glm;$(ProjectDir)\..\Dependencies\glew-2.0.0\include;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\include;$(ProjectDir)\..\Dependencies\imgui;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)\..\Dependencies\assimp\lib64;$(ProjectDir)\..\Dependencies\SOIL\lib;$(ProjectDir)\..\Dependencies\glew-2.0.0\lib\Release\x64;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -123,11 +123,12 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glew32.lib;SOIL.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -204,10 +205,8 @@
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="Subject.cpp" />
     <ClCompile Include="Transform.cpp" />
-    <ClCompile Include="NormalsVertexShader.glsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="UtilityFunctions.cpp" />
+    <ClCompile Include="WaveSolver.cpp" />
     <ClCompile Include="WindowManager.cpp" />
     <ClCompile Include="WindowMenuBarWidget.cpp" />
     <ClCompile Include="WorldOutlinerWidget.cpp" />
@@ -223,6 +222,7 @@
     <None Include="DefaultVertexShader.glsl" />
     <None Include="LineFragmentShader.glsl" />
     <None Include="LineVertexShader.glsl" />
+    <None Include="NormalsVertexShader.glsl" />
     <None Include="QuadFragmentShader.glsl" />
     <None Include="QuadVertexShader.glsl" />
   </ItemGroup>

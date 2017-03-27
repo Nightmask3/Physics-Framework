@@ -162,6 +162,7 @@ void Renderer::InititalizeRenderer()
 		glGenBuffers(1, EABList[i]);
 		TBOList[i] = new GLuint;
 		glGenTextures(1, TBOList[i]);
+		StaticObjectRegistry[i] = false;
 	}
 
 	// Allocates the vertex arrays and  vertex buffers for dynamic objects
@@ -262,7 +263,7 @@ void Renderer::Render()
 		FieldOfView, // The horizontal Field of View, in degrees : the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
 		4.f/3, // Aspect Ratio. Depends on the size of your window. Notice that 4/3 == 800/600 == 1280/960, sounds familiar ?
 		0.1f,        // Near clipping plane. Keep as big as possible, or you'll get precision issues.
-		100.0f       // Far clipping plane. Keep as little as possible.
+		10000.0f       // Far clipping plane. Keep as little as possible.
 	);
 
 	// Sets background color
@@ -288,7 +289,7 @@ void Renderer::MainRenderPass()
 	// Wireframe draw check
 	if (EngineHandle.GetEngineStateManager().bRenderModeWireframe)
 	{
-		glLineWidth(WireframeThickness);
+		glLineWidth((GLfloat)WireframeThickness);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 	else
@@ -310,7 +311,7 @@ void Renderer::MainRenderPass()
 		if(primitive->ePrimitiveDataType != STATIC)
 			continue;
 
-		GameObject const * renderObject = primitive->GetConstOwner(); 
+		GameObject * renderObject = primitive->GetOwner(); 
 		transform = renderObject->GetComponent<Transform>();
 		// Calculate the MVP matrix and set the matrix uniform
 		glm::mat4 mvp;
@@ -336,21 +337,20 @@ void Renderer::MainRenderPass()
 		glBindVertexArray(0);
 		glDisableClientState(GL_VERTEX_ARRAY);
 	}
-
 	/*-------- DYNAMIC MESH RENDER ----------*/
 	// Render Minkowski Difference
-	if (EngineHandle.GetEngineStateManager().bShouldRenderMinkowskiDifference)
-	{
-		Mesh * shape1 = static_cast<Mesh *>(RenderList[4]);
-		Mesh * shape2 = static_cast<Mesh *>(RenderList[5]);
-		std::vector<Vertex> MinkowskiDifferenceVertices;
-		Utility::CalculateMinkowskiDifference(MinkowskiDifferenceVertices, shape1, shape2);
-		EngineHandle.GetDebugFactory().MinkowskiDifference->GetComponent<Primitive>()->BindVertexData(MinkowskiDifferenceVertices);
-	}
-	else
-	{
-		EngineHandle.GetDebugFactory().MinkowskiDifference->GetComponent<Primitive>()->Debuffer();
-	}
+	//if (EngineHandle.GetEngineStateManager().bShouldRenderMinkowskiDifference)
+	//{
+	//	Mesh * shape1 = static_cast<Mesh *>(RenderList[4]);
+	//	Mesh * shape2 = static_cast<Mesh *>(RenderList[5]);
+	//	std::vector<Vertex> MinkowskiDifferenceVertices;
+	//	Utility::CalculateMinkowskiDifference(MinkowskiDifferenceVertices, shape1, shape2);
+	//	EngineHandle.GetDebugFactory().MinkowskiDifference->GetComponent<Primitive>()->BindVertexData(MinkowskiDifferenceVertices);
+	//}
+	//else
+	//{
+	//	EngineHandle.GetDebugFactory().MinkowskiDifference->GetComponent<Primitive>()->Debuffer();
+	//}
 	for (int i = 0; i < RenderList.size(); ++i)
 	{
 		Transform * transform = nullptr;
@@ -363,7 +363,7 @@ void Renderer::MainRenderPass()
 		if (primitive->ePrimitiveDataType != DYNAMIC)
 			continue;
 
-		GameObject const * renderObject = primitive->GetConstOwner();
+		GameObject * renderObject = primitive->GetOwner();
 		transform = renderObject->GetComponent<Transform>();
 		// Calculate the MVP matrix and set the matrix uniform
 		glm::mat4 mvp;
@@ -446,7 +446,7 @@ void Renderer::RenderDebugWireframes(GLint aMVPAttributeIndex)
 			continue;
 		if (primitive->RenderDebug)
 		{
-			GameObject const * renderObject = primitive->GetConstOwner();
+			GameObject * renderObject = primitive->GetOwner();
 			transform = renderObject->GetComponent<Transform>();
 			// Calculate the MVP matrix and set the matrix uniform
 			glm::mat4 mvp;
@@ -460,7 +460,7 @@ void Renderer::RenderDebugWireframes(GLint aMVPAttributeIndex)
 			// Uniform matrices ARE supplied in Row Major order hence set to GL_TRUE
 			glUniformMatrix4fv(aMVPAttributeIndex, 1, GL_FALSE, &mvp[0][0]);
 			check_gl_error_render();
-			glLineWidth(WireframeThickness);
+			glLineWidth((GLfloat)WireframeThickness);
 			// Bind VAO
 			glBindVertexArray(*StaticVAOList[i]);
 			check_gl_error_render();
@@ -487,7 +487,7 @@ void Renderer::RenderDebugNormals(GLint aMVPAttributeIndex)
 			continue;
 		if (primitive->RenderDebug)
 		{
-			GameObject const * renderObject = primitive->GetConstOwner();
+			GameObject * renderObject = primitive->GetOwner();
 			transform = renderObject->GetComponent<Transform>();
 			// Calculate the MVP matrix and set the matrix uniform
 			glm::mat4 mvp;
@@ -563,7 +563,7 @@ void Renderer::RenderDebugLineLoops(GLint aMVPAttributeIndex)
 		check_gl_error_render();
 		glBindVertexArray(lineLoop.VAO);
 		check_gl_error_render();
-		glLineWidth(LineLoopThickness);
+		glLineWidth((GLfloat)LineLoopThickness);
 		glDrawArrays(GL_LINE_LOOP, 0, (GLsizei)debugFactory.DebugLineLoopsStack[i].LineLoopVertices.size());
 		check_gl_error_render();
 		// Unbuffer the data 

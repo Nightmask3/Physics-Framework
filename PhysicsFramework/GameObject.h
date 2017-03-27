@@ -21,19 +21,20 @@ public:
 	{
 		return dynamic_cast<T *>(GetComponent(T::GetComponentID()));
 	}
-	template <typename T> T * GetComponent() const
-	{
-		return dynamic_cast<T *>(GetComponent(T::GetComponentID()));
-	}
 
 	std::vector<std::unique_ptr<Component>> const & GetComponentList() { return ComponentList; }
 	
-	void Update();
 	void AddComponent(Component * aNewComponent);
 
 private:
 	virtual void OnNotify(Event * aEvent) override;
 
 	Component * GetComponent(Component::ComponentType);
-	Component * GetComponent(Component::ComponentType) const;
+	
+	// Calls Update() of all it's components
+	void Update();
+	// Calls Initialize() of all it's components
+	void Initialize();
+	// Calls Destroy() of all it's component
+	void Destroy();
 };
