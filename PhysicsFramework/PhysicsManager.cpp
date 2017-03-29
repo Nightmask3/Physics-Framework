@@ -8,7 +8,11 @@
 #include "EngineStateManager.h"
 
 #include "GameObject.h"
+
 #include "Transform.h"
+#include "Physics.h"
+#include "Collider.h"
+#include "Primitive.h"
 
 #include "UtilityFunctions.h"
 
@@ -29,39 +33,43 @@ void PhysicsManager::Update()
 
 void PhysicsManager::DetectCollision()
 {
-	// Do collision detection for each pair of objects
-	for (int i = 0; i < PhysicsObjectsList.size(); ++i)
+	// Do collision detection for each pair of colliders
+	for (int i = 0; i < ColliderObjectsList.size(); ++i)
 	{
-		for (int j = 0; j < PhysicsObjectsList.size(); ++j)
+		for (int j = 0; j < ColliderObjectsList.size(); ++j)
 		{
 			if( i == j )
 				break;
-			Physics * physicsObject1 = PhysicsObjectsList[i];
-			Physics * physicsObject2 = PhysicsObjectsList[j];
+			Collider * collider1 = ColliderObjectsList[i];
+			Collider * collider2 = ColliderObjectsList[j];
+
+			Transform * transform1 = collider1->GetOwner()->GetComponent<Transform>();
+			Transform * transform2 = collider2->GetOwner()->GetComponent<Transform>();
+
 			ContactData newContactData;
 			// Calculate the model matrices and store in contact data for future use
 			glm::mat4 model1, model2;
-			glm::mat4 translate = glm::translate(physicsObject1->GetOwner()->GetComponent<Transform>()->GetPosition());
-			glm::mat4 rotate = glm::mat4_cast(physicsObject1->GetOwner()->GetComponent<Transform>()->GetRotation());
-			glm::mat4 scale = glm::scale(physicsObject1->GetOwner()->GetComponent<Transform>()->GetScale());
+			glm::mat4 translate = glm::translate(transform1->GetPosition());
+			glm::mat4 rotate = glm::mat4_cast(transform1->GetRotation());
+			glm::mat4 scale = glm::scale(transform1->GetScale());
 			model1 = translate * rotate * scale;
 
-			translate = glm::translate(physicsObject2->GetOwner()->GetComponent<Transform>()->GetPosition());
-			rotate = glm::mat4_cast(physicsObject2->GetOwner()->GetComponent<Transform>()->GetRotation());
-			scale = glm::scale(physicsObject2->GetOwner()->GetComponent<Transform>()->GetScale());
+			translate = glm::translate(transform2->GetPosition());
+			rotate = glm::mat4_cast(transform2->GetRotation());
+			scale = glm::scale(transform2->GetScale());
 			model2 = translate * rotate * scale;
 
 			newContactData.LocalToWorldMatrixA = model1;
 			newContactData.LocalToWorldMatrixB = model2;
 
 			// Set to Red if colliding, Green if not colliding
-			if (GJKCollisionHandler(physicsObject1, physicsObject2, newContactData))
+			if (GJKCollisionHandler(collider1, collider2, newContactData))
 			{
 				std::cout << "Colliding!\n";
-				Mesh * mesh1 = physicsObject1->GetOwner()->GetComponent<Mesh>();
+				Primitive * mesh1 = collider1->GetOwner()->GetComponent<Primitive>();
 				mesh1->SetVertexColorsUniform(glm::vec3(1.0f, 0.0f, 0.0f));
 
-				Mesh * mesh2 = physicsObject2->GetOwner()->GetComponent<Mesh>();
+				Primitive * mesh2 = collider2->GetOwner()->GetComponent<Primitive>();
 				mesh2->SetVertexColorsUniform(glm::vec3(1.0f, 0.0f, 0.0f));
 
 				glm::vec3 endPoint = newContactData.Position + newContactData.PenetrationDepth * newContactData.Normal;
@@ -76,10 +84,10 @@ void PhysicsManager::DetectCollision()
 			}
 			else
 			{
-				Mesh * mesh1 = physicsObject1->GetOwner()->GetComponent<Mesh>();
+				Primitive * mesh1 = collider1->GetOwner()->GetComponent<Primitive>();
 				mesh1->SetVertexColorsUniform(glm::vec3(0.0f, 1.0f, 0.0f));
 
-				Mesh * mesh2 = physicsObject2->GetOwner()->GetComponent<Mesh>();
+				Primitive * mesh2 = collider2->GetOwner()->GetComponent<Primitive>();
 				mesh2->SetVertexColorsUniform(glm::vec3(0.0f, 1.0f, 0.0f));
 			}
 		}
@@ -87,16 +95,16 @@ void PhysicsManager::DetectCollision()
 }
 
 // Casey Muratori explains it best: https://www.youtube.com/watch?v=Qupqu1xe7Io
-bool PhysicsManager::GJKCollisionHandler(Physics * aPhysicsObject1, Physics * aPhysicsObject2, ContactData & aContactData)
+bool PhysicsManager::GJKCollisionHandler(Collider * aCollider1, Collider * aCollider2, ContactData & aContactData)
 {
-	Mesh * mesh1 = aPhysicsObject1->GetOwner()->GetComponent<Mesh>();
-	Mesh * mesh2 = aPhysicsObject2->GetOwner()->GetComponent<Mesh>();
+	Physics * physics1 = aCollider1->GetOwner()->GetComponent<Physics>();
+	Physics * physics2 = aCollider2->GetOwner()->GetComponent<Physics>();
 
 	Simplex simplex;
 	// Choose initial search direction as the vector from center of Object1 to the center of Object2
-	glm::vec3 searchDirection = aPhysicsObject2->GetCurrentPosition() - aPhysicsObject1->GetCurrentPosition();
+	glm::vec3 searchDirection = physics1->GetCurrentPosition() - physics2->GetCurrentPosition();
 	// Find farthest point along search direction to get first point on the Minkowski surface, and add it to the simplex
-	SupportPoint newSupportPoint = Utility::Support(mesh1, mesh2, searchDirection, aContactData.LocalToWorldMatrixA, aContactData.LocalToWorldMatrixB);
+	SupportPoint newSupportPoint = Utility::Support(aCollider1, aCollider2, searchDirection, aContactData.LocalToWorldMatrixA, aContactData.LocalToWorldMatrixB);
 	simplex.Push(newSupportPoint);
 
 	// Invert the search direction for the next point
@@ -110,7 +118,7 @@ bool PhysicsManager::GJKCollisionHandler(Physics * aPhysicsObject1, Physics * aP
 		if (iterationCount++ >= iterationLimit) return false;
 
 		// Add a new point to the simplex, continuing to search for origin
-		SupportPoint newSupportPoint = Utility::Support(mesh1, mesh2, searchDirection, aContactData.LocalToWorldMatrixA, aContactData.LocalToWorldMatrixB);
+		SupportPoint newSupportPoint = Utility::Support(aCollider1, aCollider2, searchDirection, aContactData.LocalToWorldMatrixA, aContactData.LocalToWorldMatrixB);
 		simplex.Push(newSupportPoint);
 
 		// If projection of newly added point along the search direction has not crossed the origin,
@@ -134,7 +142,7 @@ bool PhysicsManager::GJKCollisionHandler(Physics * aPhysicsObject1, Physics * aP
 			// If the new point IS past the origin, check if the simplex contains the origin
 			if (CheckIfSimplexContainsOrigin(simplex, searchDirection))
 			{
-				return EPAContactDetection(simplex, mesh1, mesh2, aContactData);
+				return EPAContactDetection(simplex, aCollider1, aCollider2, aContactData);
 			}
 		}
 	}
@@ -334,7 +342,7 @@ bool PhysicsManager::CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 
 }
 
 // Based on the Expanding Polytope Algorithm (EPA) as described here: http://allenchou.net/2013/12/game-physics-contact-generation-epa/
-bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Primitive * aShape1, Primitive * aShape2, ContactData & aContactData)
+bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Collider * aShape1, Collider * aShape2, ContactData & aContactData)
 {
 	const float exitThreshold = 0.001f;
 	const unsigned iterationLimit = 50;
@@ -485,9 +493,14 @@ void PhysicsManager::OnNotify(Event * aEvent)
 
 }
 
-void PhysicsManager::RegisterComponent(Physics * aNewPhysics)
+void PhysicsManager::RegisterPhysicsObject(Physics * aNewPhysics)
 {
 	PhysicsObjectsList.push_back(aNewPhysics);
+}
+
+void PhysicsManager::RegisterColliderObject(Collider * aNewCollider)
+{
+	ColliderObjectsList.push_back(aNewCollider);
 }
 
 void PhysicsManager::Simulation()

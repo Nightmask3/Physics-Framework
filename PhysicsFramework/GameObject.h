@@ -5,6 +5,7 @@
 #include "Object.h"
 #include "Component.h"
 #include "Event.h"
+class Engine;
 
 class GameObject : public Observer
 {
@@ -12,9 +13,11 @@ class GameObject : public Observer
 public:
 	std::vector<std::unique_ptr<Component>> ComponentList;	
 	std::string Name;
+
+	Engine & EngineHandle;
 	/*----------MEMBER FUNCTIONS----------*/
 public:
-	GameObject() {}
+	GameObject(Engine & aEngineHandle) : EngineHandle(aEngineHandle) {}
 	virtual ~GameObject() {}
 	
 	template <typename T> T * GetComponent()

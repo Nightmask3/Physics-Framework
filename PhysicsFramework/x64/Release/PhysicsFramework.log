@@ -1,22 +1,11 @@
-﻿  WaveSolver.cpp
+﻿  Engine.cpp
 c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\WaveSolver.h(29): warning C4305: 'initializing': truncation from 'double' to 'const float'
-WaveSolver.cpp(98): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-WaveSolver.cpp(99): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-WaveSolver.cpp(100): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-WaveSolver.cpp(112): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-WaveSolver.cpp(126): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-WaveSolver.cpp(134): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-WaveSolver.cpp(135): warning C4244: 'argument': conversion from 'float' to 'unsigned __int64', possible loss of data
-WaveSolver.cpp(155): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-WaveSolver.cpp(161): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-WaveSolver.cpp(162): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-WaveSolver.cpp(184): warning C4305: 'argument': truncation from 'double' to 'float'
 LINK : warning LNK4098: defaultlib 'MSVCRTD' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
 c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\physicsmanager.cpp(334): warning C4715: 'PhysicsManager::CheckIfSimplexContainsOrigin': not all control paths return a value
-  224 of 3080 functions ( 7.3%) were compiled, the rest were copied from previous compilation.
+  220 of 3039 functions ( 7.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    61 functions had inline decision re-evaluated but remain unchanged
+    56 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
 SOIL.lib(image_DXT.obj) : warning LNK4099: PDB 'SOIL.pdb' was not found with 'SOIL.lib(image_DXT.obj)' or at 'C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Release\SOIL.pdb'; linking object as if no debug info
 SOIL.lib(image_helper.obj) : warning LNK4099: PDB 'SOIL.pdb' was not found with 'SOIL.lib(image_helper.obj)' or at 'C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Release\SOIL.pdb'; linking object as if no debug info

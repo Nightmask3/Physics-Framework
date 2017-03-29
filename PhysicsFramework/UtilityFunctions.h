@@ -1,7 +1,8 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <list>
-#include "Mesh.h"
+#include "Collider.h"
+#include "Vertex.h"
 #include "PhysicsUtilities.h"
 
 namespace Utility
@@ -31,7 +32,7 @@ namespace Utility
 	};
 
 	// aDirection doesn't need to be normalized
-	SupportPoint Support(Primitive * aShape1, Primitive * aShape2, glm::vec3 aDirection, glm:: mat4 & aModel1, glm::mat4 & aModel2);
+	SupportPoint Support(Collider * aShape1, Collider * aShape2, glm::vec3 aDirection, glm:: mat4 & aModel1, glm::mat4 & aModel2);
 
 	// Note that the following triple product expansion is used :
 	// (A x B) x C = B(C.dot(A)) – A(C.dot(B)) to evaluate the triple product.

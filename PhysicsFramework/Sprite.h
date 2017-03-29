@@ -10,8 +10,6 @@ public:
 
 	static ComponentType GetComponentID();
 
-	PrimitiveType GetPrimitiveType() { return ePrimitiveType; }
-
 	virtual void BindVertexData(std::vector<Vertex> & aVertexData);
 
 	void Deserialize(char * aTextData) {};

@@ -1,7 +1,7 @@
 #pragma once
 #include <GL/glew.h>
-// Base class for all components that can implement scene geometry
-// A primitive is also used for geometry defined within the engine
+// Base class for all components that can implement scene geometry or have collision
+// A primitive is also used for geometry defined within the engine (debug shapes etc)
 // Use/Derive a Primitive component when defining new custom types of geometry
 // TODO : [@Sai] - Make a PrimitiveFactory to create and supply basic shapes (cubes, capsules, spheres, etc.)
 #include "Component.h"
@@ -74,14 +74,6 @@ public:
 	static inline ComponentType GetComponentID() { return (ComponentType::PRIMITIVE); }
 	static inline const char * GetComponentName() { return ComponentTypeName[ComponentType::PRIMITIVE]; }
 
-	inline PrimitiveType GetPrimitiveType() { return ePrimitiveType; }
-	inline int GetPrimitiveSize() { return PrimitiveSize; }
-	inline GLuint GetVAO() { return VAO; }
-	inline GLuint GetVBO() { return VBO; }
-	inline GLuint GetTBO() { return TBO; }
-
-	inline void SetPrimitiveSize(int size) { PrimitiveSize = size; }
-	inline void SetTBO(GLuint aTBO) { TBO = aTBO; }
 	// Sets all vertex colors to a single color
 	void SetVertexColorsUniform(glm::vec3 aNewColor);
 
@@ -94,8 +86,6 @@ public:
 		// Bind VAO with new vertices
 		BindVertexData(Vertices);
 	}
-
-	glm::vec3 FindFarthestPointInDirection(glm::vec3 aDirection);
 
 	// Used to send renderer requests for textures
 	Subject TextureRequest;

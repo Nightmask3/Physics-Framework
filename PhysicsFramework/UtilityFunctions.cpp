@@ -5,9 +5,10 @@
 #include "UtilityFunctions.h"
 #include "Transform.h"
 #include "GameObject.h"
+#include "Mesh.h"
 
 // aDirection doesn't need to be normalized
-SupportPoint Utility::Support(Primitive * aShape1, Primitive * aShape2, glm::vec3 aDirection, glm:: mat4 & aModel1, glm::mat4 & aModel2)
+SupportPoint Utility::Support(Collider * aShape1, Collider * aShape2, glm::vec3 aDirection, glm:: mat4 & aModel1, glm::mat4 & aModel2)
 {
 	SupportPoint newSupportPoint;
 

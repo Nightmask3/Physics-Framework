@@ -9,8 +9,6 @@ public:
 
 	static ComponentType GetComponentID();
 
-	PrimitiveType GetPrimitiveType() { return ePrimitiveType; }
-
 	void Deserialize(TextFileData aTextData);
 	void Update() {};
 };

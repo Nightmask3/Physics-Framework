@@ -117,8 +117,8 @@ void Renderer::CreateDebugArrowPrimitive()
 	RegisterPrimitive(DebugArrowPrimitive);
 	DebugArrowPrimitive->bIsDebug = true;
 	Arrow newArrow(glm::vec3(0), glm::vec3(1));
-	newArrow.VAO = DebugArrowPrimitive->GetVAO();
-	newArrow.VBO = DebugArrowPrimitive->GetVBO();
+	newArrow.VAO = DebugArrowPrimitive->VAO;
+	newArrow.VBO = DebugArrowPrimitive->VBO;
 	newArrow.BindVertexData();
 }
 
@@ -129,8 +129,8 @@ void Renderer::CreateDebugQuadPrimitive()
 	RegisterPrimitive(DebugQuadPrimitive);
 	DebugQuadPrimitive->bIsDebug = true;
 	Quad newQuad(glm::vec3(0));
-	newQuad.VAO = DebugQuadPrimitive->GetVAO();
-	newQuad.VBO = DebugQuadPrimitive->GetVBO();
+	newQuad.VAO = DebugQuadPrimitive->VAO;
+	newQuad.VBO = DebugQuadPrimitive->VBO;
 	newQuad.BindVertexData();
 }
 
@@ -326,11 +326,11 @@ void Renderer::MainRenderPass()
 		glUniformMatrix4fv(glMVPAttributeIndex, 1, GL_FALSE, &mvp[0][0]);
 		check_gl_error_render();
 		// Bind TBO
-		glBindTexture(GL_TEXTURE_2D, primitive->GetTBO());
+		glBindTexture(GL_TEXTURE_2D, primitive->TBO);
 		// Bind VAO
 		glBindVertexArray(*StaticVAOList[primitive->SlotID]);
 		check_gl_error_render();
-		glDrawArrays(GL_TRIANGLES, 0, primitive->GetPrimitiveSize()/sizeof(Vertex));
+		glDrawArrays(GL_TRIANGLES, 0, primitive->PrimitiveSize/sizeof(Vertex));
 		check_gl_error_render();
 		assert(glGetError() == GL_NO_ERROR);
 		// Unbind VAO when done
@@ -339,18 +339,18 @@ void Renderer::MainRenderPass()
 	}
 	/*-------- DYNAMIC MESH RENDER ----------*/
 	// Render Minkowski Difference
-	//if (EngineHandle.GetEngineStateManager().bShouldRenderMinkowskiDifference)
-	//{
-	//	Mesh * shape1 = static_cast<Mesh *>(RenderList[4]);
-	//	Mesh * shape2 = static_cast<Mesh *>(RenderList[5]);
-	//	std::vector<Vertex> MinkowskiDifferenceVertices;
-	//	Utility::CalculateMinkowskiDifference(MinkowskiDifferenceVertices, shape1, shape2);
-	//	EngineHandle.GetDebugFactory().MinkowskiDifference->GetComponent<Primitive>()->BindVertexData(MinkowskiDifferenceVertices);
-	//}
-	//else
-	//{
-	//	EngineHandle.GetDebugFactory().MinkowskiDifference->GetComponent<Primitive>()->Debuffer();
-	//}
+	if (EngineHandle.GetEngineStateManager().bShouldRenderMinkowskiDifference)
+	{
+		Mesh * shape1 = static_cast<Mesh *>(RenderList[4]);
+		Mesh * shape2 = static_cast<Mesh *>(RenderList[5]);
+		std::vector<Vertex> MinkowskiDifferenceVertices;
+		Utility::CalculateMinkowskiDifference(MinkowskiDifferenceVertices, shape1, shape2);
+		EngineHandle.GetDebugFactory().MinkowskiDifference->GetComponent<Primitive>()->BindVertexData(MinkowskiDifferenceVertices);
+	}
+	else
+	{
+		EngineHandle.GetDebugFactory().MinkowskiDifference->GetComponent<Primitive>()->Debuffer();
+	}
 	for (int i = 0; i < RenderList.size(); ++i)
 	{
 		Transform * transform = nullptr;
@@ -378,11 +378,11 @@ void Renderer::MainRenderPass()
 		glUniformMatrix4fv(glMVPAttributeIndex, 1, GL_FALSE, &mvp[0][0]);
 		check_gl_error_render();
 		// Bind TBO
-		glBindTexture(GL_TEXTURE_2D, primitive->GetTBO());
+		glBindTexture(GL_TEXTURE_2D, primitive->TBO);
 		// Bind VAO
 		glBindVertexArray(*DynamicVAOList[primitive->SlotID]);
 		check_gl_error_render();
-		glDrawArrays(GL_TRIANGLES, 0, primitive->GetPrimitiveSize() / sizeof(Vertex));
+		glDrawArrays(GL_TRIANGLES, 0, primitive->PrimitiveSize / sizeof(Vertex));
 		check_gl_error_render();
 		assert(glGetError() == GL_NO_ERROR);
 		// Unbind VAO when done
@@ -464,7 +464,7 @@ void Renderer::RenderDebugWireframes(GLint aMVPAttributeIndex)
 			// Bind VAO
 			glBindVertexArray(*StaticVAOList[i]);
 			check_gl_error_render();
-			glDrawArrays(GL_TRIANGLES, 0, primitive->GetPrimitiveSize() / sizeof(Vertex));
+			glDrawArrays(GL_TRIANGLES, 0, primitive->PrimitiveSize / sizeof(Vertex));
 			check_gl_error_render();
 			assert(glGetError() == GL_NO_ERROR);
 			// Unbind VAO when done
@@ -505,7 +505,7 @@ void Renderer::RenderDebugNormals(GLint aMVPAttributeIndex)
 			// Bind VAO
 			glBindVertexArray(*StaticVAOList[i]);
 			check_gl_error_render();
-			glDrawArrays(GL_TRIANGLES, 0, primitive->GetPrimitiveSize() / sizeof(Vertex));
+			glDrawArrays(GL_TRIANGLES, 0, primitive->PrimitiveSize / sizeof(Vertex));
 			check_gl_error_render();
 			assert(glGetError() == GL_NO_ERROR);
 			// Unbind VAO when done
@@ -537,7 +537,7 @@ void Renderer::RenderDebugArrows(GLint aMVPAttributeIndex)
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glUniformMatrix4fv(aMVPAttributeIndex, 1, GL_FALSE, &projectionView[0][0]);
 		check_gl_error_render();
-		glBindVertexArray(DebugArrowPrimitive->GetVAO());
+		glBindVertexArray(DebugArrowPrimitive->VAO);
 		check_gl_error_render();
 		glDrawArrays(GL_TRIANGLES, 0, debugArrow.VertexCount);
 		check_gl_error_render();
@@ -597,7 +597,7 @@ void Renderer::RenderBillboardingQuads(GLint aModelAttributeIndex, GLint aViewAt
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glUniformMatrix4fv(aModelAttributeIndex, 1, GL_FALSE, &model[0][0]);
 		check_gl_error_render();
-		glBindVertexArray(DebugQuadPrimitive->GetVAO());
+		glBindVertexArray(DebugQuadPrimitive->VAO);
 		check_gl_error_render();
 		glDrawArrays(GL_TRIANGLES, 0, debugFactory.DebugQuadsStack[i].VertexCount);
 		check_gl_error_render();
@@ -623,12 +623,12 @@ bool Renderer::BindTexture(Primitive * aPrimitive, int aTextureID)
 	// Sets what type of texture it is and the texture buffer it is bound to
 	glBindTexture(GL_TEXTURE_2D, *TBOList[TextureCount]);
 
-	aPrimitive->SetTBO(*TBOList[TextureCount]);
+	aPrimitive->TBO = *TBOList[TextureCount];
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, assignedTexture->GetPixels());
 	glGenerateMipmap(GL_TEXTURE_2D);
 
-	glUniform1i(glGetUniformLocation(DefaultShader.GetShaderProgram(), "Texture"), aPrimitive->GetTBO());
+	glUniform1i(glGetUniformLocation(DefaultShader.GetShaderProgram(), "Texture"), aPrimitive->TBO);
 	// Sets the texture uniform in the shader
 	check_gl_error_render();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

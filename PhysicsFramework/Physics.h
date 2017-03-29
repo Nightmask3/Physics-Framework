@@ -16,27 +16,18 @@ public:
 			mDerivedVelocity = glm::vec3();
 		}
 	};
-	glm::vec3 PositionNext;
-	glm::vec3 CurrentPosition;
-	glm::vec3 PositionPrev;
-	glm::vec3 Velocity;
-	glm::vec3 Force;
-	glm::vec3 Momentum;
-	float Mass;
-	float InverseMass;
+	glm::vec3 PositionNext = glm::vec3();
+	glm::vec3 CurrentPosition = glm::vec3();
+	glm::vec3 PositionPrev = glm::vec3();
+	glm::vec3 Velocity = glm::vec3();
+	glm::vec3 Force = glm::vec3();
+	glm::vec3 Momentum = glm::vec3();
+	float Mass = 100.0f;
+	float InverseMass = 1.0f;
 	/* -------- FUNCTIONS ---------- */
 	
 	Physics() : Component(Component::PHYSICS)
-	{
-		Velocity = glm::vec3();
-		PositionNext = glm::vec3();
-		CurrentPosition = glm::vec3();
-		PositionPrev = glm::vec3();
-		Momentum = glm::vec3();
-		Force = glm::vec3();
-		Mass = 100;
-		InverseMass = 1.0f;
-	}
+	{}
 	~Physics() {}
 	
 	static inline Component::ComponentType GetComponentID() { return (ComponentType::PHYSICS); }

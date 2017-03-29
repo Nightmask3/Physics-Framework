@@ -20,6 +20,7 @@
 #include "Mesh.h"
 #include "Controller.h"
 #include "Script.h"
+#include "Box.h"
 
 class GameObjectFactory : public Observer
 {
@@ -61,7 +62,7 @@ public:
 		else if (typeid(T) == typeid(Physics))
 		{
 			mComponent = new Physics();
-			EngineHandle.GetPhysicsManager().RegisterComponent(static_cast<Physics *>(mComponent));
+			EngineHandle.GetPhysicsManager().RegisterPhysicsObject(static_cast<Physics *>(mComponent));
 		}
 		else if (typeid(T) == typeid(Controller))
 		{
@@ -70,6 +71,11 @@ public:
 		else if (typeid(T) == typeid(Script))
 		{
 			mComponent = new Script();
+		}
+		else if (typeid(T) == typeid(Box))
+		{
+			mComponent = new Box();
+			EngineHandle.GetPhysicsManager().RegisterColliderObject(static_cast<Collider *>(mComponent));
 		}
 		return static_cast<T *>(mComponent);
 	}

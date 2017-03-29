@@ -132,6 +132,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Box.h" />
+    <ClInclude Include="Collider.h" />
     <ClInclude Include="WaveSolver.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="Camera.h" />
@@ -179,6 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Arrow.cpp" />
+    <ClCompile Include="Box.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="Controller.cpp" />

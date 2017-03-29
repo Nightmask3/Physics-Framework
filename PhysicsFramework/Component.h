@@ -21,6 +21,7 @@ public:
 		PHYSICS,
 		CONTROLLER,
 		SCRIPT,
+		COLLIDER,
 		TypeCount
 	};
 	// List of the component type names

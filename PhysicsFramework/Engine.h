@@ -44,7 +44,7 @@ public:
 class Engine : public Object
 {
 	/*----------MEMBER VARIABLES----------*/
-private:
+	private:
 	std::unique_ptr<WindowManager> pWindowManager;
 	std::unique_ptr<InputManager> pInputManager;
 	std::unique_ptr<FramerateController> pFrameRateController;

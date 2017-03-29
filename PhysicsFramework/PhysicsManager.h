@@ -1,8 +1,6 @@
 #pragma once
 #include "Observer.h"
 #include "GameObject.h"
-#include "Physics.h"
-#include "Primitive.h"
 #include "PhysicsUtilities.h"
 
 class CollideEvent : public Event
@@ -17,6 +15,8 @@ public:
 
 class FramerateController;
 class InputManager;
+class Physics;
+class Collider;
 
 class PhysicsManager : public Observer
 {
@@ -27,21 +27,22 @@ public:
 	Engine & EngineHandle;
 
 	std::vector<Physics *> PhysicsObjectsList;
-	
+	std::vector<Collider *> ColliderObjectsList;
 	/*----------MEMBER FUNCTIONS----------*/
 	PhysicsManager(Engine & aEngine) :EngineHandle(aEngine) {};
 	~PhysicsManager() {};
 
 	Engine const & GetEngine() { return EngineHandle; }
 
-	void RegisterComponent(Physics * aNewPhysics);
+	void RegisterPhysicsObject(Physics * aNewPhysics);
+	void RegisterColliderObject(Collider * aNewCollider);
 
 	void Simulation();
 	void Update();
 
 	void DetectCollision();
-	bool GJKCollisionHandler(Physics * aPhysicsObject1, Physics * aPhysicsObject2, ContactData & aContactData);
-	bool EPAContactDetection(Simplex & aSimplex, Primitive * aShape1, Primitive * aShape2, ContactData & aContactData);
+	bool GJKCollisionHandler(Collider * aCollider1, Collider * aCollider2, ContactData & aContactData);
+	bool EPAContactDetection(Simplex & aSimplex, Collider * aShape1, Collider * aShape2, ContactData & aContactData);
 	bool ExtrapolateContactInformation(PolytopeFace * aClosestFace, ContactData & aContactData);
 	bool CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 & aSearchDirection);
 

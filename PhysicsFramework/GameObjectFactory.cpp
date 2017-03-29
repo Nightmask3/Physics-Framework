@@ -6,7 +6,7 @@
 GameObject * GameObjectFactory::SpawnGameObjectFromArchetype(const char * aFileName)
 {
 	// Create game object with default transform
-	GameObject * newGameObject = new GameObject();
+	GameObject * newGameObject = new GameObject(EngineHandle);
 	// Create root component from supplied/default transform
 	Transform * rootComponent = new Transform();
 	rootComponent->SetOwner(newGameObject);
@@ -103,7 +103,7 @@ GameObject * GameObjectFactory::SpawnGameObjectFromArchetype(const char * aFileN
 
 GameObject * GameObjectFactory::SpawnGameObject(Transform & aTransform)
 {
-	GameObject * newGameObject = new GameObject();
+	GameObject * newGameObject = new GameObject(EngineHandle);
 	newGameObject->Name = std::string("Object") + std::to_string(GameObjectList.size() + 1);
 	// Create root component from supplied/default transform
 	Transform * rootComponent = new Transform(aTransform);

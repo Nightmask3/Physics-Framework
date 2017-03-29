@@ -41,11 +41,11 @@ void Sprite::BindVertexData(std::vector<Vertex> & aVertexData)
 		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,// Bottom-left
 		-0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f	// Top-left
 	};
-	SetPrimitiveSize(sizeof(vertices));
+	PrimitiveSize = sizeof(vertices);
 	/*--------------------------- VERTEX ARRAY OBJECT --------------------------------*/
-	glBindVertexArray(GetVAO());
+	glBindVertexArray(VAO);
 	/*--------------------------- VERTEX BUFFER OBJECT --------------------------------*/
-	glBindBuffer(GL_ARRAY_BUFFER, GetVBO());
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	/*--------------------------- VERTEX ATTRIBUTE POINTERS --------------------------------*/
 	// Position
