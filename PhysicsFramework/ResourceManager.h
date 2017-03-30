@@ -44,7 +44,6 @@ public:
 	virtual ~ResourceManager() {};
 
 	inline Texture * GetTexture(int aTextureID) const { return TextureList[aTextureID].get(); }
-	Engine const & GetEngine() { return EngineHandle; }
 
 	TextFileData & LoadTextFile(const char* aFileName, AccessType aAccessType) const;
 	

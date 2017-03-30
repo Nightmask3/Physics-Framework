@@ -13,6 +13,7 @@
 #include "Physics.h"
 #include "Collider.h"
 #include "Primitive.h"
+#include "ContactConstraint.h"
 
 #include "UtilityFunctions.h"
 
@@ -21,14 +22,15 @@ int PhysicsManager::Iterations = 10;
 void PhysicsManager::Update()
 {
 	// Three Stages
-	// Simulation : Update the physics variables of all objects that have physics components (Apply gravity, velocity, forces etc.)
+	// Simulation : Update the state of all Physics objects
 	Simulation();
 
-	// Collision Detection : Checking every Physics Component that has a Rigid Body for collision against every other rigid body
+	// Collision Detection : Check every Collider for collision against every other Collider
 	DetectCollision();
 
-	// Resolution: Apply the physics values to the game object transforms
-	//Resolution();
+	// Constraint Resolution: Solve all the constraints that were violated this frame using sequential impulse solver
+	// http://www.bulletphysics.com/ftp/pub/test/physics/papers/IterativeDynamics.pdf
+	SolveConstraints();
 }
 
 void PhysicsManager::DetectCollision()
@@ -65,21 +67,25 @@ void PhysicsManager::DetectCollision()
 			// Set to Red if colliding, Green if not colliding
 			if (GJKCollisionHandler(collider1, collider2, newContactData))
 			{
-				std::cout << "Colliding!\n";
+				// Create a contact constraint between the two objects
+				ContactConstraint * newConstraint = new ContactConstraint(*collider1, *collider2);
+				// Register it to be resolved later
+				RegisterConstraintObject(newConstraint);
+
 				Primitive * mesh1 = collider1->GetOwner()->GetComponent<Primitive>();
 				mesh1->SetVertexColorsUniform(glm::vec3(1.0f, 0.0f, 0.0f));
 
 				Primitive * mesh2 = collider2->GetOwner()->GetComponent<Primitive>();
 				mesh2->SetVertexColorsUniform(glm::vec3(1.0f, 0.0f, 0.0f));
 
-				glm::vec3 endPoint = newContactData.Position + newContactData.PenetrationDepth * newContactData.Normal;
+				glm::vec3 endPoint = newContactData.ContactPosition + newContactData.PenetrationDepth * newContactData.Normal;
 
 				// Render contact normal
-				Arrow newDebugArrow(glm::vec3(newContactData.Position), endPoint);
-				newDebugArrow.Scale = newContactData.PenetrationDepth;
+				Arrow newDebugArrow(glm::vec3(newContactData.ContactPosition), endPoint);
+				//newDebugArrow.Scale = newContactData.PenetrationDepth;
 				EngineHandle.GetDebugFactory().RegisterDebugArrow(newDebugArrow);
 				// Render contact point
-				Quad newQuad(newContactData.Position);
+				Quad newQuad(newContactData.ContactPosition);
 				EngineHandle.GetDebugFactory().RegisterDebugQuad(newQuad);
 			}
 			else
@@ -341,6 +347,16 @@ bool PhysicsManager::CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 
 	}
 }
 
+void PhysicsManager::SolveConstraints()
+{
+	// Each type of constraint calls its own solver
+	for (int i = 0; i < ConstraintObjectsList.size(); ++i)
+	{
+		Constraint * constraint = ConstraintObjectsList[i];
+		constraint->Solve();
+	}
+}
+
 // Based on the Expanding Polytope Algorithm (EPA) as described here: http://allenchou.net/2013/12/game-physics-contact-generation-epa/
 bool PhysicsManager::EPAContactDetection(Simplex & aSimplex, Collider * aShape1, Collider * aShape2, ContactData & aContactData)
 {
@@ -459,7 +475,7 @@ bool PhysicsManager::ExtrapolateContactInformation(PolytopeFace * aClosestFace, 
 	glm::vec3 supportWorld3 = aClosestFace->Points[2].World_SupportPointA;
 
 	// Contact point on object A in local space
-	aContactData.Position = (bary_u * supportWorld1) + (bary_v * supportWorld2) + (bary_w * supportWorld3);
+	aContactData.ContactPosition = (bary_u * supportWorld1) + (bary_v * supportWorld2) + (bary_w * supportWorld3);
 	// Contact normal
 	aContactData.Normal = glm::normalize(-aClosestFace->FaceNormal);
 	// Penetration depth
@@ -501,6 +517,11 @@ void PhysicsManager::RegisterPhysicsObject(Physics * aNewPhysics)
 void PhysicsManager::RegisterColliderObject(Collider * aNewCollider)
 {
 	ColliderObjectsList.push_back(aNewCollider);
+}
+
+void PhysicsManager::RegisterConstraintObject(Constraint * aNewConstraint)
+{
+	ConstraintObjectsList.push_back(aNewConstraint);
 }
 
 void PhysicsManager::Simulation()

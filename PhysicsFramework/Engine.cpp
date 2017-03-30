@@ -90,8 +90,8 @@ void Engine::Init()
 
 	// Create camera and add it to the tick notification list
 	Camera * mainCamera = new Camera(*pInputManager, *pFrameRateController);
-	mainCamera->SetCameraPosition(glm::vec3(0, 5, 15));
-	mainCamera->SetCameraLookDirection(glm::vec3(0, -1, 1));
+	mainCamera->SetCameraPosition(glm::vec3(0, 5, -15));
+	mainCamera->SetCameraLookDirection(glm::vec3(0, 0, 1));
 	MainEventList[EngineEvent::ENGINE_TICK].AddObserver(mainCamera);
 	// Set the renderer camera reference
 	pRenderer->SetActiveCamera(mainCamera);

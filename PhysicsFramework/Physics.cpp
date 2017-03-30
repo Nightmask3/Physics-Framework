@@ -8,7 +8,6 @@ void Physics::SyncPhysicsWithTransform()
 {
 	Transform * transform = this->GetOwner()->GetComponent<Transform>();
 	CurrentPosition = transform->Position;
-
 }
 
 void Physics::UpdateTransform()
@@ -32,7 +31,7 @@ Physics::Derivative Physics::Evaluate(float t, float dt, const Derivative & d)
 	positionTemp.y += d.mDerivedVelocity.y * dt;
 	positionTemp.z += d.mDerivedVelocity.z * dt;
 
-	velocityTemp = Velocity;
+	velocityTemp = LinearVelocity;
 	velocityTemp.x += d.mDerivedAcceleration.x * dt;
 	velocityTemp.y += d.mDerivedAcceleration.y * dt;
 	velocityTemp.z += d.mDerivedAcceleration.z * dt;
@@ -45,9 +44,9 @@ Physics::Derivative Physics::Evaluate(float t, float dt, const Derivative & d)
 
 void Physics::IntegrateExplicitEuler(float dt)
 {
-	Velocity = Velocity + (Force / Mass) * dt;
-	PositionPrev = CurrentPosition;
-	CurrentPosition = PositionPrev + Velocity * dt;
+	LinearVelocity = LinearVelocity + (Force / Mass) * dt;
+	PreviousPosition = CurrentPosition;
+	CurrentPosition = PreviousPosition + LinearVelocity * dt;
 	Force *= 0.99;
 
 	UpdateTransform();
@@ -56,7 +55,7 @@ void Physics::IntegrateExplicitEuler(float dt)
 void Physics::IntegrateRK4(float totalTime, float dt)
 {
 	Derivative a, b, c, d;
-	PositionPrev = CurrentPosition;
+	PreviousPosition = CurrentPosition;
 	// Finds 4 derivatives
 	a = Evaluate(totalTime, 0.0f, Derivative());
 	b = Evaluate(totalTime, dt*0.5f, a);
@@ -88,18 +87,18 @@ void Physics::IntegrateRK4(float totalTime, float dt)
 	CurrentPosition.y += dydt * dt;
 	CurrentPosition.z += dzdt * dt;
 
-	Velocity.x += dvxdt * dt;
-	Velocity.y += dvydt * dt;
-	Velocity.z += dvzdt * dt;
+	LinearVelocity.x += dvxdt * dt;
+	LinearVelocity.y += dvydt * dt;
+	LinearVelocity.z += dvzdt * dt;
 
 	UpdateTransform();
 }
 
 void Physics::IntegratePositionVerlet(float dt)
 {
-	PositionNext += (CurrentPosition - PositionPrev) + (Force / Mass) * dt * dt;
-	PositionPrev = CurrentPosition;
+	NextPosition += (CurrentPosition - PreviousPosition) + (Force / Mass) * dt * dt;
+	PreviousPosition = CurrentPosition;
 
 	Transform * transform = this->GetOwner()->GetComponent<Transform>();
-	transform->SetPosition(PositionNext);
+	transform->SetPosition(NextPosition);
 }

@@ -73,8 +73,8 @@ void GameObject::AddComponent(Component * aNewComponent)
 	if (aNewPhysics)
 	{
 		Transform * transform = aNewPhysics->GetOwner()->GetComponent<Transform>();
-		aNewPhysics->SetPosition(transform->GetPosition());
-		aNewPhysics->SetPositionNext(transform->GetPosition());
+		aNewPhysics->SetCurrentPosition(transform->GetPosition());
+		aNewPhysics->SetNextPosition(transform->GetPosition());
 		return;
 	}
 

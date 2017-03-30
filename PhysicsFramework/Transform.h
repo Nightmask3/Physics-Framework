@@ -8,7 +8,7 @@
 #include <iterator>
 #include <cassert>
 #include <sstream>
-// Math header files
+// GLM Math header files
 #include <glm/gtc/quaternion.hpp>
 #include <glm/mat3x3.hpp>
 #include <glm/vec3.hpp>
@@ -22,8 +22,6 @@ public:
 	glm::vec3 Position;			
 	glm::quat Rotation;			
 	glm::vec3 Scale;			
-	glm::vec3 OriginalScale;
-
 	/*----------MEMBER FUNCTIONS----------*/
 public:
 	Transform() : Component(ComponentType::TRANSFORM), 

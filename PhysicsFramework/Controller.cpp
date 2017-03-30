@@ -62,6 +62,6 @@ void Controller::Update()
 	physics = GetOwner()->GetComponent<Physics>();
 	if (physics)
 	{
-		physics->SetPosition(TargetTransform->Position);
+		physics->SetCurrentPosition(TargetTransform->Position);
 	}
 }

@@ -17,6 +17,7 @@ class FramerateController;
 class InputManager;
 class Physics;
 class Collider;
+class Constraint;
 
 class PhysicsManager : public Observer
 {
@@ -28,23 +29,31 @@ public:
 
 	std::vector<Physics *> PhysicsObjectsList;
 	std::vector<Collider *> ColliderObjectsList;
+	std::vector<Constraint *> ConstraintObjectsList;
 	/*----------MEMBER FUNCTIONS----------*/
 	PhysicsManager(Engine & aEngine) :EngineHandle(aEngine) {};
 	~PhysicsManager() {};
-
-	Engine const & GetEngine() { return EngineHandle; }
-
+	
+	// Registration functions
 	void RegisterPhysicsObject(Physics * aNewPhysics);
 	void RegisterColliderObject(Collider * aNewCollider);
+	void RegisterConstraintObject(Constraint * aNewConstraint);
 
-	void Simulation();
+	// Main function of physics manager, calls all other functions
 	void Update();
 
+	// Performs integration of all physics objects
+	void Simulation();
+
+	// Detects collision between all pairs of collider objects
 	void DetectCollision();
 	bool GJKCollisionHandler(Collider * aCollider1, Collider * aCollider2, ContactData & aContactData);
 	bool EPAContactDetection(Simplex & aSimplex, Collider * aShape1, Collider * aShape2, ContactData & aContactData);
 	bool ExtrapolateContactInformation(PolytopeFace * aClosestFace, ContactData & aContactData);
 	bool CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 & aSearchDirection);
+
+	// Resolves pairwise constraints that are violated 
+	void SolveConstraints();
 
 	virtual void OnNotify(Event * aEvent) override;
 

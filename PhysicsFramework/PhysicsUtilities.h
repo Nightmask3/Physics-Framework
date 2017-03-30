@@ -82,9 +82,21 @@ struct PolytopeEdge
 
 struct ContactData
 {
-	glm::vec3 Normal;
-	glm::vec3 Position;
+	// Contact point data
+	glm::vec3 ContactPosition;
+	SupportPoint ColliderData;
+	
+	// These 3 vectors form an orthonormal basis
+	glm::vec3 Normal; // From collider A to collider B
+	glm::vec3 Tangent1, Tangent2;
+
 	float PenetrationDepth;
+
+	// Used for clamping
+	float normalImpulseSum = 0.0f;
+	float tangentImpulseSum1 = 0.0f;
+	float tangentImpulseSum2 = 0.0f;
+
 	glm::mat4 LocalToWorldMatrixA;
 	glm::mat4 LocalToWorldMatrixB;
 };

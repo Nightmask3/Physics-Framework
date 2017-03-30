@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/vec3.hpp>
+#include <glm/mat3x3.hpp>
 #include "Component.h"
 
 class Physics : public Component
@@ -16,14 +17,20 @@ public:
 			mDerivedVelocity = glm::vec3();
 		}
 	};
-	glm::vec3 PositionNext = glm::vec3();
+	glm::vec3 NextPosition = glm::vec3();
 	glm::vec3 CurrentPosition = glm::vec3();
-	glm::vec3 PositionPrev = glm::vec3();
-	glm::vec3 Velocity = glm::vec3();
+	glm::vec3 PreviousPosition = glm::vec3();
+
+	glm::vec3 LinearVelocity = glm::vec3();
+	glm::vec3 AngularVelocity = glm::vec3();
+
 	glm::vec3 Force = glm::vec3();
-	glm::vec3 Momentum = glm::vec3();
+	glm::vec3 Torque = glm::vec3();
+
 	float Mass = 100.0f;
-	float InverseMass = 1.0f;
+	float InverseMass = 1.0f/Mass;
+	glm::mat3 InertiaTensor = glm::mat3(1);
+	glm::mat3 InverseInertiaTensor = glm::mat3(1);
 	/* -------- FUNCTIONS ---------- */
 	
 	Physics() : Component(Component::PHYSICS)
@@ -36,14 +43,14 @@ public:
 	// GETTERS
 	inline float GetMass() { return Mass; }
 	inline glm::vec3 GetCurrentPosition() { return CurrentPosition; }
-	inline glm::vec3 GetVelocity() { return Velocity; }
+	inline glm::vec3 GetVelocity() { return LinearVelocity; }
 	// SETTERS
 	inline void SetMass(float mass) { Mass = mass; InverseMass = 1 / Mass; }
-	inline void SetPosition(glm::vec3 position) { CurrentPosition = position; }
-	inline void SetPositionNext(glm::vec3 position) { PositionNext = position; }
+	inline void SetCurrentPosition(glm::vec3 position) { CurrentPosition = position; }
+	inline void SetNextPosition(glm::vec3 position) { NextPosition = position; }
 	inline void ApplyForce(glm::vec3 newForce) { Force += newForce; }
 
-	void Update() {}
+	virtual void Update() override {}
 	virtual void Deserialize(TextFileData aTextFileData) override {};
 	
 	// Used at start of frame to sync physics with transforms (for updates from editor)

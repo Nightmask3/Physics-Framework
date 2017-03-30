@@ -100,6 +100,15 @@
     <Filter Include="Header Files\Components\Colliders">
       <UniqueIdentifier>{ed78ac4f-3504-4c86-ab6f-de0c42594e1c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Entities\Constraints">
+      <UniqueIdentifier>{8a788e74-80bb-4767-b057-d05e874c21da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entities\Constraints">
+      <UniqueIdentifier>{472e2503-a427-488e-a56b-bb79ed17dbc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components\Colliders">
+      <UniqueIdentifier>{7396e9c7-19ab-47df-8c72-6332dec9a52f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -240,6 +249,12 @@
     <ClInclude Include="Collider.h">
       <Filter>Header Files\Components\Colliders</Filter>
     </ClInclude>
+    <ClInclude Include="Constraint.h">
+      <Filter>Header Files\Entities\Constraints</Filter>
+    </ClInclude>
+    <ClInclude Include="ContactConstraint.h">
+      <Filter>Header Files\Entities\Constraints</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -339,7 +354,10 @@
       <Filter>Source Files\Components</Filter>
     </ClCompile>
     <ClCompile Include="Box.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Components\Colliders</Filter>
+    </ClCompile>
+    <ClCompile Include="ContactConstraint.cpp">
+      <Filter>Source Files\Entities\Constraints</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,6 @@
 #include "Transform.h"
 
+
 void Transform::Deserialize(TextFileData aTextData)
 {
 	// Get reference to data

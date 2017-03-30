@@ -4,7 +4,7 @@ class Box : public Collider
 {
 	/*-----------MEMBER VARIABLES-----------*/
 public:
-
+	float Side = 2.0f;
 	/*-----------MEMBER FUNCTIONS-----------*/
 public:
 	virtual void Initialize() override;
