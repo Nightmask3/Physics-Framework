@@ -341,8 +341,8 @@ void Renderer::MainRenderPass()
 	// Render Minkowski Difference
 	if (EngineHandle.GetEngineStateManager().bShouldRenderMinkowskiDifference)
 	{
-		Mesh * shape1 = static_cast<Mesh *>(RenderList[4]);
-		Mesh * shape2 = static_cast<Mesh *>(RenderList[5]);
+		Mesh * shape1 = static_cast<Mesh *>(RenderList[5]);
+		Mesh * shape2 = static_cast<Mesh *>(RenderList[6]);
 		std::vector<Vertex> MinkowskiDifferenceVertices;
 		Utility::CalculateMinkowskiDifference(MinkowskiDifferenceVertices, shape1, shape2);
 		EngineHandle.GetDebugFactory().MinkowskiDifference->GetComponent<Primitive>()->BindVertexData(MinkowskiDifferenceVertices);

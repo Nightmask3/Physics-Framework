@@ -27,10 +27,11 @@ public:
 	glm::vec3 Force = glm::vec3();
 	glm::vec3 Torque = glm::vec3();
 
-	float Mass = 100.0f;
+	float Mass = 1.0f;
 	float InverseMass = 1.0f/Mass;
-	glm::mat3 InertiaTensor = glm::mat3(1);
-	glm::mat3 InverseInertiaTensor = glm::mat3(1);
+
+	bool bShouldGravityAffect = true;
+	float GravityMagnitude = -0.8f;
 	/* -------- FUNCTIONS ---------- */
 	
 	Physics() : Component(Component::PHYSICS)
@@ -50,6 +51,7 @@ public:
 	inline void SetNextPosition(glm::vec3 position) { NextPosition = position; }
 	inline void ApplyForce(glm::vec3 newForce) { Force += newForce; }
 
+	virtual void Initialize() override;
 	virtual void Update() override {}
 	virtual void Deserialize(TextFileData aTextFileData) override {};
 	
@@ -61,6 +63,6 @@ public:
 	void IntegrateRK4(float totalTime, float dt);
 	Derivative Evaluate(float t, float dt, const Derivative &);
 
-	void IntegrateExplicitEuler(float dt);
+	void IntegrateEuler(float dt);
 	void IntegratePositionVerlet(float dt);
 };

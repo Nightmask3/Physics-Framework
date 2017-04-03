@@ -2,14 +2,14 @@
 #include "ScriptBehavior.h"
 #include "Grid.h"
 
-#define E_PI 3.141592
+#define E_PI 3.141592f
 
 struct WaveSolver : public ScriptBehavior
 {
 	/*-----------MEMBER VARIABLES-----------*/
 public:
-	float SectionsX = 100;
-	float SectionsY = 100;
+	int SectionsX = 100;
+	int SectionsY = 100;
 	float SizeX = 1;
 	float SizeY = 1;
 	float SpacingX = 1.0f;

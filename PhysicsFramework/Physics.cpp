@@ -2,7 +2,11 @@
 #include "Transform.h"
 #include "GameObject.h"
 #include "Controller.h"
+#include "Collider.h"
 
+void Physics::Initialize()
+{
+}
 
 void Physics::SyncPhysicsWithTransform()
 {
@@ -42,13 +46,39 @@ Physics::Derivative Physics::Evaluate(float t, float dt, const Derivative & d)
 	return output;
 }
 
-void Physics::IntegrateExplicitEuler(float dt)
+void Physics::IntegrateEuler(float dt)
 {
-	LinearVelocity = LinearVelocity + (Force / Mass) * dt;
+	Collider * collider = pOwner->GetComponent<Collider>();
+	if (collider)
+	{
+		// Don't integrate static objects
+		// TODO : [@Sai] - Separate collider and physics dependencies so that a collider doesn't need a physics component on the owner object
+		if (collider->eColliderType == Collider::STATIC)
+			return;
+	}
+	// Apply gravity
+	if (bShouldGravityAffect)
+		LinearVelocity += glm::vec3(0, GravityMagnitude, 0) * dt;
+
+	// Integrate force and linear velocity
+	LinearVelocity = LinearVelocity + ((Force * InverseMass) * dt);
 	PreviousPosition = CurrentPosition;
 	CurrentPosition = PreviousPosition + LinearVelocity * dt;
-	Force *= 0.99;
 
+	// Integrate torque and angular velocity
+	glm::vec3 axis = AngularVelocity;
+	float length = glm::length(AngularVelocity);
+	float angle = length * dt;
+	// Prevents degenerate quaternions
+	if (angle != 0.0f)
+	{
+		// Normalize axis
+		axis = axis / length;
+		glm::quat rotationDelta(std::cos(angle / 2.0f), axis * std::sin(angle / 2.0f));
+
+		Transform & transform = *(pOwner->GetComponent<Transform>());
+		transform.Rotation = rotationDelta * transform.Rotation;
+	}
 	UpdateTransform();
 }
 

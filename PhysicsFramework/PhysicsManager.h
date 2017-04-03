@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Observer.h"
 #include "GameObject.h"
 #include "PhysicsUtilities.h"
@@ -23,7 +23,11 @@ class PhysicsManager : public Observer
 {
 	/*----------MEMBER VARIABLES----------*/
 public:
-	static int Iterations;
+	static int IntegratorIterations;
+	const static int ConstraintSolverIterations = 4;
+	// Stability analysis provides an upper bound of β ≤ 1/∆t for smooth decay
+	float BaumgarteScalar = 0.1f;
+	bool bShouldSimulate = true;
 	/*---ENGINE REFERENCE ---*/
 	Engine & EngineHandle;
 
@@ -52,7 +56,7 @@ public:
 	bool ExtrapolateContactInformation(PolytopeFace * aClosestFace, ContactData & aContactData);
 	bool CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 & aSearchDirection);
 
-	// Resolves pairwise constraints that are violated 
+	// Resolves pairwise constraints that are violated
 	void SolveConstraints();
 
 	virtual void OnNotify(Event * aEvent) override;

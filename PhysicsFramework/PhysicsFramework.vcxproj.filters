@@ -359,6 +359,9 @@
     <ClCompile Include="ContactConstraint.cpp">
       <Filter>Source Files\Entities\Constraints</Filter>
     </ClCompile>
+    <ClCompile Include="Constraint.cpp">
+      <Filter>Source Files\Entities\Constraints</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="DefaultFragmentShader.glsl">

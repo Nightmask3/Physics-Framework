@@ -16,6 +16,8 @@ public:
 	Script() : Component(Component::SCRIPT) {}
 	~Script() { delete pScriptBehavior; }
 
+	static inline ComponentType GetComponentID() { return Component::ComponentType::SCRIPT; }
+
 	virtual void Deserialize(TextFileData aTextData) override {};
 	
 	// Binds a chosen ScriptBehavior to this Script

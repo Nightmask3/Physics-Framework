@@ -104,16 +104,30 @@ void Engine::Load()
 	EngineEvent LoadEvent;
 	LoadEvent.EventID = EngineEvent::ENGINE_LOAD;
 
-	/*-----------------GAMEOBJECT INITIALIZTION--------------------*/
-	// Initialize pivot and other game objects
+	/*-----------------EDITOR OBJECTS INITIALIZTION--------------------*/
+
+	// TODO : [@Sai] -  Consider adding a separate type of editor object 
+	// Initialize pivot 
 	GameObject * pivot = pGameObjectFactory->SpawnGameObject();
 	Mesh * pivotMesh = pResourceManager->ImportMesh(std::string("Pivot.fbx"));
 	pivot->GetComponent<Transform>()->SetScale(glm::vec3(0.1f, -0.1f, -0.1f));
 	pivot->AddComponent(pivotMesh);
 	pivotMesh->RenderDebug = false;
 
+	//GameObject * grid = pGameObjectFactory->SpawnGameObject();
+	//Primitive * gridPrimitive = pGameObjectFactory->SpawnComponent<Primitive>();
+	//gridPrimitive->RenderDebug = false;
+	//gridPrimitive->bIsDebug = false;
+	//Grid newGrid(50, 50, 10, 10);
+	//pRenderer->RegisterPrimitive(gridPrimitive);
+	//// SET VERTICES AFTER REGISTRATION, a primitive must be registered if it is to bind
+	//gridPrimitive->SetVertices(newGrid.GridVertices);
+	//grid->AddComponent(gridPrimitive);
+	/*-----------------GAME OBJECTS INITIALIZTION--------------------*/
+
+	// Falling cube
 	GameObject * cube1 = pGameObjectFactory->SpawnGameObject();
-	cube1->GetComponent<Transform>()->SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
+	cube1->GetComponent<Transform>()->SetPosition(glm::vec3(0.0f, 5.0f, 3.0f));
 	Mesh * cube1Mesh = pResourceManager->ImportMesh(std::string("Cube.fbx"));
 	cube1->AddComponent(cube1Mesh);
 	Physics * physics1 = pGameObjectFactory->SpawnComponent<Physics>();
@@ -121,16 +135,17 @@ void Engine::Load()
 	Collider * cube1Collider = pGameObjectFactory->SpawnComponent<Box>();
 	cube1->AddComponent(cube1Collider);
 
+	// Ground
 	GameObject * cube2 = pGameObjectFactory->SpawnGameObject();
 	cube2->GetComponent<Transform>()->SetPosition(glm::vec3(0.0f, -4.0f, 3.0f));
+	cube2->GetComponent<Transform>()->SetScale(glm::vec3(10.f, 1.f, 10.0f));
 	Mesh * cube2Mesh = pResourceManager->ImportMesh(std::string("Cube.fbx"));
 	cube2->AddComponent(cube2Mesh);
 	Physics * physics2 = pGameObjectFactory->SpawnComponent<Physics>();
 	cube2->AddComponent(physics2);
 	Collider * cube2Collider = pGameObjectFactory->SpawnComponent<Box>();
 	cube2->AddComponent(cube2Collider);
-	Controller * controller = pGameObjectFactory->SpawnComponent<Controller>();
-	cube2->AddComponent(controller);
+	cube2Collider->eColliderType = Collider::STATIC;
 
 	// Notify all listeners to engine load
 	MainEventList[EngineEvent::ENGINE_LOAD].NotifyAllObservers(&LoadEvent);

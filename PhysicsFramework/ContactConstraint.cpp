@@ -1,4 +1,7 @@
+﻿#include <algorithm>
 #include "ContactConstraint.h"
+#include "Engine.h"
+#include "PhysicsManager.h"
 #include "PhysicsUtilities.h"
 #include "GameObject.h"
 #include "Transform.h"
@@ -10,61 +13,94 @@ void ContactConstraint::CalculateJacobian()
 	glm::vec3 & contactNormal = ConstraintData.Normal;
 	
 	glm::vec3 & centerOfMassA = ColliderA->pOwner->GetComponent<Transform>()->GetPosition();
-	glm::vec3 momentArmA = ConstraintData.ColliderData.World_SupportPointA - centerOfMassA;
+	glm::vec3 momentArmA = ConstraintData.ContactPositionA_WS - centerOfMassA;
 	
 	glm::vec3 & centerOfMassB = ColliderB->pOwner->GetComponent<Transform>()->GetPosition();
-	glm::vec3 momentArmB = ConstraintData.ColliderData.World_SupportPointB - centerOfMassB;
+	glm::vec3 momentArmB = ConstraintData.ContactPositionB_WS - centerOfMassB;
 
-	glm::vec3 crossProductA = glm::cross(-momentArmA, contactNormal);
+	glm::vec3 crossProductA = glm::cross(momentArmA, contactNormal);
 	glm::vec3 crossProductB = glm::cross(momentArmB, contactNormal);
 
-	// Calculates Jacobian for the contact constraint
-	Jacobian << -contactNormal.x, -contactNormal.y, -contactNormal.z,
-				 crossProductA.x, crossProductA.y, crossProductA.z,
-				 contactNormal.x, contactNormal.y, contactNormal.z,
-				 crossProductB.x, crossProductB.y, crossProductB.z;
+	// Create the individual collider jacobians
+	ColliderA->ContactJacobian << -contactNormal.x, -contactNormal.y, -contactNormal.z,
+								  -crossProductA.x, -crossProductA.y, -crossProductA.z;	
+	
+	ColliderB->ContactJacobian << contactNormal.x, contactNormal.y, contactNormal.z,
+								  crossProductB.x, crossProductB.y, crossProductB.z;
 
-}
-
-void ContactConstraint::Solve()
-{
-	Physics & physicsA = *ColliderA->pOwner->GetComponent<Physics>();
-	Physics & physicsB = *ColliderB->pOwner->GetComponent<Physics>();
-
-	// Calculate inverse mass matrix for entire constraint system
-	Eigen::MatrixXf inverseMassMatrix(12, 12);
-
-	// Calculate inverse mass matrix of object A
-	Eigen::Matrix3f inverseMassMatrixA;
-	inverseMassMatrixA.setIdentity();
-	inverseMassMatrixA *= physicsA.InverseMass;
-
-	// Calculate inverse mass matrix of object B
-	Eigen::Matrix3f inverseMassMatrixB;
-	inverseMassMatrixB.setIdentity();
-	inverseMassMatrixB *= physicsB.InverseMass;
-
-	// Convert from GLM matrices to Eigen matrices
-	Eigen::Matrix3f inverseInertiaTensorA;
-	Eigen::Matrix3f inverseInertiaTensorB;
-
-	for (int i = 0; i < 3; ++i)
+	// By convention, if a constraint is between a dynamic and static object, then Jacobian of the static object is 0
+	if (ColliderA->eColliderType == Collider::STATIC)
 	{
-		for (int j = 0; j < 3; ++j)
-		{
-			inverseInertiaTensorA(i, j) = physicsA.InverseInertiaTensor[i][j];
-			inverseInertiaTensorB(i, j) = physicsB.InverseInertiaTensor[i][j];
-		}
+		ColliderA->ContactJacobian *= 0.0f;
+	}
+	else if (ColliderB->eColliderType == Collider::STATIC)
+	{
+		ColliderB->ContactJacobian *= 0.0f;
 	}
 
-	inverseMassMatrix << inverseMassMatrixA, Eigen::Matrix3f::Zero(), Eigen::Matrix3f::Zero(), Eigen::Matrix3f::Zero(),
-						 Eigen::Matrix3f::Zero(), inverseInertiaTensorA, Eigen::Matrix3f::Zero(), Eigen::Matrix3f::Zero(),
-						 Eigen::Matrix3f::Zero(), Eigen::Matrix3f::Zero(), inverseMassMatrixB, Eigen::Matrix3f::Zero(),
-						 Eigen::Matrix3f::Zero(), Eigen::Matrix3f::Zero(), Eigen::Matrix3f::Zero(), inverseInertiaTensorB;
-	
-	// Column vector obtained from multiplying Inverse Mass Matrix and Jacobian Transpose
-	Eigen::Matrix<float, 12, 1> bMatrix;
-	bMatrix = inverseMassMatrix * Jacobian.transpose();
+	// Creates constraint Jacobian from individual jacobians
+	Jacobian << ColliderA->ContactJacobian, ColliderB->ContactJacobian;
 
-	float effectiveMass = Jacobian * bMatrix;
+	// Column vector obtained from multiplying Inverse Mass Matrix and Jacobian Transpose
+	Catto_B = InverseMassMatrix * Jacobian.transpose();
+}
+
+float ContactConstraint::Solve(float aTimestep, std::vector<Eigen::Matrix<float, 6, 1>> & aCatto_A, Eigen::Matrix<float, 12, 1> & aVelocityVector, Eigen::Matrix<float, 12, 1> & aExternalForceVector)
+{
+	/* -- Calculating 'Catto_eta' values - Equation 35 in 'Iterative Dynamics' -- */
+
+	// Position constraint equation Cn = (x2 +r2 −x1 −r1) * n1 
+	float constraintError; // the Penetration Depth is how much the constraint is being violated by
+
+	glm::vec3 & centerOfMassA = ColliderA->pOwner->GetComponent<Transform>()->GetPosition();
+	glm::vec3 momentArmA = ConstraintData.ContactPositionA_WS - centerOfMassA;
+
+	glm::vec3 & centerOfMassB = ColliderB->pOwner->GetComponent<Transform>()->GetPosition();
+	glm::vec3 momentArmB = ConstraintData.ContactPositionB_WS - centerOfMassB;
+
+	constraintError = glm::dot((centerOfMassB + momentArmB - centerOfMassA - momentArmA), ConstraintData.Normal);
+
+	float baumgarteScalar = ColliderA->pOwner->EngineHandle.GetPhysicsManager().BaumgarteScalar;
+
+	// Apply a bias in order to get constraint force to do work (in this case to resolve penetration)
+	float biasTerm = (-baumgarteScalar * constraintError) / aTimestep;
+
+	float velocityTerm  = (-Jacobian * (aVelocityVector / aTimestep));
+
+	float externalForceTerm = (-Jacobian * (InverseMassMatrix * aExternalForceVector));
+
+	Catto_Eta = biasTerm + velocityTerm + externalForceTerm;
+
+	/* -- Calculating di -- */
+	float effectiveMass = Jacobian * Catto_B;
+
+	/* -- Calculating ∆λi -- */
+	float bodyATerm = ColliderA->ContactJacobian * aCatto_A[ColliderA->ColliderSlot];
+	float bodyBTerm = ColliderB->ContactJacobian * aCatto_A[ColliderB->ColliderSlot];
+
+	DeltaLambda = Catto_Eta - bodyATerm - bodyBTerm;
+	DeltaLambda /= effectiveMass;
+
+	float normalImpulseSumCopy = NormalImpulseSum;
+
+	NormalImpulseSum += DeltaLambda;
+	// Clamps normal impulse between 0 and positive infinity
+	std::max(0.0f, std::min(NormalImpulseSum, FLT_MAX));
+
+	DeltaLambda = NormalImpulseSum - normalImpulseSumCopy;
+
+	// Calculate individual Catto_B vectors
+	Eigen::Matrix<float, 6, 1> catto_B_BodyA, catto_B_BodyB;
+
+	catto_B_BodyA << Catto_B(0), Catto_B(1), Catto_B(2),
+					 Catto_B(3), Catto_B(4), Catto_B(5);
+
+	catto_B_BodyB << Catto_B(6), Catto_B(7), Catto_B(8),
+					 Catto_B(9), Catto_B(10), Catto_B(11);
+
+	// Update catto_A values of each body
+	aCatto_A[ColliderA->ColliderSlot] += DeltaLambda * catto_B_BodyA;
+	aCatto_A[ColliderB->ColliderSlot] += DeltaLambda * catto_B_BodyB;
+
+	return DeltaLambda;
 }

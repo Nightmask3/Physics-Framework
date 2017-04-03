@@ -76,7 +76,7 @@ public:
 
 	// Sets all vertex colors to a single color
 	void SetVertexColorsUniform(glm::vec3 aNewColor);
-
+	// Sets primitive vertex data to provided vertices - should not be called directly
 	virtual void BindVertexData(std::vector<Vertex> & aVertexData);
 	void ApplyTexture(unsigned int aTextureID);
 

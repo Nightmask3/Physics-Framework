@@ -1,4 +1,4 @@
-#include <list>
+﻿#include <list>
 
 #include "PhysicsManager.h"
 #include "Renderer.h"
@@ -17,10 +17,17 @@
 
 #include "UtilityFunctions.h"
 
-int PhysicsManager::Iterations = 10;
+int PhysicsManager::IntegratorIterations = 1;
 
 void PhysicsManager::Update()
 {
+	/*  From 'Iterative Dynamics'
+	Clearly position error will converge if and only if 0 < β < 2/∆t. If 0 < β ≤ 1/∆t then the
+	position error will decay smoothly to zero. If 1/∆t < β < 2/∆t then the position
+	error will decay with an oscillation. 
+	*/
+	//BaumgarteScalar = 1 / (2 * EngineHandle.GetFramerateController().DeltaTime);
+
 	// Three Stages
 	// Simulation : Update the state of all Physics objects
 	Simulation();
@@ -67,10 +74,33 @@ void PhysicsManager::DetectCollision()
 			// Set to Red if colliding, Green if not colliding
 			if (GJKCollisionHandler(collider1, collider2, newContactData))
 			{
-				// Create a contact constraint between the two objects
-				ContactConstraint * newConstraint = new ContactConstraint(*collider1, *collider2);
-				// Register it to be resolved later
-				RegisterConstraintObject(newConstraint);
+				// Check if contact constraint between these two bodies already exists before adding another one
+				bool bAlreadyExists = false;
+
+				for (Constraint * constraint : ConstraintObjectsList)
+				{
+					ContactConstraint * contactConstraint = nullptr;
+					contactConstraint = dynamic_cast<ContactConstraint *>(constraint);
+					if (contactConstraint)
+					{
+						if (contactConstraint->ColliderA == collider1 && contactConstraint->ColliderB == collider2)
+						{
+							bAlreadyExists = true;
+							break;
+						}
+					}
+				}
+
+				if (bAlreadyExists == false)
+				{
+					// Create a contact constraint between the two objects
+					ContactConstraint * newConstraint = new ContactConstraint(*collider1, *collider2);
+					newConstraint->ConstraintData = newContactData;
+					newConstraint->CalculateJacobian();
+
+					// Register it to be resolved later
+					RegisterConstraintObject(newConstraint);
+				}
 
 				Primitive * mesh1 = collider1->GetOwner()->GetComponent<Primitive>();
 				mesh1->SetVertexColorsUniform(glm::vec3(1.0f, 0.0f, 0.0f));
@@ -78,14 +108,14 @@ void PhysicsManager::DetectCollision()
 				Primitive * mesh2 = collider2->GetOwner()->GetComponent<Primitive>();
 				mesh2->SetVertexColorsUniform(glm::vec3(1.0f, 0.0f, 0.0f));
 
-				glm::vec3 endPoint = newContactData.ContactPosition + newContactData.PenetrationDepth * newContactData.Normal;
+				glm::vec3 endPoint = newContactData.ContactPositionA_WS + newContactData.PenetrationDepth * newContactData.Normal;
 
 				// Render contact normal
-				Arrow newDebugArrow(glm::vec3(newContactData.ContactPosition), endPoint);
+				Arrow newDebugArrow(glm::vec3(newContactData.ContactPositionA_WS), endPoint);
 				//newDebugArrow.Scale = newContactData.PenetrationDepth;
 				EngineHandle.GetDebugFactory().RegisterDebugArrow(newDebugArrow);
 				// Render contact point
-				Quad newQuad(newContactData.ContactPosition);
+				Quad newQuad(newContactData.ContactPositionA_WS);
 				EngineHandle.GetDebugFactory().RegisterDebugQuad(newQuad);
 			}
 			else
@@ -349,12 +379,117 @@ bool PhysicsManager::CheckIfSimplexContainsOrigin(Simplex & aSimplex, glm::vec3 
 
 void PhysicsManager::SolveConstraints()
 {
-	// Each type of constraint calls its own solver
+	// Skip solver if no constraints
+	if (ConstraintObjectsList.size() == 0)
+		return;
+	// TODO : [@Sai] - Figure out a better name for the temporary vectors
+	std::vector<Eigen::Matrix<float, 6 , 1>> catto_A;
+	catto_A.reserve(ColliderObjectsList.size());
+
+	// Initialize one entry per collider
+	for (int i = 0; i < ColliderObjectsList.size(); ++i)
+	{
+		catto_A.push_back(Eigen::Matrix<float, 6, 1>());
+		catto_A.back().setZero();
+	}
+	// Calculate preliminary values of Catto_A - it is used to store already calculated impulses
 	for (int i = 0; i < ConstraintObjectsList.size(); ++i)
 	{
-		Constraint * constraint = ConstraintObjectsList[i];
-		constraint->Solve();
+		Constraint * constraint = nullptr;
+		constraint = ConstraintObjectsList[i];
+
+		if (constraint)
+		{
+			// Set lambda to its initial value
+			constraint->ImpulseMagnitude = constraint->InitialLambda;
+
+			// Per constraint, the first non-static body is used to calculate the catto_A vector for that body
+			if (constraint->ColliderA->eColliderType > 0)
+			{
+				catto_A[constraint->ColliderA->ColliderSlot] += constraint->ColliderA->InverseMassMatrix * constraint->ColliderA->ContactJacobian.transpose() * constraint->ImpulseMagnitude;
+			}
+			else
+			{
+				catto_A[constraint->ColliderB->ColliderSlot] += constraint->ColliderB->InverseMassMatrix * constraint->ColliderB->ContactJacobian.transpose() * constraint->ImpulseMagnitude;
+			}
+		}
 	}
+	// Refine the Lagrangian multiplier 'λ' using Gauss-Siedel solver
+	for (int iterations = 0; iterations < 1; ++iterations)
+	{
+		for (int i = 0; i < ConstraintObjectsList.size(); ++i)
+		{
+			Constraint * constraint = nullptr;
+			constraint = ConstraintObjectsList[i];
+			float deltaLambda = 0.0f;
+			float deltaTime = EngineHandle.GetFramerateController().DeltaTime;
+
+			if (constraint)
+			{
+				Physics & physicsA = *constraint->ColliderA->pOwner->GetComponent<Physics>();
+				Physics & physicsB = *constraint->ColliderB->pOwner->GetComponent<Physics>();
+
+				// Putting the bodies quantities in a matrix form like this allows for a convenient transformation when multiplied by inverse mass matrix
+				// Each quantity is multiplied against the value that corresponds to it (Inertia/angular velocity/torque and Mass/linear velocity/force)
+				Eigen::Matrix<float, 12, 1> velocityVector; // Column vector
+				velocityVector << physicsA.LinearVelocity.x, physicsA.LinearVelocity.y, physicsA.LinearVelocity.z,
+								  physicsA.AngularVelocity.x, physicsA.AngularVelocity.y, physicsA.AngularVelocity.z,
+								  physicsB.LinearVelocity.x, physicsB.LinearVelocity.y, physicsB.LinearVelocity.z,
+								  physicsB.AngularVelocity.x, physicsB.AngularVelocity.y, physicsB.AngularVelocity.z;
+
+				Eigen::Matrix<float, 12, 1> externalForceVector; // Column vector
+				externalForceVector << physicsA.Force.x, physicsA.Force.y, physicsA.Force.z,
+									   physicsA.Torque.x, physicsA.Torque.y, physicsA.Torque.z,
+									   physicsB.Force.x, physicsB.Force.y, physicsB.Force.z,
+									   physicsB.Torque.x, physicsB.Torque.y, physicsB.Torque.z;
+
+				// Each type of constraint calls its own solver
+				deltaLambda = constraint->Solve(deltaTime, catto_A, velocityVector, externalForceVector);
+
+				// Get force of constraint for each body using the Lagrangian multiplier for magnitude and corresponding Jacobian for direction
+				Eigen::Matrix<float, 6, 1> constraintForceA = constraint->ColliderA->ContactJacobian.transpose() * deltaLambda * deltaTime;
+				Eigen::Matrix<float, 6, 1> constraintForceB = constraint->ColliderB->ContactJacobian.transpose() * deltaLambda * deltaTime;
+
+				glm::vec3 forceA(constraintForceA(0), constraintForceA(1), constraintForceA(2)), torqueA(constraintForceA(3), constraintForceA(4), constraintForceA(5));
+				glm::vec3 forceB(constraintForceB(0), constraintForceB(1), constraintForceB(2)), torqueB(constraintForceB(3), constraintForceB(4), constraintForceB(5));
+
+				// Zero out forces if either object is static
+				if (constraint->ColliderA->eColliderType == Collider::STATIC)
+				{
+					forceA *= 0;
+					torqueA *= 0;
+				}
+				else if (constraint->ColliderB->eColliderType == Collider::STATIC)
+				{
+					forceB *= 0;
+					torqueB *= 0;
+				}
+
+				// Create inverse mass matrices
+				glm::mat3 inverseMassMatrixA = glm::mat3(1), inverseMassMatrixB = glm::mat3(1);
+				inverseMassMatrixA *= physicsA.InverseMass;
+				inverseMassMatrixB *= physicsB.InverseMass;
+
+				// Create inverse inertia tensors
+				glm::mat3 inverseInertiaTensorA, inverseInertiaTensorB;
+				inverseInertiaTensorA = glm::inverse(constraint->ColliderA->InertiaTensor);
+				inverseInertiaTensorB = glm::inverse(constraint->ColliderB->InertiaTensor);
+
+				// Convert from local space to world space using the 3x3 submatrix of the Rotation transform
+				glm::mat3 rotationMatrixA = glm::mat3_cast(physicsA.pOwner->GetComponent<Transform>()->Rotation);
+				glm::mat3 rotationMatrixB = glm::mat3_cast(physicsB.pOwner->GetComponent<Transform>()->Rotation);
+				inverseInertiaTensorA = rotationMatrixA * inverseInertiaTensorA * glm::transpose(rotationMatrixA);
+				inverseInertiaTensorB = rotationMatrixB * inverseInertiaTensorB *  glm::transpose(rotationMatrixB);
+
+				physicsA.LinearVelocity += inverseMassMatrixA * forceA;
+				physicsA.AngularVelocity += inverseInertiaTensorA * torqueA;
+
+				physicsB.LinearVelocity += inverseMassMatrixB * forceB;
+				physicsB.AngularVelocity += inverseInertiaTensorB * torqueB;
+			}
+		}
+	}
+	ConstraintObjectsList.empty();
 }
 
 // Based on the Expanding Polytope Algorithm (EPA) as described here: http://allenchou.net/2013/12/game-physics-contact-generation-epa/
@@ -474,13 +609,21 @@ bool PhysicsManager::ExtrapolateContactInformation(PolytopeFace * aClosestFace, 
 	glm::vec3 supportWorld2 = aClosestFace->Points[1].World_SupportPointA;
 	glm::vec3 supportWorld3 = aClosestFace->Points[2].World_SupportPointA;
 
-	// Contact point on object A in local space
-	aContactData.ContactPosition = (bary_u * supportWorld1) + (bary_v * supportWorld2) + (bary_w * supportWorld3);
+	// Contact points
+	// Contact point on object A in world space
+	aContactData.ContactPositionA_WS = (bary_u * supportWorld1) + (bary_v * supportWorld2) + (bary_w * supportWorld3);
+
+	supportWorld1 = aClosestFace->Points[0].World_SupportPointB;
+	supportWorld2 = aClosestFace->Points[1].World_SupportPointB;
+	supportWorld3 = aClosestFace->Points[2].World_SupportPointB;
+
+	// Contact point on object B in world space
+	aContactData.ContactPositionB_WS = (bary_u * supportWorld1) + (bary_v * supportWorld2) + (bary_w * supportWorld3);
 	// Contact normal
-	aContactData.Normal = glm::normalize(-aClosestFace->FaceNormal);
+	aContactData.Normal = glm::normalize(aClosestFace->FaceNormal);
 	// Penetration depth
 	aContactData.PenetrationDepth = distanceFromOrigin;
-	
+
 	return true;
 }
 
@@ -516,11 +659,13 @@ void PhysicsManager::RegisterPhysicsObject(Physics * aNewPhysics)
 
 void PhysicsManager::RegisterColliderObject(Collider * aNewCollider)
 {
+	aNewCollider->ColliderSlot = (int)ColliderObjectsList.size();
 	ColliderObjectsList.push_back(aNewCollider);
 }
 
 void PhysicsManager::RegisterConstraintObject(Constraint * aNewConstraint)
 {
+	aNewConstraint->ConstraintSlot = (int)ConstraintObjectsList.size();
 	ConstraintObjectsList.push_back(aNewConstraint);
 }
 
@@ -528,9 +673,10 @@ void PhysicsManager::Simulation()
 {
 	Physics * pSimulation1 = nullptr, * pSimulation2 = nullptr;
 	float deltatime = EngineHandle.GetFramerateController().DeltaTime;
-
+	if (!bShouldSimulate)
+		return;
 	// Integration
-	for (int i = 0; i < Iterations; ++i)
+	for (int i = 0; i < IntegratorIterations; ++i)
 	{
 		for (auto iterator = PhysicsObjectsList.begin(); iterator != PhysicsObjectsList.end(); ++iterator)
 		{
@@ -549,7 +695,7 @@ void PhysicsManager::Simulation()
 			else
 			{
 				// Default type of integration is Euler
-				pSimulation1->IntegrateExplicitEuler(deltatime);
+				pSimulation1->IntegrateEuler(deltatime);
 			}
 		}
 	}

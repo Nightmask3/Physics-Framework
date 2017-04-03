@@ -34,7 +34,7 @@ bool DebugSettingsWidget::DrawWidget()
 		ImGui::Checkbox("Render Minkowski Difference ", &engineStateManager.bShouldRenderMinkowskiDifference);
 	
 		ImGui::PushItemWidth(150);
-		ImGui::SliderInt("Integrator Iterations: ", &PhysicsManager::Iterations, 1, 100);
+		ImGui::SliderInt("Integrator Iterations: ", &PhysicsManager::IntegratorIterations, 1, 100);
 		ImGui::PopItemWidth();
 
 		ImGui::End();

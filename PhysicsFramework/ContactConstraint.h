@@ -1,6 +1,6 @@
-#pragma once
-// Eigen arbitrary size dense matrix header
+﻿#pragma once
 #include <Eigen/Dense>
+
 #include "Constraint.h"
 #include "PhysicsUtilities.h"
 
@@ -10,19 +10,17 @@ class ContactConstraint : public Constraint
 {
 	/*-----------MEMBER VARIABLES-----------*/
 public:
-	// The contact Jacobian is a 12-by-1 row vector
-	Eigen::Matrix<float, 1, 12> Jacobian;
 	ContactData ConstraintData;
-	// Lagrangian multiplier/ force of impulse to resolve the constraint
-	float ImpulseMagnitude;
+
+	// Used for clamping
+	float NormalImpulseSum = 0.0f;
+	float TangentImpulseSum1 = 0.0f;
+	float TangentImpulseSum2 = 0.0f;
 	/*-----------MEMBER FUNCTIONS-----------*/
 public:
 	ContactConstraint(Collider & aColliderA, Collider & aColliderB) : Constraint(aColliderA, aColliderB)
-	{
-		// Calculate Jacobian when created
-		CalculateJacobian();
-	}
+	{}
 	virtual void CalculateJacobian() override;
-	virtual void Solve() override;
+	virtual float Solve(float aTimestep, std::vector<Eigen::Matrix<float, 6, 1>> & aCatto_A, Eigen::Matrix<float, 12, 1> & aVelocityVector, Eigen::Matrix<float, 12, 1> & aExternalForceVector) override; 
 
 };

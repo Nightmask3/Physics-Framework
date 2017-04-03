@@ -103,7 +103,7 @@ Mesh * ResourceManager::ImportMesh(std::string & aFilename)
 		Mesh * newMesh = EngineHandle.GetGameObjectFactory().SpawnComponent<Mesh>();
 		
 		std::vector<Vertex> importedVertexData;
-		for (int i = 0; i < importedMesh->mNumVertices; ++i)
+		for (unsigned int i = 0; i < importedMesh->mNumVertices; ++i)
 		{
 			glm::vec3 newVertexPosition, newVertexNormal;
 			glm::vec4 newVertexColor;
@@ -183,7 +183,7 @@ std::vector<DebugVertex> ResourceManager::ImportColliderData(std::string & aFile
 		aiMesh * importedMesh = scene->mMeshes[0];
 		
 		std::vector<DebugVertex> importedColliderData;
-		for (int i = 0; i < importedMesh->mNumVertices; ++i)
+		for (unsigned int i = 0; i < importedMesh->mNumVertices; ++i)
 		{
 			glm::vec3 newVertexPosition, newVertexNormal;
 			glm::vec4 newVertexColor;

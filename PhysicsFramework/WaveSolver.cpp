@@ -132,7 +132,7 @@ void WaveSolver::UpdateGrid()
 		for (int j = 0; j < SectionsY; ++j)
 		{
 			WaveGrid.GridPoints[INDEX(i, j, SectionsY)].Position.y = WaveHeight[i][j] * Displacement;
-			WaveGrid.GridPoints[INDEX(i, j, SectionsY)].Color = glm::vec4(0.1, 0.1, WaveGrid.GridPoints[INDEX(i, j, SectionsY)].Position.y, 1);
+			WaveGrid.GridPoints[INDEX(i, j, SectionsY)].Color = glm::vec4(0.1f, 0.1f, WaveGrid.GridPoints[INDEX(i, j, SectionsY)].Position.y, 1);
 		}
 	}
 	WaveGrid.CalculateGrid();
@@ -181,7 +181,7 @@ void WaveSolver::DrawWaveSolverSettingsWidget()
 	}
 
 	float c = ConstantC;
-	ImGui::InputFloat("Wave Equation Constant:", &c, 0.01f, 0.1);
+	ImGui::InputFloat("Wave Equation Constant:", &c, 0.01f, 0.1f);
 	if (c != ConstantC)
 	{
 		ConstantC = c;
