@@ -109,6 +109,9 @@
     <Filter Include="Source Files\Components\Colliders">
       <UniqueIdentifier>{7396e9c7-19ab-47df-8c72-6332dec9a52f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shaders\SpecialShaders">
+      <UniqueIdentifier>{8f5f676d-b548-424f-b30b-5398c5d7b2e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -234,9 +237,6 @@
     <ClInclude Include="Script.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="WaveSolver.h">
-      <Filter>Header Files\ScriptBehaviors</Filter>
-    </ClInclude>
     <ClInclude Include="ScriptBehavior.h">
       <Filter>Header Files\Interfaces</Filter>
     </ClInclude>
@@ -254,6 +254,21 @@
     </ClInclude>
     <ClInclude Include="ContactConstraint.h">
       <Filter>Header Files\Entities\Constraints</Filter>
+    </ClInclude>
+    <ClInclude Include="FourierWaveSolver.h">
+      <Filter>Header Files\ScriptBehaviors</Filter>
+    </ClInclude>
+    <ClInclude Include="FiniteDifferenceWaveSolver.h">
+      <Filter>Header Files\ScriptBehaviors</Filter>
+    </ClInclude>
+    <ClInclude Include="MathUtilities.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="LightSourceVertexShader.glsl">
+      <Filter>Source Files\Shaders\SpecialShaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -347,9 +362,6 @@
     <ClCompile Include="DebugFactory.cpp">
       <Filter>Source Files\Factories</Filter>
     </ClCompile>
-    <ClCompile Include="WaveSolver.cpp">
-      <Filter>Source Files\ScriptBehaviors</Filter>
-    </ClCompile>
     <ClCompile Include="Component.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
@@ -361,6 +373,12 @@
     </ClCompile>
     <ClCompile Include="Constraint.cpp">
       <Filter>Source Files\Entities\Constraints</Filter>
+    </ClCompile>
+    <ClCompile Include="FourierWaveSolver.cpp">
+      <Filter>Source Files\ScriptBehaviors</Filter>
+    </ClCompile>
+    <ClCompile Include="FiniteDifferenceWaveSolver.cpp">
+      <Filter>Source Files\ScriptBehaviors</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -394,6 +412,9 @@
     </None>
     <None Include="NormalsVertexShader.glsl">
       <Filter>Source Files\Shaders\DebugShaders\Normals</Filter>
+    </None>
+    <None Include="LightSourceFragmentShader.glsl">
+      <Filter>Source Files\Shaders\SpecialShaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

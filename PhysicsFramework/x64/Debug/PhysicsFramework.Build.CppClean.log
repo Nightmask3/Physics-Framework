@@ -16,7 +16,7 @@ c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\phys
 c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\x64\debug\subject.obj
 c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\x64\debug\transform.obj
 c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\x64\debug\utilityfunctions.obj
-c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\x64\debug\wavesolver.obj
+c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\x64\debug\fourierwavesolver.obj
 c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\x64\debug\windowmanager.obj
 c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\x64\debug\windowmenubarwidget.obj
 c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\x64\debug\worldoutlinerwidget.obj
@@ -31,6 +31,7 @@ c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\phys
 c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\x64\debug\engine.obj
 c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\x64\debug\enginestatemanager.obj
 c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\x64\debug\event.obj
+c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\x64\debug\finitedifferencewavesolver.obj
 c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\x64\debug\frameratecontroller.obj
 c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\x64\debug\gameobject.obj
 c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\x64\debug\gameobjectfactory.obj

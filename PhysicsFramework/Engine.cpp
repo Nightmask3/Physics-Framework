@@ -9,15 +9,17 @@
 #include "EngineStateManager.h"
 #include "FrameRateController.h"
 #include "PhysicsManager.h"
-#include "Sprite.h"
-#include "Camera.h"
-#include "Controller.h"
 #include "ImGuiManager.h"
 #include "DebugFactory.h"
+
+#include "Camera.h"
 #include "Grid.h"
+#include "Controller.h"
+#include "Sprite.h"
 #include "Script.h"
-#include "WaveSolver.h"
+#include "FiniteDifferenceWaveSolver.h"
 #include "Box.h"
+#include "Light.h"
 
 Engine::Engine()
 {
@@ -113,7 +115,7 @@ void Engine::Load()
 	pivot->GetComponent<Transform>()->SetScale(glm::vec3(0.1f, -0.1f, -0.1f));
 
 	pivot->AddComponent(pivotMesh);
-	pivotMesh->RenderDebug = false;
+	pivotMesh->bShouldRenderDebug = false;
 
 	//GameObject * grid = pGameObjectFactory->SpawnGameObject();
 	//Primitive * gridPrimitive = pGameObjectFactory->SpawnComponent<Primitive>();
@@ -124,6 +126,7 @@ void Engine::Load()
 	//// SET VERTICES AFTER REGISTRATION, a primitive must be registered if it is to bind
 	//gridPrimitive->SetVertices(newGrid.GridVertices);
 	//grid->AddComponent(gridPrimitive);
+
 	/*-----------------GAME OBJECTS INITIALIZTION--------------------*/
 
 	// Falling cube
@@ -137,6 +140,16 @@ void Engine::Load()
 	Collider * cube1Collider = pGameObjectFactory->SpawnComponent<Box>();
 	cube1->AddComponent(cube1Collider);
 
+	//GameObject * cube3 = pGameObjectFactory->SpawnGameObject();
+	//cube3->GetComponent<Transform>()->SetPosition(glm::vec3(0.0f, 15.0f, 3.0f));
+
+	//Mesh * cube3Mesh = pResourceManager->ImportMesh(std::string("Cube.fbx"));
+	//cube3->AddComponent(cube3Mesh);
+	//Physics * physics3 = pGameObjectFactory->SpawnComponent<Physics>();
+	//cube3->AddComponent(physics3);
+	//Collider * cube3Collider = pGameObjectFactory->SpawnComponent<Box>();
+	//cube3->AddComponent(cube3Collider);
+
 	// Ground
 	GameObject * cube2 = pGameObjectFactory->SpawnGameObject();
 	cube2->GetComponent<Transform>()->SetPosition(glm::vec3(0.0f, -4.0f, 3.0f));
@@ -148,6 +161,18 @@ void Engine::Load()
 	Collider * cube2Collider = pGameObjectFactory->SpawnComponent<Box>();
 	cube2->AddComponent(cube2Collider);
 	cube2Collider->eColliderType = Collider::STATIC;
+
+	// Default light source
+	GameObject * lightCube = pGameObjectFactory->SpawnGameObject();
+	lightCube->GetComponent<Transform>()->SetPosition(glm::vec3(0.0f, 15.0f, 0.0f));
+	lightCube->GetComponent<Transform>()->SetScale(glm::vec3(0.4f, 0.4f, 0.4f));
+	Mesh * lightCubeMesh = pResourceManager->ImportMesh(std::string("Cube.fbx"));
+	lightCubeMesh->SetVertexColorsUniform(glm::vec3(1.0f));
+	lightCubeMesh->bShouldRenderDebug = false;
+	lightCubeMesh->bIsDebug = true;
+	lightCube->AddComponent(lightCubeMesh);
+	Light * baseLight = pGameObjectFactory->SpawnComponent<Light>();
+	lightCube->AddComponent(baseLight);
 
 	// Notify all listeners to engine load
 	MainEventList[EngineEvent::ENGINE_LOAD].NotifyAllObservers(&LoadEvent);

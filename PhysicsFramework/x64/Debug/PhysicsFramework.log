@@ -1,5 +1,4 @@
-﻿  Engine.cpp
-c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\wavesolver.h(19): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\wavesolver.h(20): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-  PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.exe
-  PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\documents\visual studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.pdb (Partial PDB)
+﻿  PhysicsManager.cpp
+c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\physicsmanager.cpp(444): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.exe
+  PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.pdb (Partial PDB)
