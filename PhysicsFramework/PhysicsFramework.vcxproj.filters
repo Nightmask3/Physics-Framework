@@ -112,6 +112,15 @@
     <Filter Include="Source Files\Shaders\SpecialShaders">
       <UniqueIdentifier>{8f5f676d-b548-424f-b30b-5398c5d7b2e9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Reflection">
+      <UniqueIdentifier>{cf0097df-61cd-4627-abe8-9d8e5089d448}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ForwardDeclarations">
+      <UniqueIdentifier>{831472e4-35d8-414b-88b9-819b8641e3a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dependencies">
+      <UniqueIdentifier>{ac086d1e-e9f8-4528-ba1b-a9b61b4e42f8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -270,6 +279,18 @@
     <ClInclude Include="LightSourceVertexShader.glsl">
       <Filter>Source Files\Shaders\SpecialShaders</Filter>
     </ClInclude>
+    <ClInclude Include="Reflection.h">
+      <Filter>Header Files\Reflection</Filter>
+    </ClInclude>
+    <ClInclude Include="Typedefs.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineForward.h">
+      <Filter>Header Files\ForwardDeclarations</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependencies\crc\crc.h">
+      <Filter>Dependencies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -380,6 +401,9 @@
     <ClCompile Include="FiniteDifferenceWaveSolver.cpp">
       <Filter>Source Files\ScriptBehaviors</Filter>
     </ClCompile>
+    <ClCompile Include="..\Dependencies\crc\crc.c">
+      <Filter>Dependencies</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="DefaultFragmentShader.glsl">
@@ -428,7 +452,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Cube.txt">
+    <Text Include="Box.txt">
       <Filter>Header Files\Archetypes</Filter>
     </Text>
   </ItemGroup>

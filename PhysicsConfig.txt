@@ -1,0 +1,18 @@
+Includes
+$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\include
+$(ProjectDir)\..\Dependencies\glew-2.0.0\include
+$(ProjectDir)\..\Dependencies\glm
+
+Libs
+$(ProjectDir)\..\Dependencies\SOIL\lib
+$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015
+$(ProjectDir)\..\Dependencies\glew-2.0.0\lib\Release\x64
+
+Additional includes
+$(ProjectDir)\..\Dependencies\SOIL\src
+
+Preprocesser
+_CRT_SECURE_NO_WARNINGS
+
+Linker Input
+opengl32.lib;glfw3.lib;glew32.lib;SOIL.lib;

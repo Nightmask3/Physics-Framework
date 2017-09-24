@@ -74,8 +74,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <IncludePath>$(ProjectDir)\..\Dependencies\Eigen;$(ProjectDir)\..\Dependencies\imgui;$(ProjectDir)\..\Dependencies\glm;$(ProjectDir)\..\Dependencies\glew-2.0.0\include;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\include;$(ProjectDir)\..\Dependencies;$(ProjectDir)\..\Dependencies\assimp\include;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)\..\Dependencies\;$(ProjectDir)\..\Dependencies\glew-2.0.0\lib\Release\x64;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;$(ProjectDir)\..\Dependencies\SOIL\lib;$(ProjectDir)\..\Dependencies\assimp\lib64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)\..\Dependencies\crc;$(ProjectDir)\..\Dependencies\Eigen;$(ProjectDir)\..\Dependencies\imgui;$(ProjectDir)\..\Dependencies\glm;$(ProjectDir)\..\Dependencies\glew-2.0.0\include;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\include;$(ProjectDir)\..\Dependencies;$(ProjectDir)\..\Dependencies\assimp\include;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)\..\Dependencies\crc;$(ProjectDir)\..\Dependencies\Eigen;$(ProjectDir)\..\Dependencies\;$(ProjectDir)\..\Dependencies\glew-2.0.0\lib\Release\x64;$(ProjectDir)\..\Dependencies\glfw-3.2.1.bin.WIN64\lib-vc2015;$(ProjectDir)\..\Dependencies\SOIL\lib;$(ProjectDir)\..\Dependencies\assimp\lib64;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -97,7 +97,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..\Dependencies\assimp;$(ProjectDir)\..\Dependencies\imgui;$(ProjectDir)\..\Dependencies\Eigen;$(ProjectDir)\..\Dependencies\SOIL\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\Dependencies\crc;$(ProjectDir)\..\Dependencies\imgui;$(ProjectDir)\..\Dependencies\Eigen;$(ProjectDir)\..\Dependencies\;$(ProjectDir)\..\Dependencies\SOIL\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -133,15 +133,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Dependencies\crc\crc.h" />
     <ClInclude Include="Box.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Constraint.h" />
     <ClInclude Include="ContactConstraint.h" />
     <ClInclude Include="FiniteDifferenceWaveSolver.h" />
+    <ClInclude Include="EngineForward.h" />
     <ClInclude Include="FourierWaveSolver.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="LightSourceVertexShader.glsl" />
     <ClInclude Include="MathUtilities.h" />
+    <ClInclude Include="Reflection.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Component.h" />
@@ -180,6 +183,7 @@
     <ClInclude Include="TextLumpHandler.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="Typedefs.h" />
     <ClInclude Include="UtilityFunctions.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="WindowManager.h" />
@@ -187,6 +191,7 @@
     <ClInclude Include="WorldOutlinerWidget.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Dependencies\crc\crc.c" />
     <ClCompile Include="Arrow.cpp" />
     <ClCompile Include="Box.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -247,7 +252,7 @@
     <ResourceCompile Include="PhysicsFramework.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Cube.txt" />
+    <Text Include="Box.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

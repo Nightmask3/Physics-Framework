@@ -1,4 +1,3 @@
-﻿  PhysicsManager.cpp
-c:\users\sai narayan\documents\visual studio 2015\projects\physicsframework\physicsframework\physicsmanager.cpp(444): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+﻿  Engine.cpp
   PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.exe
   PhysicsFramework.vcxproj -> C:\Users\Sai Narayan\Documents\Visual Studio 2015\Projects\PhysicsFramework\x64\Debug\PhysicsFramework.pdb (Partial PDB)
